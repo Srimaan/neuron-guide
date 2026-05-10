@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 — Your First MCP Server | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb a:hover{text-decoration:underline}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#10B981);height:100%;border-radius:20px;width:11.5%}
+.hero{background:linear-gradient(135deg,#F0FDF4,#EEEDFE);border:1px solid #BBF7D0;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(16,185,129,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#10B981}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#10B981;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+.cm{color:#6B7280}.kw{color:#93C5FD}.fn{color:#86EFAC}.st{color:#F9A8D4}.dc{color:#FCD34D}.pu{color:#C4B5FD}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+.file-tree{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:12px;padding:22px;margin:20px 0;font-family:'IBM Plex Mono',monospace;font-size:.85rem;line-height:1.9}
+.ft-root{color:#4B44CC;font-weight:700}
+.ft-dir{color:#1D4ED8}
+.ft-file{color:#374151}
+.ft-comment{color:#9CA3AF}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:24px 0}
+.tool-card{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:18px;transition:all .2s}
+.tool-card:hover{border-color:#10B981;box-shadow:0 4px 12px rgba(16,185,129,.1);transform:translateY(-2px)}
+.tool-card .tc-name{font-family:'IBM Plex Mono',monospace;font-size:.88rem;font-weight:700;color:#065F46;margin-bottom:6px}
+.tool-card .tc-desc{font-size:.83rem;color:#6B7280;line-height:1.5;margin-bottom:8px}
+.tool-card .tc-tag{display:inline-block;background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html">
+    <div class="icon">⚡</div>
+    Neuron Guide
+  </a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="01-mental-model.html">Ch 1</a>
+    <a href="02-aws-setup.html">Ch 2</a>
+    <a href="03-first-mcp-server.html" class="active">Ch 3</a>
+    <a href="04-claude-desktop.html">Ch 4</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 3 — First MCP Server
+  </div>
+
+  <div class="progress-label">Chapter 3 of 26 — Phase 1</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 03 of 26</span>
+    </div>
+    <h1>Your First<br><span>MCP Server</span></h1>
+    <p>Build the tool registry that gives the AI its hands. One Python file. Five real tools. GitHub, Jira, and Slack — all callable by any AI agent. This is the heart of Neuron.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">🐍 Python + FastMCP</span>
+      <span class="meta-tag">🔧 5 tools</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Build a FastMCP server with 5 working tools — GitHub, Jira, and Slack — running locally on port 8001. By the end, Claude Desktop can connect to it and call your real APIs.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> <code>neuron-mcp-server/</code> — a complete Python project. Server starts with <code>uv run python -m mcp_server.main</code>. Health check at <code>http://localhost:8001/health</code> returns <code>{"status":"ok","tools_registered":5}</code>.</div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       HOW FASTMCP WORKS
+  ═══════════════════════════════ -->
+  <h2>How FastMCP Works</h2>
+  <p>FastMCP is a Python framework that turns regular Python functions into MCP tools with a single decorator. It reads your type hints and docstring automatically — no manual schema writing needed.</p>
+
+  <!-- DIAGRAM 3.1: FastMCP decorator magic -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 3.1 — How @mcp.tool() Turns a Function Into an AI Tool</div>
+    <svg width="100%" viewBox="0 0 680 280" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>How FastMCP decorator converts a Python function into an MCP tool with schema</title>
+      <defs>
+        <marker id="da" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- LEFT: Your Python code -->
+      <rect x="14" y="14" width="286" height="248" rx="12" fill="#F8F9FF" stroke="#C7D2FE" stroke-width="1.5"/>
+      <rect x="14" y="14" width="286" height="34" rx="12" fill="#6C63FF"/>
+      <rect x="14" y="32" width="286" height="16" fill="#6C63FF"/>
+      <text x="157" y="36" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">You Write This Python</text>
+
+      <text x="28" y="68" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#C4B5FD">@mcp.tool()</text>
+      <text x="28" y="88" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#93C5FD">async def</text>
+      <text x="92" y="88" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#86EFAC">jira_search_issues</text>
+      <text x="28" y="108" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">  (jql: </text>
+      <text x="90" y="108" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#F9A8D4">str</text>
+      <text x="116" y="108" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">,</text>
+      <text x="28" y="126" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">   max_results: </text>
+      <text x="142" y="126" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#F9A8D4">int</text>
+      <text x="165" y="126" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">= </text>
+      <text x="178" y="126" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FCD34D">20</text>
+      <text x="192" y="126" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">)</text>
+      <text x="28" y="146" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#6B7280">  """Search Jira issues</text>
+      <text x="28" y="161" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#6B7280">  using JQL query. Returns</text>
+      <text x="28" y="176" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#6B7280">  matching issues list."""</text>
+      <text x="28" y="198" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">  issues = jira.search(jql)</text>
+      <text x="28" y="216" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">  return</text>
+      <text x="82" y="216" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#86EFAC">slim_result</text>
+      <text x="174" y="216" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#E2E8F0">(issues)</text>
+
+      <!-- What FastMCP reads -->
+      <rect x="28" y="226" width="260" height="28" rx="6" fill="#1E1E2E"/>
+      <text x="30" y="237" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#C4B5FD">FastMCP reads:</text>
+      <text x="30" y="249" font-family="'Sora',sans-serif" font-size="8" fill="#8A8A9C">type hints → schema  ·  docstring → description  ·  name → tool ID</text>
+
+      <!-- ARROW in centre -->
+      <line x1="300" y1="140" x2="368" y2="140" stroke="#6C63FF" stroke-width="2.5" marker-end="url(#da)"/>
+      <text x="334" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">auto-generates</text>
+      <text x="334" y="158" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">no boilerplate</text>
+
+      <!-- RIGHT: MCP Schema auto-generated -->
+      <rect x="372" y="14" width="294" height="248" rx="12" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <rect x="372" y="14" width="294" height="34" rx="12" fill="#10B981"/>
+      <rect x="372" y="32" width="294" height="16" fill="#10B981"/>
+      <text x="519" y="36" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">AI Sees This Tool Schema</text>
+
+      <text x="386" y="64" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#374151">{</text>
+      <text x="394" y="82" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#065F46">  "name":</text>
+      <text x="460" y="82" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B45309">"jira_search_issues"</text>
+      <text x="394" y="100" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#065F46">  "description":</text>
+      <text x="394" y="116" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B45309">    "Search Jira issues using</text>
+      <text x="394" y="132" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B45309">     JQL query. Returns</text>
+      <text x="394" y="148" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#B45309">     matching issues list."</text>
+      <text x="394" y="166" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#065F46">  "parameters":</text>
+      <text x="402" y="184" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#065F46">    "jql":</text>
+      <text x="446" y="184" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#374151">{"type": "string"}</text>
+      <text x="402" y="202" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#065F46">    "max_results":</text>
+      <text x="402" y="218" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#374151">      {"type":"int","default":20}</text>
+      <text x="386" y="236" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#374151">}</text>
+      <rect x="384" y="242" width="270" height="12" rx="3" fill="#DCFCE7"/>
+      <text x="519" y="252" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">← from your docstring + type hints automatically</text>
+    </svg>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Why this matters:</strong> The AI reads the <code>"description"</code> field to understand <em>when</em> to call this tool. A good docstring is not optional — it is the instruction manual the AI reads before deciding whether to call your tool. Write it as if you are explaining the tool to a new team member.</div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       PROJECT STRUCTURE
+  ═══════════════════════════════ -->
+  <h2>Project Structure</h2>
+  <p>Before writing any code, create this exact folder structure. Every file has one clear responsibility — no surprises when you come back to this in Chapter 11.</p>
+
+  <!-- DIAGRAM 3.2: File Structure -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 3.2 — neuron-mcp-server File Structure</div>
+    <svg width="100%" viewBox="0 0 680 320" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>File tree for neuron-mcp-server showing all files and their responsibilities</title>
+      <defs>
+        <marker id="db" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Tree panel -->
+      <rect x="14" y="14" width="260" height="292" rx="12" fill="#1E1E2E" stroke="#2A2A3C" stroke-width="1.5"/>
+      <rect x="14" y="14" width="260" height="32" rx="12" fill="#2A2A3C"/>
+      <rect x="14" y="30" width="260" height="16" fill="#2A2A3C"/>
+      <text x="26" y="35" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#C4B5FD">neuron-mcp-server/</text>
+
+      <!-- Files -->
+      <text x="26" y="64"  font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">├── pyproject.toml</text>
+      <text x="26" y="82"  font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">├── uv.lock</text>
+      <text x="26" y="100" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#FCD34D">├── CLAUDE.md</text>
+      <text x="26" y="118" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#6B7280">├── .env</text>
+      <text x="26" y="136" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#93C5FD">├── mcp_server/</text>
+      <text x="26" y="154" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#E2E8F0">│   ├── __init__.py</text>
+      <text x="26" y="172" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#F9A8D4">│   ├── main.py</text>
+      <text x="26" y="190" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#F9A8D4">│   ├── config.py</text>
+      <text x="26" y="208" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#F9A8D4">│   ├── utils.py</text>
+      <text x="26" y="226" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#93C5FD">│   └── tools/</text>
+      <text x="26" y="244" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│       ├── __init__.py</text>
+      <text x="26" y="262" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│       ├── github_tools.py</text>
+      <text x="26" y="280" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│       ├── jira_tools.py</text>
+      <text x="26" y="298" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│       └── slack_tools.py</text>
+
+      <!-- Description callouts on right -->
+      <!-- pyproject -->
+      <line x1="274" y1="64" x2="314" y2="64" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="52" width="346" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="326" y="67" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">uv project config — dependencies declared here</text>
+
+      <!-- CLAUDE.md -->
+      <line x1="274" y1="100" x2="314" y2="100" stroke="#FCD34D" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="88" width="346" height="22" rx="5" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="326" y="103" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">AI coding instructions — Claude reads this to help you</text>
+
+      <!-- main.py -->
+      <line x1="274" y1="172" x2="314" y2="172" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="160" width="346" height="22" rx="5" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="326" y="175" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">FastMCP server entry point — registers all tools</text>
+
+      <!-- config.py -->
+      <line x1="274" y1="190" x2="314" y2="190" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="178" width="346" height="22" rx="5" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="326" y="193" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">Reads credentials from .env — Pydantic Settings</text>
+
+      <!-- utils.py -->
+      <line x1="274" y1="208" x2="314" y2="208" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="196" width="346" height="22" rx="5" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="326" y="211" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">slim_result() + format_error() — shared utilities</text>
+
+      <!-- github_tools -->
+      <line x1="274" y1="262" x2="314" y2="262" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="250" width="346" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="326" y="265" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">github_search_prs, github_get_pr_diff, github_get_file</text>
+
+      <!-- jira_tools -->
+      <line x1="274" y1="280" x2="314" y2="280" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="268" width="346" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="326" y="283" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">jira_search_issues, jira_create_issue</text>
+
+      <!-- slack_tools -->
+      <line x1="274" y1="298" x2="314" y2="298" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#db)"/>
+      <rect x="316" y="286" width="346" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="326" y="301" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">slack_send_message</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════
+       THE 5 TOOLS
+  ═══════════════════════════════ -->
+  <h2>The 5 Tools We Build</h2>
+  <p>Each tool is a Python <code>async</code> function decorated with <code>@mcp.tool()</code>. Together they give the AI the ability to search code, manage tickets, and communicate with your team.</p>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="tc-name">github_search_prs()</div>
+      <div class="tc-desc">Searches GitHub pull requests by query string, repo, and state (open/closed/all)</div>
+      <span class="tc-tag">GitHub API</span>
+    </div>
+    <div class="tool-card">
+      <div class="tc-name">github_get_pr_diff()</div>
+      <div class="tc-desc">Gets the complete diff of a PR — all files changed, additions, deletions, patches</div>
+      <span class="tc-tag">GitHub API</span>
+    </div>
+    <div class="tool-card">
+      <div class="tc-name">jira_search_issues()</div>
+      <div class="tc-desc">Searches Jira using JQL query language — find tickets by assignee, status, sprint, label</div>
+      <span class="tc-tag">Jira API</span>
+    </div>
+    <div class="tool-card">
+      <div class="tc-name">jira_create_issue()</div>
+      <div class="tc-desc">Creates a new Jira issue with summary, description, type, priority, and assignee</div>
+      <span class="tc-tag">Jira API</span>
+    </div>
+    <div class="tool-card">
+      <div class="tc-name">slack_send_message()</div>
+      <div class="tc-desc">Posts a message to any Slack channel or thread, using channel name or ID</div>
+      <span class="tc-tag">Slack API</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       slim_result DIAGRAM
+  ═══════════════════════════════ -->
+  <h2>The slim_result() Utility — Non-Negotiable</h2>
+  <p>Before any tool returns data to the AI, it must pass through <code>slim_result()</code>. This function protects the AI's context window from overflow. Without it, a single Jira search returning 500 tickets would break the entire conversation.</p>
+
+  <!-- DIAGRAM 3.3: slim_result protection -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 3.3 — How slim_result() Protects the Context Window</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>slim_result function protecting AI context window from overflow</title>
+      <defs>
+        <marker id="dc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Jira returns big data -->
+      <rect x="14" y="60" width="120" height="100" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+      <text x="74" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#991B1B">Jira Returns</text>
+      <text x="74" y="106" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">📋</text>
+      <text x="74" y="132" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#DC2626">500 tickets</text>
+      <text x="74" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#B91C1C">~150,000 tokens</text>
+
+      <line x1="134" y1="110" x2="164" y2="110" stroke="#FCA5A5" stroke-width="2" marker-end="url(#dc)"/>
+
+      <!-- slim_result box -->
+      <rect x="164" y="40" width="160" height="140" rx="12" fill="#EEF0FF" stroke="#6C63FF" stroke-width="2"/>
+      <rect x="164" y="40" width="160" height="36" rx="12" fill="#6C63FF"/>
+      <rect x="164" y="60" width="160" height="16" fill="#6C63FF"/>
+      <text x="244" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">slim_result()</text>
+      <text x="176" y="96" font-family="'Sora',sans-serif" font-size="9" fill="#4B44CC">✦ Cap list at 50 items</text>
+      <text x="176" y="112" font-family="'Sora',sans-serif" font-size="9" fill="#4B44CC">✦ Truncate strings at 5000 chars</text>
+      <text x="176" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#4B44CC">✦ Remove empty/null fields</text>
+      <text x="176" y="144" font-family="'Sora',sans-serif" font-size="9" fill="#4B44CC">✦ Add _truncated: True flag</text>
+      <text x="176" y="160" font-family="'Sora',sans-serif" font-size="9" fill="#4B44CC">✦ Keep structure intact</text>
+
+      <line x1="324" y1="110" x2="354" y2="110" stroke="#6C63FF" stroke-width="2" marker-end="url(#dc)"/>
+
+      <!-- Slimmed result -->
+      <rect x="354" y="60" width="120" height="100" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="414" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#065F46">Slimmed Data</text>
+      <text x="414" y="106" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">✅</text>
+      <text x="414" y="132" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#059669">50 tickets</text>
+      <text x="414" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#15803D">~6,000 tokens</text>
+
+      <line x1="474" y1="110" x2="504" y2="110" stroke="#10B981" stroke-width="2" marker-end="url(#dc)"/>
+
+      <!-- AI context window safe -->
+      <rect x="504" y="60" width="162" height="100" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="585" y="84" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#26215C">AI Context</text>
+      <text x="585" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🧠</text>
+      <text x="585" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Safely under 200K</text>
+      <text x="585" y="140" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">token limit ✓</text>
+
+      <!-- Token savings label -->
+      <rect x="164" y="190" width="310" height="22" rx="6" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="319" y="205" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">⚡ 150,000 tokens → 6,000 tokens — 96% reduction</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════
+       TOOL CALL LIFECYCLE
+  ═══════════════════════════════ -->
+  <h2>Tool Call Lifecycle</h2>
+  <p>Every tool call follows this exact sequence — from the AI deciding to call the tool, through your Python code, to the external API, back through <code>slim_result()</code>, and returned to the AI.</p>
+
+  <!-- DIAGRAM 3.4: Tool call lifecycle -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 3.4 — Complete Tool Call Lifecycle</div>
+    <svg width="100%" viewBox="0 0 680 178" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Six step tool call lifecycle from AI decision to result return</title>
+      <defs>
+        <marker id="dd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Step boxes -->
+      <!-- 1. AI decides -->
+      <rect x="14"  y="30" width="96" height="78" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="62"  y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">① AI Decides</text>
+      <text x="62"  y="68" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">🧠</text>
+      <text x="62"  y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">"call</text>
+      <text x="62"  y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">jira_search"</text>
+
+      <line x1="110" y1="69" x2="126" y2="69" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#dd)"/>
+
+      <!-- 2. MCP routes -->
+      <rect x="126" y="30" width="96" height="78" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="174" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">② MCP Routes</text>
+      <text x="174" y="68" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">⚡</text>
+      <text x="174" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">FastMCP</text>
+      <text x="174" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">dispatches call</text>
+
+      <line x1="222" y1="69" x2="238" y2="69" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#dd)"/>
+
+      <!-- 3. Your function runs -->
+      <rect x="238" y="30" width="96" height="78" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="286" y="50" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">③ Your Python</text>
+      <text x="286" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">🐍</text>
+      <text x="286" y="85" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#059669">jira_search_</text>
+      <text x="286" y="97" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#059669">issues(jql)</text>
+
+      <line x1="334" y1="69" x2="350" y2="69" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#dd)"/>
+
+      <!-- 4. External API -->
+      <rect x="350" y="30" width="96" height="78" rx="10" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+      <text x="398" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#9A3412">④ Jira API</text>
+      <text x="398" y="68" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">🌐</text>
+      <text x="398" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#C2410C">REST call</text>
+      <text x="398" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#C2410C">returns JSON</text>
+
+      <line x1="446" y1="69" x2="462" y2="69" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#dd)"/>
+
+      <!-- 5. slim_result -->
+      <rect x="462" y="30" width="96" height="78" rx="10" fill="#EEF0FF" stroke="#6C63FF" stroke-width="1.5"/>
+      <text x="510" y="50" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#26215C">⑤ slim_result()</text>
+      <text x="510" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">✂️</text>
+      <text x="510" y="87" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#4B44CC">caps size</text>
+      <text x="510" y="99" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#4B44CC">safe to return</text>
+
+      <line x1="558" y1="69" x2="574" y2="69" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#dd)"/>
+
+      <!-- 6. Result to AI -->
+      <rect x="574" y="30" width="92" height="78" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="620" y="50" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">⑥ AI Gets</text>
+      <text x="620" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">📨</text>
+      <text x="620" y="87" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">clean result</text>
+      <text x="620" y="99" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">reasons + replies</text>
+
+      <!-- Return arrow underneath -->
+      <path d="M620 115 L620 140 L62 140 L62 115" fill="none" stroke="#6C63FF" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#dd)"/>
+      <text x="340" y="156" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6C63FF">full round trip — typically 2–5 seconds</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 1: INIT PROJECT
+  ═══════════════════════════════ -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 3.1 — Initialise the Project</div>
+    <div class="step-title">Create the Python project with uv and install dependencies</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Create project + install deps</span></div>
+    <div class="code-body"><pre><span class="cm"># Navigate into the repo we created in Chapter 2</span>
+<span class="fn">cd</span> neuron-platform/neuron-mcp-server
+
+<span class="cm"># Initialise uv project</span>
+<span class="fn">uv init</span> <span class="dc">--python</span> 3.11
+
+<span class="cm"># Add runtime dependencies</span>
+<span class="fn">uv add</span> <span class="st">"fastmcp>=0.9.0"</span>
+<span class="fn">uv add</span> <span class="st">"httpx>=0.27.0"</span>
+<span class="fn">uv add</span> <span class="st">"pydantic>=2.6.0"</span>
+<span class="fn">uv add</span> <span class="st">"pydantic-settings>=2.2.0"</span>
+<span class="fn">uv add</span> <span class="st">"python-dotenv>=1.0.0"</span>
+<span class="fn">uv add</span> <span class="st">"pygithub>=2.3.0"</span>
+<span class="fn">uv add</span> <span class="st">"jira>=3.8.0"</span>
+<span class="fn">uv add</span> <span class="st">"slack-sdk>=3.27.0"</span>
+
+<span class="cm"># Add dev dependencies</span>
+<span class="fn">uv add</span> <span class="dc">--dev</span> pytest pytest-asyncio ruff
+
+<span class="cm"># Create folder structure</span>
+<span class="fn">mkdir</span> -p mcp_server/tools tests
+<span class="fn">touch</span> mcp_server/__init__.py mcp_server/tools/__init__.py tests/__init__.py
+
+<span class="cm"># Verify Python version</span>
+<span class="fn">uv run python</span> <span class="dc">--version</span>
+<span class="cm"># Expected: Python 3.11.x</span></pre></div>
+  </div>
+
+  <!-- STEP 2: CLAUDE.md -->
+  <div class="step-box">
+    <div class="step-num">Step 3.2 — Create CLAUDE.md</div>
+    <div class="step-title">The AI coding instructions file — makes Claude dramatically more useful in this repo</div>
+    <div class="step-body">
+      <p style="margin:0 0 12px">CLAUDE.md tells Claude (or any AI assistant) exactly how to contribute to this repository — what patterns to follow, how to add tools, what to never do. Without it the AI guesses. With it, the AI follows your exact conventions.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt — generate CLAUDE.md:</strong><br><br>
+    <em>"I am building neuron-mcp-server, the tool registry of Neuron, an agentic AI platform. Tech stack: Python 3.11+, FastMCP ≥0.9.0, uv, pygithub, jira library, slack-sdk, pytest + pytest-asyncio.<br><br>Generate a CLAUDE.md covering: (1) project overview, (2) how to add a new tool — exact step pattern with code example using @mcp.tool(), (3) the slim_result() utility — what it is and when to use it, (4) coding conventions: all tools async, docstrings required, type hints required, always use format_error() in except blocks, never raise exceptions from tools, (5) how to run the server, (6) how to run tests, (7) environment variables reference."</em></div>
+  </div>
+
+  <!-- STEP 3: CONFIG -->
+  <div class="step-box">
+    <div class="step-num">Step 3.3 — Write mcp_server/config.py</div>
+    <div class="step-title">Reads all credentials from environment variables using Pydantic Settings</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-server. Generate mcp_server/config.py using pydantic BaseSettings. Fields: mcp_host (str, '0.0.0.0'), mcp_port (int, 8001), mcp_auth_token (str, ''), github_token (str, ''), jira_domain (str, ''), jira_user (str, ''), jira_api_token (str, ''), slack_bot_token (str, ''), log_level (str, 'INFO'). Include get_settings() cached with lru_cache. Read from .env file if present."</em></div>
+  </div>
+
+  <!-- STEP 4: UTILS -->
+  <div class="step-box">
+    <div class="step-num">Step 3.4 — Write mcp_server/utils.py</div>
+    <div class="step-title">slim_result() and format_error() — used by every single tool</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-server. Generate mcp_server/utils.py with: (1) slim_result(data, max_items=50, max_str_len=5000) — if data is list cap at max_items, if dict recursively truncate string values over max_str_len, add _truncated: True if anything was cut, (2) format_error(tool_name: str, error: Exception) → dict returning {error: true, tool: tool_name, message: str(error), type: type(error).__name__}, log the error, (3) setup_logger(name: str) → logging.Logger. Full type hints, docstrings, example usage in comments."</em></div>
+  </div>
+
+  <!-- STEP 5: GITHUB TOOLS -->
+  <div class="step-box">
+    <div class="step-num">Step 3.5 — Write mcp_server/tools/github_tools.py</div>
+    <div class="step-title">Two GitHub tools: search PRs and get PR diff</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-server. Tech stack: Python 3.11+, FastMCP, pygithub. The server has mcp_server/config.py (get_settings()) and mcp_server/utils.py (slim_result, format_error).<br><br>Generate mcp_server/tools/github_tools.py with:<br>(1) github_search_prs(query:str, repo:str='', state:str='open') → dict — searches GitHub PRs, returns list of {number, title, state, url, author, created_at, body_preview (500 chars)},<br>(2) github_get_pr_diff(owner:str, repo:str, pull_number:int) → dict — gets PR diff, returns {title, author, files: [{filename, status, additions, deletions, patch (first 2000 chars)}]}, max 20 files.<br><br>Each tool: async, @mcp.tool() decorator registered via register_github_tools(mcp: FastMCP), docstring describing what it does, try/except returning format_error(), slim_result() on all list returns."</em></div>
+  </div>
+
+  <!-- STEP 6: JIRA TOOLS -->
+  <div class="step-box">
+    <div class="step-num">Step 3.6 — Write mcp_server/tools/jira_tools.py</div>
+    <div class="step-title">Two Jira tools: search issues and create issue</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-server. Same stack as before.<br><br>Generate mcp_server/tools/jira_tools.py with:<br>(1) jira_search_issues(jql:str, max_results:int=20) → dict — searches Jira using JQL, returns list of {key, summary, status, priority, assignee, url, description_preview (500 chars)},<br>(2) jira_create_issue(project_key:str, summary:str, description:str, issue_type:str='Task', priority:str='Medium') → dict — creates Jira issue, returns {key, url, id}.<br><br>Use JIRA class from jira library. Initialise with server=f'https://{settings.jira_domain}', basic_auth=(settings.jira_user, settings.jira_api_token). Register via register_jira_tools(mcp)."</em></div>
+  </div>
+
+  <!-- STEP 7: SLACK TOOLS -->
+  <div class="step-box">
+    <div class="step-num">Step 3.7 — Write mcp_server/tools/slack_tools.py</div>
+    <div class="step-title">One Slack tool: send message</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-server. Generate mcp_server/tools/slack_tools.py with slack_send_message(channel:str, text:str, thread_ts:str='') → dict — sends a message to Slack channel (name or ID), thread_ts is optional for thread replies, returns {message_ts, channel, text}. Use WebClient from slack_sdk. Register via register_slack_tools(mcp)."</em></div>
+  </div>
+
+  <!-- STEP 8: MAIN -->
+  <div class="step-box">
+    <div class="step-num">Step 3.8 — Write mcp_server/main.py</div>
+    <div class="step-title">The server entry point — wires everything together</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-server. The project has: config.py (get_settings()), tools/github_tools.py (register_github_tools), tools/jira_tools.py (register_jira_tools), tools/slack_tools.py (register_slack_tools).<br><br>Generate mcp_server/main.py that: (1) creates FastMCP instance named 'neuron-mcp-server', (2) registers all three tool modules, (3) if TRANSPORT env var == 'stdio' runs in stdio mode (for Claude Desktop), otherwise runs SSE HTTP on settings.mcp_host:settings.mcp_port, (4) adds GET /health endpoint returning {status:'ok', tools_registered: count}, (5) if mcp_auth_token is set validates Authorization: Bearer header on all requests, (6) logs startup message with tool count, port, auth status, (7) has __main__ guard."</em></div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       ENV FILE + RUN
+  ═══════════════════════════════ -->
+  <h2>Configure and Run</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 3.9 — Create .env and Start the Server</div>
+    <div class="step-title">Add your credentials and start it up</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Create .env — never commit this file</span></div>
+    <div class="code-body"><pre><span class="cm"># neuron-mcp-server/.env</span>
+<span class="cm"># GitHub token — github.com → Settings → Developer settings</span>
+<span class="cm"># → Personal access tokens → Scopes: repo, read:org</span>
+GITHUB_TOKEN=<span class="st">ghp_your_token_here</span>
+
+<span class="cm"># Jira — id.atlassian.com → Security → API tokens</span>
+JIRA_DOMAIN=<span class="st">yourcompany.atlassian.net</span>
+JIRA_USER=<span class="st">your@email.com</span>
+JIRA_API_TOKEN=<span class="st">your_jira_api_token</span>
+
+<span class="cm"># Slack — api.slack.com → Your App → OAuth & Permissions</span>
+<span class="cm"># Scopes needed: chat:write, channels:read, search:read</span>
+SLACK_BOT_TOKEN=<span class="st">xoxb-your-slack-bot-token</span>
+
+<span class="cm"># MCP auth (any random string for local dev)</span>
+MCP_AUTH_TOKEN=<span class="st">dev-secret-token</span></pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Start the MCP server</span></div>
+    <div class="code-body"><pre><span class="cm"># Start the server</span>
+<span class="fn">uv run python</span> -m mcp_server.main
+
+<span class="cm"># Expected output:</span>
+<span class="dc">INFO     neuron-mcp-server starting...</span>
+<span class="dc">INFO     Transport: SSE HTTP</span>
+<span class="dc">INFO     Tools registered: 5</span>
+<span class="dc">INFO     Auth: enabled</span>
+<span class="dc">INFO     Listening on http://0.0.0.0:8001</span>
+<span class="dc">INFO     Health: http://localhost:8001/health</span></pre></div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       VERIFY
+  ═══════════════════════════════ -->
+  <h2>Verify It Works</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Test all 3 verification commands (server must be running)</span></div>
+    <div class="code-body"><pre><span class="cm"># 1. Health check</span>
+<span class="fn">curl</span> http://localhost:8001/health
+<span class="cm"># Expected: {"status":"ok","tools_registered":5}</span>
+
+<span class="cm"># 2. List all tools via MCP protocol</span>
+<span class="fn">curl</span> -X POST http://localhost:8001/mcp \
+  -H <span class="st">"Content-Type: application/json"</span> \
+  -H <span class="st">"Authorization: Bearer dev-secret-token"</span> \
+  -d <span class="st">'{"jsonrpc":"2.0","method":"tools/list","id":1}'</span> \
+  | python -m json.tool
+<span class="cm"># Expected: list of 5 tools with names and descriptions</span>
+
+<span class="cm"># 3. Run tests</span>
+<span class="fn">uv run pytest</span> tests/ -v
+<span class="cm"># Expected: all green</span></pre></div>
+  </div>
+
+  <!-- DIAGRAM 3.5: What the running server looks like -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 3.5 — Running MCP Server: What Connects to What</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Running MCP server connections showing Claude Desktop via stdio and AI backend via SSE HTTP</title>
+      <defs>
+        <marker id="de" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- MCP Server centre box -->
+      <rect x="240" y="60" width="200" height="90" rx="14" fill="#F0FDF4" stroke="#10B981" stroke-width="2"/>
+      <rect x="240" y="60" width="200" height="34" rx="14" fill="#10B981"/>
+      <rect x="240" y="80" width="200" height="14" fill="#10B981"/>
+      <text x="340" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-mcp-server</text>
+      <text x="340" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Port 8001</text>
+      <text x="340" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">5 tools registered</text>
+      <text x="340" y="140" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">FastMCP framework</text>
+
+      <!-- Claude Desktop left -->
+      <rect x="20" y="70" width="140" height="70" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="90" y="93" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#26215C">Claude Desktop</text>
+      <text x="90" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Chapter 4</text>
+      <text x="90" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#7F77DD">stdio transport</text>
+      <line x1="160" y1="105" x2="238" y2="105" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#de)"/>
+      <text x="199" y="97" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#7F77DD">stdin/stdout</text>
+
+      <!-- AI Backend right -->
+      <rect x="520" y="70" width="140" height="70" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="590" y="93" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E40AF">AI Backend</text>
+      <text x="590" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">Chapter 5</text>
+      <text x="590" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#3B82F6">SSE HTTP transport</text>
+      <line x1="440" y1="105" x2="518" y2="105" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#de)"/>
+      <text x="479" y="97" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">POST :8001/mcp</text>
+
+      <!-- External APIs below -->
+      <rect x="100" y="165" width="80" height="26" rx="6" fill="#FFF7ED" stroke="#FED7AA"/>
+      <text x="140" y="182" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">GitHub API</text>
+      <rect x="300" y="165" width="80" height="26" rx="6" fill="#FFF7ED" stroke="#FED7AA"/>
+      <text x="340" y="182" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">Jira API</text>
+      <rect x="500" y="165" width="80" height="26" rx="6" fill="#FFF7ED" stroke="#FED7AA"/>
+      <text x="540" y="182" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">Slack API</text>
+
+      <line x1="280" y1="150" x2="180" y2="165" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#de)"/>
+      <line x1="340" y1="150" x2="340" y2="163" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#de)"/>
+      <line x1="400" y1="150" x2="500" y2="165" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#de)"/>
+    </svg>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint — Before Moving On</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li><code>uv run python -m mcp_server.main</code> starts without errors</li>
+      <li><code>curl http://localhost:8001/health</code> returns <code>{"status":"ok","tools_registered":5}</code></li>
+      <li>The <code>tools/list</code> MCP call returns all 5 tool names with descriptions</li>
+      <li><code>uv run pytest tests/ -v</code> — all tests green</li>
+      <li>Each tool has a clear docstring — not just a function name</li>
+      <li>Every tool wraps its API call in a <code>try/except</code> returning <code>format_error()</code></li>
+      <li>Every tool that returns a list or large dict calls <code>slim_result()</code></li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card">
+      <div class="lc-title">FastMCP — one decorator</div>
+      <div class="lc-body"><code>@mcp.tool()</code> on any async Python function automatically creates a fully-schema'd MCP tool. Type hints become the parameter schema. Docstring becomes the description.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Docstrings are instructions</div>
+      <div class="lc-body">The AI reads your docstring to decide when to call the tool. A vague docstring produces wrong tool calls. A clear docstring produces perfect tool calls. Write them well.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">slim_result() is non-negotiable</div>
+      <div class="lc-body">Context overflow is a silent killer. 500 Jira tickets = 150K tokens = broken conversation. Apply slim_result() on every list and large dict before returning to the AI.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Tools never raise exceptions</div>
+      <div class="lc-body">A tool that throws an exception crashes the entire tool call cycle. Always catch exceptions and return <code>format_error()</code>. Let the AI handle the error gracefully.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">register_*_tools() pattern</div>
+      <div class="lc-body">Each category registers itself via a function. <code>main.py</code> stays clean — it just calls <code>register_github_tools(mcp)</code>. Adding a new category is one function call.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Two transports, one server</div>
+      <div class="lc-body">stdio for Claude Desktop (subprocess), SSE HTTP for everything else (network). The TRANSPORT env var switches between them. Same server, same tools, different delivery.</div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="ch-nav">
+    <a href="02-aws-setup.html">
+      <span class="dir">← Previous</span>
+      Chapter 2: AWS Setup
+    </a>
+    <a href="04-claude-desktop.html" class="next">
+      <span class="dir">Next Chapter →</span>
+      Chapter 4: Claude Desktop
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
