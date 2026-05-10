@@ -480,20 +480,520 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
 
     <!-- CH1 placeholder (full chapter built next) -->
     <div class="chapter" id="page-ch1">
+
+      <!-- HERO -->
       <div class="chapter-hero">
         <div class="hero-eyebrow"><span class="phase-badge ph1-badge">Phase 1 — Getting Started</span></div>
         <h1>Chapter 1<br>The Mental Model</h1>
-        <p class="hero-desc">Understand the complete system before touching any code. Five mental models, the full request journey, and the three-repo architecture that keeps everything clean.</p>
-        <div class="hero-tags"><span class="tag">No code this chapter</span><span class="tag">Concepts only</span><span class="tag">~45 min read</span></div>
+        <p class="hero-desc">Understand the complete system before touching any code. Five mental models, the full 12-step request journey, and the three-repo architecture — all explained with diagrams.</p>
+        <div class="hero-tags">
+          <span class="tag">No code this chapter</span>
+          <span class="tag">Concepts only</span>
+          <span class="tag">~45 min read</span>
+          <span class="tag">5 diagrams</span>
+        </div>
       </div>
+
+      <!-- GOAL -->
+      <div class="callout callout-tip">
+        <div class="callout-icon">🎯</div>
+        <div><strong>Goal of this chapter:</strong> Build a clear mental picture of what Neuron is, how all the pieces fit together, and why each piece exists. A developer who understands the mental model makes better decisions and debugs faster.</div>
+      </div>
+
+      <!-- DELIVERABLE -->
       <div class="callout callout-info">
-        <div class="callout-icon">🔧</div>
-        <div style="font-size:.93rem;color:#1D4ED8">This chapter is being built. Check back soon — it will include architecture diagrams, sequence diagrams, and the full request journey walkthrough.</div>
+        <div class="callout-icon">🧱</div>
+        <div><strong>What you will have at the end:</strong> A solid mental model of the full system. You will be able to explain the architecture to someone else in 5 minutes, and you will understand every term used in the remaining 25 chapters.</div>
       </div>
+
+      <!-- ── SECTION 1: 5 MENTAL MODELS ─────────────────────── -->
+      <h2>The Five Mental Models</h2>
+      <p>Before writing a single line of code, you need these five mental models in your head. Each one explains a different aspect of how Neuron works.</p>
+
+      <!-- DIAGRAM 1: 5 Mental Models Overview -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.1 — The Five Mental Models at a Glance</div>
+        <svg width="100%" viewBox="0 0 680 258" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Five mental models for understanding the Neuron platform</title>
+          <desc>Five colored boxes arranged in a 3 plus 2 grid showing: AI as FaaS, MCP equals USB, Brain vs Hands, Layered Onion, Three Repos</desc>
+
+          <!-- Row 1: 3 boxes -->
+          <!-- Box 1: AI as FaaS (blue) -->
+          <rect x="14" y="14" width="200" height="96" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+          <rect x="14" y="14" width="200" height="32" rx="10" fill="#DBEAFE"/>
+          <rect x="14" y="34" width="200" height="12" fill="#DBEAFE"/>
+          <text x="26" y="35" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">01 — AI as a Service</text>
+          <text x="26" y="58" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E3A8A">FaaS for AI Agents</text>
+          <text x="26" y="75" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">Like AWS Lambda — but instead</text>
+          <text x="26" y="90" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">of code, you submit a prompt.</text>
+          <text x="26" y="105" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">The AI figures out what to do.</text>
+
+          <!-- Box 2: MCP = USB (teal) -->
+          <rect x="228" y="14" width="200" height="96" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <rect x="228" y="14" width="200" height="32" rx="10" fill="#DCFCE7"/>
+          <rect x="228" y="34" width="200" height="12" fill="#DCFCE7"/>
+          <text x="240" y="35" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">02 — The Standard</text>
+          <text x="240" y="58" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#14532D">MCP = The USB Port</text>
+          <text x="240" y="75" font-family="'Sora',sans-serif" font-size="10" fill="#10B981">Before USB every device had a</text>
+          <text x="240" y="90" font-family="'Sora',sans-serif" font-size="10" fill="#10B981">different cable. MCP is the</text>
+          <text x="240" y="105" font-family="'Sora',sans-serif" font-size="10" fill="#10B981">universal AI-to-tool connector.</text>
+
+          <!-- Box 3: Brain vs Hands (amber) -->
+          <rect x="442" y="14" width="224" height="96" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+          <rect x="442" y="14" width="224" height="32" rx="10" fill="#FEF3C7"/>
+          <rect x="442" y="34" width="224" height="12" fill="#FEF3C7"/>
+          <text x="454" y="35" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">03 — Separation</text>
+          <text x="454" y="58" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#78350F">Brain vs Hands</text>
+          <text x="454" y="75" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">The AI Agent thinks and decides.</text>
+          <text x="454" y="90" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">The MCP Tools execute and act.</text>
+          <text x="454" y="105" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">Never mix these two concerns.</text>
+
+          <!-- Row 2: 2 boxes centered -->
+          <!-- Box 4: Layered Onion (purple) -->
+          <rect x="118" y="124" width="200" height="96" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+          <rect x="118" y="124" width="200" height="32" rx="10" fill="#CECBF6"/>
+          <rect x="118" y="144" width="200" height="12" fill="#CECBF6"/>
+          <text x="130" y="145" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#3C3489">04 — Architecture</text>
+          <text x="130" y="168" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#26215C">5 Layers Like an Onion</text>
+          <text x="130" y="185" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">UI → Agent → MCP → Executor</text>
+          <text x="130" y="200" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">→ Infrastructure. Each layer</text>
+          <text x="130" y="215" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">is replaceable independently.</text>
+
+          <!-- Box 5: Three Repos (coral) -->
+          <rect x="362" y="124" width="200" height="96" rx="10" fill="#FAECE7" stroke="#D85A30" stroke-width="1.5"/>
+          <rect x="362" y="124" width="200" height="32" rx="10" fill="#FAECE7" stroke="none"/>
+          <rect x="362" y="124" width="200" height="32" rx="10" fill="#F5C4B3"/>
+          <rect x="362" y="144" width="200" height="12" fill="#F5C4B3"/>
+          <text x="374" y="145" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#7C2D12">05 — Structure</text>
+          <text x="374" y="168" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#4A1B0C">Three Repos, One Job Each</text>
+          <text x="374" y="185" font-family="'Sora',sans-serif" font-size="10" fill="#993C1D">Server · Client · Frontend.</text>
+          <text x="374" y="200" font-family="'Sora',sans-serif" font-size="10" fill="#993C1D">Each can change independently.</text>
+          <text x="374" y="215" font-family="'Sora',sans-serif" font-size="10" fill="#993C1D">No tight coupling between them.</text>
+        </svg>
+      </div>
+
+      <!-- ── MENTAL MODEL 1 ──────────────────────────────────── -->
+      <h3>Mental Model 1 — Neuron is "FaaS for AI Agents"</h3>
+      <p>Think of <strong>AWS Lambda</strong>. You submit a function, it runs in a container, you get a result back. Neuron is the same idea — but instead of a function, you submit a <em>plain-English prompt</em>, and the AI agent figures out what tools to call and in what order.</p>
+
+      <table>
+        <thead><tr><th>AWS Lambda</th><th>Neuron</th></tr></thead>
+        <tbody>
+          <tr><td>You submit: <code>{ code }</code></td><td>You submit: <em>"Generate tests for PR #234"</em></td></tr>
+          <tr><td>Runs in a container</td><td>AI Agent thinks, plans, calls tools</td></tr>
+          <tr><td>Returns: result</td><td>Returns: tests + Jira ticket + Slack message</td></tr>
+          <tr><td>You define the logic</td><td>AI defines the logic from your prompt</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ── MENTAL MODEL 2 ──────────────────────────────────── -->
+      <h3>Mental Model 2 — MCP is the USB Standard for AI Tools</h3>
+      <p>Before USB, every device (keyboard, mouse, printer) had a different connector. USB created one universal standard that works with everything. <strong>MCP (Model Context Protocol)</strong> does the same for AI tools.</p>
+
+      <!-- DIAGRAM 2: MCP = USB Standard -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.2 — Why MCP Changes Everything</div>
+        <svg width="100%" viewBox="0 0 680 230" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Comparison showing AI integrations without MCP versus with MCP</title>
+          <desc>Without MCP, Claude needs separate custom code for each tool. With MCP, any AI connects through one standard server to reach all tools.</desc>
+          <defs>
+            <marker id="ma" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- LEFT: Without MCP -->
+          <text x="160" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#DC2626">Without MCP</text>
+          <rect x="16" y="84" width="100" height="44" rx="8" fill="#F8F9FC" stroke="#94A3B8" stroke-width="1.5"/>
+          <text x="66" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#1E1E2E">Claude</text>
+          <text x="66" y="118" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">or any AI</text>
+
+          <rect x="220" y="28" width="90" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+          <text x="265" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#991B1B">GitHub API</text>
+          <rect x="220" y="87" width="90" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+          <text x="265" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#991B1B">Jira API</text>
+          <rect x="220" y="148" width="90" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+          <text x="265" y="169" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#991B1B">Slack API</text>
+
+          <line x1="116" y1="93" x2="220" y2="45" stroke="#FCA5A5" stroke-width="1.5" marker-end="url(#ma)"/>
+          <line x1="116" y1="106" x2="220" y2="104" stroke="#FCA5A5" stroke-width="1.5" marker-end="url(#ma)"/>
+          <line x1="116" y1="119" x2="220" y2="162" stroke="#FCA5A5" stroke-width="1.5" marker-end="url(#ma)"/>
+
+          <text x="168" y="53" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#DC2626">custom</text>
+          <text x="168" y="104" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#DC2626">custom</text>
+          <text x="168" y="153" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#DC2626">custom</text>
+
+          <rect x="16" y="198" width="294" height="24" rx="6" fill="#FEF2F2" stroke="#FECACA"/>
+          <text x="163" y="214" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#DC2626">3 separate integrations · breaks when AI changes</text>
+
+          <!-- VS divider -->
+          <circle cx="340" cy="106" r="22" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+          <text x="340" y="111" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#374151">vs</text>
+
+          <!-- RIGHT: With MCP -->
+          <text x="516" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#059669">With MCP</text>
+
+          <rect x="370" y="42" width="100" height="32" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <text x="420" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#065F46">Claude / GPT</text>
+          <text x="420" y="70" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">any AI model</text>
+
+          <rect x="370" y="100" width="100" height="32" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <text x="420" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#065F46">Gemini</text>
+          <text x="420" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">future AI model</text>
+
+          <rect x="370" y="158" width="100" height="32" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <text x="420" y="174" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#065F46">Your IDE</text>
+          <text x="420" y="186" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Claude Desktop</text>
+
+          <!-- MCP Server box -->
+          <rect x="490" y="88" width="86" height="56" rx="10" fill="#F0FDF4" stroke="#059669" stroke-width="2"/>
+          <text x="533" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Neuron</text>
+          <text x="533" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">MCP Server</text>
+          <text x="533" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">1 integration</text>
+
+          <!-- Arrows from AIs to MCP -->
+          <line x1="470" y1="58" x2="490" y2="100" stroke="#10B981" stroke-width="1.5" marker-end="url(#ma)"/>
+          <line x1="470" y1="116" x2="490" y2="116" stroke="#10B981" stroke-width="1.5" marker-end="url(#ma)"/>
+          <line x1="470" y1="174" x2="490" y2="132" stroke="#10B981" stroke-width="1.5" marker-end="url(#ma)"/>
+
+          <!-- Services on right of MCP -->
+          <rect x="594" y="34" width="72" height="28" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+          <text x="630" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">GitHub</text>
+          <rect x="594" y="80" width="72" height="28" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+          <text x="630" y="98" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">Jira</text>
+          <rect x="594" y="126" width="72" height="28" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+          <text x="630" y="144" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">Slack</text>
+          <rect x="594" y="172" width="72" height="28" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+          <text x="630" y="190" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">Browser</text>
+
+          <!-- Arrows from MCP to services -->
+          <line x1="576" y1="102" x2="594" y2="48" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
+          <line x1="576" y1="110" x2="594" y2="94" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
+          <line x1="576" y1="118" x2="594" y2="140" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
+          <line x1="576" y1="126" x2="594" y2="186" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
+
+          <rect x="370" y="198" width="296" height="24" rx="6" fill="#F0FDF4" stroke="#BBF7D0"/>
+          <text x="518" y="214" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">1 MCP server works with ANY AI · add tools without changing AI code</text>
+        </svg>
+      </div>
+
+      <!-- ── MENTAL MODEL 3 ──────────────────────────────────── -->
+      <h3>Mental Model 3 — The Brain vs The Hands</h3>
+      <p>This is the most important distinction in the entire platform. The AI agent is the <em>brain</em> — it thinks, reasons, and decides. The MCP tools are the <em>hands</em> — they execute, call APIs, and return data. Never mix these two responsibilities.</p>
+
+      <!-- DIAGRAM 3: Brain vs Hands -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.3 — Brain vs Hands: Strict Separation of Concerns</div>
+        <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Brain versus Hands diagram showing AI Agent thinks and MCP Tools act</title>
+          <defs>
+            <marker id="mb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Brain side (left) -->
+          <rect x="14" y="14" width="290" height="172" rx="14" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+          <text x="159" y="40" text-anchor="middle" font-family="'Sora',sans-serif" font-size="14" font-weight="800" fill="#78350F">🧠 The Brain</text>
+          <text x="159" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="600" fill="#92400E">Strands Agent + Claude</text>
+          <line x1="40" y1="66" x2="278" y2="66" stroke="#FDE68A" stroke-width="1"/>
+          <text x="30" y="84" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">✦  Understands your request</text>
+          <text x="30" y="100" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">✦  Decides which tools to call</text>
+          <text x="30" y="116" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">✦  Decides the ORDER of calls</text>
+          <text x="30" y="132" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">✦  Decides what parameters to pass</text>
+          <text x="30" y="148" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">✦  Synthesises results into a response</text>
+          <rect x="28" y="158" width="258" height="20" rx="5" fill="#FEF3C7"/>
+          <text x="157" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Lives in: neuron-mcp-client</text>
+
+          <!-- Arrow in centre -->
+          <line x1="304" y1="100" x2="374" y2="100" stroke="#6C63FF" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#mb)"/>
+          <text x="339" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6C63FF">signals</text>
+          <line x1="374" y1="110" x2="304" y2="110" stroke="#6C63FF" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#mb)"/>
+          <text x="339" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6C63FF">results</text>
+
+          <!-- Hands side (right) -->
+          <rect x="376" y="14" width="290" height="172" rx="14" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <text x="521" y="40" text-anchor="middle" font-family="'Sora',sans-serif" font-size="14" font-weight="800" fill="#14532D">🤲 The Hands</text>
+          <text x="521" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="600" fill="#065F46">MCP Tools — FastMCP Server</text>
+          <line x1="400" y1="66" x2="642" y2="66" stroke="#BBF7D0" stroke-width="1"/>
+          <text x="392" y="84" font-family="'Sora',sans-serif" font-size="10" fill="#059669">✦  Calls the GitHub API</text>
+          <text x="392" y="100" font-family="'Sora',sans-serif" font-size="10" fill="#059669">✦  Creates the Jira ticket</text>
+          <text x="392" y="116" font-family="'Sora',sans-serif" font-size="10" fill="#059669">✦  Posts to Slack</text>
+          <text x="392" y="132" font-family="'Sora',sans-serif" font-size="10" fill="#059669">✦  Navigates the browser</text>
+          <text x="392" y="148" font-family="'Sora',sans-serif" font-size="10" fill="#059669">✦  Returns raw data — no intelligence</text>
+          <rect x="390" y="158" width="258" height="20" rx="5" fill="#DCFCE7"/>
+          <text x="519" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Lives in: neuron-mcp-server</text>
+        </svg>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div><strong>The golden rule:</strong> The MCP tools are <em>dumb</em>. <code>jira_create_issue()</code> just calls the Jira API. It has zero intelligence. All the intelligence — <em>which</em> tool, <em>when</em>, <em>with what parameters</em> — lives entirely in the AI Agent. Never put business logic in a tool.</div>
+      </div>
+
+      <!-- ── MENTAL MODEL 4 ──────────────────────────────────── -->
+      <h3>Mental Model 4 — Three Repos, Each With One Job</h3>
+      <p>Neuron is split into <strong>three repositories</strong>. Each has exactly one responsibility. This separation means you can upgrade, replace, or scale any layer without touching the others.</p>
+
+      <!-- DIAGRAM 4: Three Repo Architecture -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.4 — Three-Repository Architecture</div>
+        <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Three repository architecture for Neuron</title>
+          <desc>Three repositories: neuron-mcp-server is the Tool Registry, neuron-mcp-client is the Brain, and neuron-frontend is the Face. Arrows show call direction.</desc>
+          <defs>
+            <marker id="mc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Repo 1: neuron-frontend (purple) -->
+          <rect x="14" y="30" width="186" height="160" rx="12" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+          <rect x="14" y="30" width="186" height="36" rx="12" fill="#AFA9EC"/>
+          <rect x="14" y="50" width="186" height="16" fill="#AFA9EC"/>
+          <text x="107" y="53" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-frontend</text>
+          <text x="107" y="84" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#26215C">The Face</text>
+          <text x="107" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">What you talk to</text>
+          <line x1="30" y1="112" x2="184" y2="112" stroke="#CECBF6" stroke-width="1"/>
+          <text x="30" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Phase 1: Streamlit</text>
+          <text x="30" y="143" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Phase 4: Reflex (React)</text>
+          <text x="30" y="158" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Chat UI · Session sidebar</text>
+          <text x="30" y="173" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Streaming responses</text>
+          <text x="107" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="600" fill="#7F77DD">Port 8501</text>
+
+          <!-- Arrow frontend → client -->
+          <text x="248" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">POST /chat</text>
+          <line x1="200" y1="114" x2="246" y2="114" stroke="#6C63FF" stroke-width="2" marker-end="url(#mc)"/>
+          <text x="248" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">SSE stream</text>
+          <line x1="246" y1="120" x2="200" y2="120" stroke="#6C63FF" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#mc)"/>
+
+          <!-- Repo 2: neuron-mcp-client (blue/teal) -->
+          <rect x="250" y="30" width="180" height="160" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+          <rect x="250" y="30" width="180" height="36" rx="12" fill="#60A5FA"/>
+          <rect x="250" y="50" width="180" height="16" fill="#60A5FA"/>
+          <text x="340" y="53" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-mcp-client</text>
+          <text x="340" y="84" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#1E3A8A">The Brain</text>
+          <text x="340" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#2563EB">Receives requests, thinks</text>
+          <line x1="266" y1="112" x2="414" y2="112" stroke="#BFDBFE" stroke-width="1"/>
+          <text x="266" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">FastAPI server</text>
+          <text x="266" y="143" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">Strands Agent (Claude)</text>
+          <text x="266" y="158" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">DynamoDB sessions</text>
+          <text x="266" y="173" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">AWS Bedrock calls</text>
+          <text x="340" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="600" fill="#3B82F6">Port 8000</text>
+
+          <!-- Arrow client → server -->
+          <text x="474" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">MCP SSE</text>
+          <line x1="430" y1="114" x2="476" y2="114" stroke="#10B981" stroke-width="2" marker-end="url(#mc)"/>
+          <text x="474" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">tool results</text>
+          <line x1="476" y1="120" x2="430" y2="120" stroke="#10B981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#mc)"/>
+
+          <!-- Repo 3: neuron-mcp-server (green) -->
+          <rect x="480" y="30" width="186" height="160" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <rect x="480" y="30" width="186" height="36" rx="12" fill="#34D399"/>
+          <rect x="480" y="50" width="186" height="16" fill="#34D399"/>
+          <text x="573" y="53" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-mcp-server</text>
+          <text x="573" y="84" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#14532D">The Hands</text>
+          <text x="573" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#059669">All tools, all integrations</text>
+          <line x1="496" y1="112" x2="650" y2="112" stroke="#BBF7D0" stroke-width="1"/>
+          <text x="496" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#059669">FastMCP framework</text>
+          <text x="496" y="143" font-family="'Sora',sans-serif" font-size="9" fill="#059669">GitHub + Jira + Slack</text>
+          <text x="496" y="158" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Playwright browser</text>
+          <text x="496" y="173" font-family="'Sora',sans-serif" font-size="9" fill="#059669">30+ tools registered</text>
+          <text x="573" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="600" fill="#10B981">Port 8001</text>
+        </svg>
+      </div>
+
+      <!-- ── THE REQUEST JOURNEY ─────────────────────────────── -->
+      <h2>The Full Request Journey</h2>
+      <p>Here is <em>exactly</em> what happens — step by step — when you type <strong>"Find my open Jira tickets"</strong> into the Neuron UI.</p>
+
+      <!-- DIAGRAM 5: Sequence Diagram -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.5 — The 12-Step Request Journey (Sequence Diagram)</div>
+        <svg width="100%" viewBox="0 0 680 448" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Sequence diagram showing 12 steps from user typing to response appearing</title>
+          <desc>Five actors: You, Neuron UI, Agent Backend, MCP Server, External APIs. Arrows show the flow of request down and response back up.</desc>
+          <defs>
+            <marker id="ms" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- ── ACTOR BOXES ── -->
+          <!-- You: cx=55 -->
+          <rect x="10" y="16" width="90" height="40" rx="8" fill="#F8F9FC" stroke="#6C63FF" stroke-width="1.5"/>
+          <text x="55" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E1E2E">You</text>
+          <text x="55" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">the human</text>
+
+          <!-- Neuron UI: cx=185 -->
+          <rect x="140" y="16" width="90" height="40" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+          <text x="185" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">Neuron UI</text>
+          <text x="185" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Streamlit</text>
+
+          <!-- Agent Backend: cx=340 -->
+          <rect x="290" y="16" width="100" height="40" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <text x="340" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Agent Backend</text>
+          <text x="340" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#10B981">FastAPI + Strands</text>
+
+          <!-- MCP Server: cx=490 -->
+          <rect x="443" y="16" width="94" height="40" rx="8" fill="#FDF4FF" stroke="#9333EA" stroke-width="1.5"/>
+          <text x="490" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#581C87">MCP Server</text>
+          <text x="490" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9333EA">FastMCP</text>
+
+          <!-- External APIs: cx=618 -->
+          <rect x="572" y="16" width="94" height="40" rx="8" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+          <text x="619" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">Jira / GitHub</text>
+          <text x="619" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#F59E0B">external APIs</text>
+
+          <!-- ── LIFELINES ── -->
+          <line x1="55"  y1="56" x2="55"  y2="428" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="185" y1="56" x2="185" y2="428" stroke="#BFDBFE" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="340" y1="56" x2="340" y2="428" stroke="#BBF7D0" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="490" y1="56" x2="490" y2="428" stroke="#E9D5FF" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="619" y1="56" x2="619" y2="428" stroke="#FDE68A" stroke-width="1" stroke-dasharray="4 4"/>
+
+          <!-- ── STEP LABELS ── -->
+          <!-- Step 1: You → UI -->
+          <text x="6" y="82" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">①</text>
+          <line x1="64" y1="80" x2="178" y2="80" stroke="#1E1E2E" stroke-width="1.5" marker-end="url(#ms)"/>
+          <text x="121" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">type message</text>
+
+          <!-- Step 2: UI → Agent -->
+          <text x="6" y="108" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">②</text>
+          <line x1="194" y1="106" x2="332" y2="106" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#ms)"/>
+          <text x="263" y="98" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">POST /chat {prompt, session_id}</text>
+
+          <!-- Step 3: Agent loads history (self note) -->
+          <text x="6" y="132" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">③</text>
+          <rect x="348" y="120" width="138" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+          <text x="417" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">load history from DynamoDB</text>
+
+          <!-- Step 4: Strands thinks -->
+          <text x="6" y="158" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">④</text>
+          <rect x="348" y="146" width="138" height="20" rx="4" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
+          <text x="417" y="160" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">Strands: "which tool to call?"</text>
+
+          <!-- Step 5: Agent → MCP -->
+          <text x="6" y="184" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑤</text>
+          <line x1="349" y1="182" x2="484" y2="182" stroke="#10B981" stroke-width="1.5" marker-end="url(#ms)"/>
+          <text x="417" y="174" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">jira_search_issues(jql="...")</text>
+
+          <!-- Step 6: MCP → External API -->
+          <text x="6" y="210" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑥</text>
+          <line x1="499" y1="208" x2="613" y2="208" stroke="#9333EA" stroke-width="1.5" marker-end="url(#ms)"/>
+          <text x="557" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">GET jira.atlassian.net/rest/api</text>
+
+          <!-- Step 7: External → MCP (return, dashed) -->
+          <text x="6" y="240" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑦</text>
+          <line x1="613" y1="238" x2="499" y2="238" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
+          <text x="557" y="230" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">issues: [{ENG-234, ...}, ...]</text>
+
+          <!-- Step 8: slim_result applied -->
+          <text x="6" y="264" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑧</text>
+          <rect x="498" y="252" width="118" height="20" rx="4" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1"/>
+          <text x="557" y="266" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#581C87">slim_result() — cap at 50 items</text>
+
+          <!-- Step 9: MCP → Agent (return, dashed) -->
+          <text x="6" y="292" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑨</text>
+          <line x1="484" y1="290" x2="349" y2="290" stroke="#9333EA" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
+          <text x="417" y="282" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">tool result {issues: [...]}</text>
+
+          <!-- Step 10: Claude formats -->
+          <text x="6" y="318" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑩</text>
+          <rect x="348" y="306" width="138" height="20" rx="4" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
+          <text x="417" y="320" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">Claude writes human response</text>
+
+          <!-- Step 11: Agent → UI (SSE stream, dashed) -->
+          <text x="6" y="346" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑪</text>
+          <line x1="331" y1="344" x2="194" y2="344" stroke="#10B981" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
+          <text x="263" y="336" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">SSE text chunks streaming</text>
+
+          <!-- Step 12: UI → You (words appear) -->
+          <text x="6" y="374" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑫</text>
+          <line x1="176" y1="372" x2="64" y2="372" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
+          <text x="120" y="364" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">words appear word by word</text>
+
+          <!-- Save history note -->
+          <text x="6" y="400" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑬</text>
+          <rect x="348" y="388" width="138" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+          <text x="417" y="402" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">save updated history → DynamoDB</text>
+
+          <!-- Total time -->
+          <text x="666" y="428" text-anchor="end" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⏱ ~3–8 seconds total</text>
+
+          <!-- Legend -->
+          <line x1="14" y1="436" x2="240" y2="436" stroke="#E2E8F0" stroke-width="0.5"/>
+          <line x1="34" y1="442" x2="60" y2="442" stroke="#1E1E2E" stroke-width="1.5" marker-end="url(#ms)"/>
+          <text x="65" y="446" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">request</text>
+          <line x1="130" y1="442" x2="156" y2="442" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
+          <text x="161" y="446" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">response (streaming)</text>
+          <rect x="348" y="438" width="10" height="10" rx="2" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
+          <text x="362" y="447" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">internal processing step</text>
+        </svg>
+      </div>
+
+      <!-- ── KEY VOCABULARY ─────────────────────────────────── -->
+      <h2>Key Vocabulary</h2>
+      <p>These terms appear throughout all 26 chapters. Learn them once here, never be confused again.</p>
+
+      <table>
+        <thead><tr><th>Term</th><th>Simple explanation</th><th>Where it lives</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Agent</strong></td><td>An AI that takes actions, not just generates text</td><td>neuron-mcp-client</td></tr>
+          <tr><td><strong>MCP</strong></td><td>Model Context Protocol — the USB standard for AI tools</td><td>Protocol between client and server</td></tr>
+          <tr><td><strong>MCP Server</strong></td><td>Program that exposes tools the AI can call</td><td>neuron-mcp-server</td></tr>
+          <tr><td><strong>MCP Client</strong></td><td>The AI side that connects to and calls the server</td><td>neuron-mcp-client</td></tr>
+          <tr><td><strong>Tool</strong></td><td>A Python function the AI can call (e.g. <code>search_jira()</code>)</td><td>neuron-mcp-server/tools/</td></tr>
+          <tr><td><strong>Strands Agent</strong></td><td>AWS open-source SDK for the think-act-observe loop</td><td>neuron-mcp-client</td></tr>
+          <tr><td><strong>FastMCP</strong></td><td>Python framework for building MCP servers with minimal code</td><td>neuron-mcp-server</td></tr>
+          <tr><td><strong>FastAPI</strong></td><td>Python web framework for the backend API server</td><td>neuron-mcp-client</td></tr>
+          <tr><td><strong>Bedrock</strong></td><td>AWS service that hosts Claude and other AI models</td><td>AWS cloud</td></tr>
+          <tr><td><strong>SSE</strong></td><td>Server-Sent Events — how responses stream word by word</td><td>Agent Backend → Frontend</td></tr>
+          <tr><td><strong>Session</strong></td><td>One conversation — stored in DynamoDB for persistence</td><td>DynamoDB</td></tr>
+          <tr><td><strong>slim_result()</strong></td><td>Utility to cap tool results so they don't overflow context</td><td>neuron-mcp-server/utils.py</td></tr>
+          <tr><td><strong>IRSA</strong></td><td>AWS way to give K8s pods permissions without stored keys</td><td>AWS IAM + EKS</td></tr>
+          <tr><td><strong>uv</strong></td><td>Modern Python package manager — 100x faster than pip</td><td>All three repos</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ── CHECKPOINT ─────────────────────────────────────── -->
+      <h2>Checkpoint — Before Moving On</h2>
+      <p>Answer these questions without looking. If you can answer all 6, you are ready for Chapter 2.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">✅</div>
+        <div>
+          <strong>Can you answer all of these?</strong><br><br>
+          1. What is the difference between an AI agent and a regular chatbot?<br>
+          2. What does MCP stand for and why does it matter?<br>
+          3. What are the three Neuron repositories and what does each one do?<br>
+          4. What is the job of the MCP Server vs the job of the AI Agent?<br>
+          5. Name the 5 layers of the Neuron platform<br>
+          6. Describe step-by-step what happens when you type "find my open Jira tickets"
+        </div>
+      </div>
+
+      <!-- ── WHAT YOU LEARNED ───────────────────────────────── -->
+      <h2>What You Have Learned</h2>
+
+      <table>
+        <thead><tr><th>Concept</th><th>The key insight</th></tr></thead>
+        <tbody>
+          <tr><td><strong>AI agents need a body</strong></td><td>Real tools + real credentials + real compute. Neuron provides all three.</td></tr>
+          <tr><td><strong>MCP is the key abstraction</strong></td><td>Decouples AI models from tools. One server works with Claude, GPT, Gemini, anything.</td></tr>
+          <tr><td><strong>Brain / hands separation</strong></td><td>Intelligence lives in the agent. Execution lives in tools. Never mix these.</td></tr>
+          <tr><td><strong>Three repos, one job each</strong></td><td>Each repo is replaceable without touching the others. Loose coupling.</td></tr>
+          <tr><td><strong>Build in phases</strong></td><td>Phase 1 working beats Phase 4 half-built by a factor of infinity.</td></tr>
+          <tr><td><strong>slim_result() from day one</strong></td><td>Context overflow is a real problem. Cap your tool responses before they cause issues.</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ── NAV ── -->
       <div class="chapter-nav">
         <button class="nav-btn" onclick="navigate('home')"><span class="dir">← Back</span>Home</button>
-        <button class="nav-btn next" onclick="navigate('ch2')"><span class="dir">Next →</span>Chapter 2: AWS Setup</button>
+        <button class="nav-btn next" onclick="navigate('ch2')"><span class="dir">Next Chapter →</span>Chapter 2: AWS Setup</button>
       </div>
+
     </div>
 
     <!-- GENERIC COMING SOON for ch2–ch26 -->
