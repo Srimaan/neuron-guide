@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 — AWS Setup | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+
+/* ── TOP NAV ── */
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+
+/* ── PAGE WRAP ── */
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+
+/* ── BREADCRUMB ── */
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb a:hover{text-decoration:underline}
+.breadcrumb span{color:#D1D5DB}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#EFF6FF,#F0FDF4);border:1px solid #BFDBFE;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(59,130,246,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#3B82F6}
+.hero p{font-size:1rem;color:#4B5563;max-width:580px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+
+/* ── CALLOUTS ── */
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+
+/* ── HEADINGS ── */
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.08rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px;display:flex;align-items:center;gap:8px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#6C63FF;font-style:normal;font-weight:600}
+
+/* ── STEP BOX ── */
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:24px;margin:24px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:2px 12px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+
+/* ── DIAGRAM CARD ── */
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+
+/* ── CODE BLOCKS ── */
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.7;white-space:pre}
+.code-body .comment{color:#6B7280}
+.code-body .cmd{color:#86EFAC}
+.code-body .flag{color:#FCD34D}
+.code-body .str{color:#F9A8D4}
+.code-body .kw{color:#93C5FD}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+
+/* ── COST TABLE ── */
+.cost-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.9rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+.cost-table thead th{background:#0F172A;color:#fff;padding:12px 16px;text-align:left;font-weight:600}
+.cost-table tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151}
+.cost-table tbody tr:last-child td{border-bottom:none}
+.cost-table .free{color:#15803D;font-weight:700}
+.cost-table .paid{color:#D97706;font-weight:700}
+
+/* ── SERVICE GRID ── */
+.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:24px 0}
+.service-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:12px;padding:16px;text-align:center;transition:all .2s}
+.service-card:hover{border-color:#6C63FF;transform:translateY(-2px);box-shadow:0 4px 12px rgba(108,99,255,.1)}
+.service-card .s-icon{font-size:1.8rem;margin-bottom:8px}
+.service-card .s-name{font-weight:700;font-size:.9rem;color:#1E1E2E;margin-bottom:4px}
+.service-card .s-desc{font-size:.78rem;color:#6B7280;line-height:1.4}
+
+/* ── CHECKPOINT ── */
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+
+/* ── LEARN GRID ── */
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+
+/* ── CHAPTER NAV ── */
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+
+/* ── PROGRESS INDICATOR ── */
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#3B82F6);height:100%;border-radius:20px;width:7.7%}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html">
+    <div class="icon">⚡</div>
+    Neuron Guide
+  </a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="01-mental-model.html">Ch 1</a>
+    <a href="02-aws-setup.html" class="active">Ch 2</a>
+    <a href="03-first-mcp-server.html">Ch 3</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a>
+    <span>›</span>
+    <a href="index.html">Phase 1 — Getting Started</a>
+    <span>›</span>
+    Chapter 2 — AWS Setup
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-label">Chapter 2 of 26 — Phase 1</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 02 of 26</span>
+    </div>
+    <h1>AWS <span>Setup</span></h1>
+    <p>Configure your AWS account correctly before writing a single line of application code. Getting this right the first time prevents confusing permission errors in every chapter that follows.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 45–60 min</span>
+      <span class="meta-tag">💰 $0 this chapter</span>
+      <span class="meta-tag">🔧 AWS Console + Terminal</span>
+      <span class="meta-tag">✅ Verified at the end</span>
+    </div>
+  </div>
+
+  <!-- GOAL -->
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Have a fully configured AWS account with Bedrock access, an IAM user, DynamoDB table, S3 bucket, and AWS CLI working on your laptop — all verified with a test script before moving on.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> A <code>verify_aws.py</code> script that prints ✅ for every check. Until all checks pass, do not move to Chapter 3.</div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       WHAT WE ARE SETTING UP
+  ══════════════════════════════════ -->
+  <h2>What We Are Setting Up</h2>
+  <p>Five AWS services, each with a specific role in the Neuron platform. We configure all of them now so they are ready when the code needs them.</p>
+
+  <!-- DIAGRAM 2.1: AWS Services Overview -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 2.1 — Five AWS Services and Their Role in Neuron</div>
+    <svg width="100%" viewBox="0 0 680 210" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Five AWS services used by Neuron and their roles</title>
+      <desc>Amazon Bedrock hosts Claude, IAM controls permissions, DynamoDB stores sessions, S3 stores documents, EKS runs containers.</desc>
+
+      <!-- Bedrock -->
+      <rect x="14"  y="14" width="120" height="100" rx="10" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+      <text x="74"  y="42" text-anchor="middle" font-size="22">🤖</text>
+      <text x="74"  y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#9A3412">Bedrock</text>
+      <text x="74"  y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#C2410C">Hosts Claude</text>
+      <text x="74"  y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#C2410C">Sonnet 4</text>
+      <rect x="24"  y="100" width="100" height="10" rx="3" fill="#FED7AA"/>
+      <text x="74"  y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#9A3412">AI Models</text>
+
+      <!-- IAM -->
+      <rect x="148" y="14" width="120" height="100" rx="10" fill="#FDF4FF" stroke="#9333EA" stroke-width="1.5"/>
+      <text x="208" y="42" text-anchor="middle" font-size="22">🔐</text>
+      <text x="208" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#6B21A8">IAM</text>
+      <text x="208" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#7E22CE">Controls who</text>
+      <text x="208" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#7E22CE">can do what</text>
+      <rect x="158" y="100" width="100" height="10" rx="3" fill="#E9D5FF"/>
+      <text x="208" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#6B21A8">Permissions</text>
+
+      <!-- DynamoDB -->
+      <rect x="282" y="14" width="120" height="100" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+      <text x="342" y="42" text-anchor="middle" font-size="22">🗄️</text>
+      <text x="342" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E40AF">DynamoDB</text>
+      <text x="342" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">Conversation</text>
+      <text x="342" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">history / sessions</text>
+      <rect x="292" y="100" width="100" height="10" rx="3" fill="#BFDBFE"/>
+      <text x="342" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1E40AF">Session Memory</text>
+
+      <!-- S3 -->
+      <rect x="416" y="14" width="120" height="100" rx="10" fill="#F0FDF4" stroke="#16A34A" stroke-width="1.5"/>
+      <text x="476" y="42" text-anchor="middle" font-size="22">🪣</text>
+      <text x="476" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#14532D">S3</text>
+      <text x="476" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#15803D">Stores docs for</text>
+      <text x="476" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#15803D">Knowledge Base</text>
+      <rect x="426" y="100" width="100" height="10" rx="3" fill="#BBF7D0"/>
+      <text x="476" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#14532D">Document Store</text>
+
+      <!-- EKS -->
+      <rect x="550" y="14" width="120" height="100" rx="10" fill="#F8F9FC" stroke="#64748B" stroke-width="1.5"/>
+      <text x="610" y="42" text-anchor="middle" font-size="22">☸️</text>
+      <text x="610" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#334155">EKS</text>
+      <text x="610" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#475569">Runs our Docker</text>
+      <text x="610" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#475569">containers in cloud</text>
+      <rect x="560" y="100" width="100" height="10" rx="3" fill="#E2E8F0"/>
+      <text x="610" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#334155">Phase 2 onwards</text>
+
+      <!-- When used labels -->
+      <rect x="14"  y="126" width="120" height="72" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+      <text x="74"  y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">NEEDED FROM</text>
+      <text x="74"  y="154" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Chapter 5</text>
+      <text x="74"  y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">(Agent Backend)</text>
+      <text x="74"  y="188" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#EA580C">✦ Set up now</text>
+
+      <rect x="148" y="126" width="120" height="72" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+      <text x="208" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">NEEDED FROM</text>
+      <text x="208" y="154" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Chapter 2</text>
+      <text x="208" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">(This chapter)</text>
+      <text x="208" y="188" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#EA580C">✦ Set up now</text>
+
+      <rect x="282" y="126" width="120" height="72" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+      <text x="342" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">NEEDED FROM</text>
+      <text x="342" y="154" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Chapter 5</text>
+      <text x="342" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">(Session memory)</text>
+      <text x="342" y="188" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#EA580C">✦ Set up now</text>
+
+      <rect x="416" y="126" width="120" height="72" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+      <text x="476" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">NEEDED FROM</text>
+      <text x="476" y="154" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Chapter 20</text>
+      <text x="476" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">(Knowledge Base)</text>
+      <text x="476" y="188" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#EA580C">✦ Set up now</text>
+
+      <rect x="550" y="126" width="120" height="72" rx="8" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="610" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#64748B">NEEDED FROM</text>
+      <text x="610" y="154" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#94A3B8">Chapter 14</text>
+      <text x="610" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#64748B">(Cloud deploy)</text>
+      <text x="610" y="188" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#94A3B8">◦ Skip for now</text>
+    </svg>
+  </div>
+
+  <!-- ══════════════════════════════════
+       AWS ACCOUNT SETUP FLOW
+  ══════════════════════════════════ -->
+  <h2>Setup Flow Overview</h2>
+  <p>Ten steps in total. Steps 1–4 are done in the AWS Console (browser). Steps 5–10 are in your terminal. Follow them in order — each step depends on the previous.</p>
+
+  <!-- DIAGRAM 2.2: Setup Flow -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 2.2 — The 10-Step AWS Setup Flow</div>
+    <svg width="100%" viewBox="0 0 680 130" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>10 step AWS setup flow divided into browser steps and terminal steps</title>
+      <defs>
+        <marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Browser section label -->
+      <rect x="14" y="8" width="312" height="16" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>
+      <text x="170" y="20" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1D4ED8">🌐 AWS CONSOLE (browser)</text>
+
+      <!-- Terminal section label -->
+      <rect x="338" y="8" width="328" height="16" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="502" y="20" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">💻 TERMINAL (your laptop)</text>
+
+      <!-- Steps 1-4 (browser, blue) -->
+      <rect x="14"  y="34" width="64" height="52" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+      <text x="46"  y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1D4ED8">Step 1</text>
+      <text x="46"  y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Create</text>
+      <text x="46"  y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Account</text>
+
+      <line x1="78" y1="60" x2="92" y2="60" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="92"  y="34" width="64" height="52" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+      <text x="124" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1D4ED8">Step 2</text>
+      <text x="124" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Enable</text>
+      <text x="124" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Bedrock</text>
+
+      <line x1="156" y1="60" x2="170" y2="60" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="170" y="34" width="64" height="52" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+      <text x="202" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1D4ED8">Step 3</text>
+      <text x="202" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Create</text>
+      <text x="202" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">IAM User</text>
+
+      <line x1="234" y1="60" x2="248" y2="60" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="248" y="34" width="64" height="52" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+      <text x="280" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1D4ED8">Step 4</text>
+      <text x="280" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Get</text>
+      <text x="280" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Access Keys</text>
+
+      <!-- Transition -->
+      <line x1="312" y1="60" x2="332" y2="60" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#fa)"/>
+
+      <!-- Steps 5-10 (terminal, green) -->
+      <rect x="338" y="34" width="56" height="52" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.2"/>
+      <text x="366" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Step 5</text>
+      <text x="366" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">Install</text>
+      <text x="366" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">AWS CLI</text>
+
+      <line x1="394" y1="60" x2="406" y2="60" stroke="#10B981" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="406" y="34" width="56" height="52" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.2"/>
+      <text x="434" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Step 6</text>
+      <text x="434" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">Install</text>
+      <text x="434" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">uv</text>
+
+      <line x1="462" y1="60" x2="474" y2="60" stroke="#10B981" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="474" y="34" width="56" height="52" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.2"/>
+      <text x="502" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Step 7</text>
+      <text x="502" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">Create</text>
+      <text x="502" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">DynamoDB</text>
+
+      <line x1="530" y1="60" x2="542" y2="60" stroke="#10B981" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="542" y="34" width="56" height="52" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.2"/>
+      <text x="570" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Step 8</text>
+      <text x="570" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">Create</text>
+      <text x="570" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">S3 Bucket</text>
+
+      <line x1="598" y1="60" x2="610" y2="60" stroke="#10B981" stroke-width="1.5" marker-end="url(#fa)"/>
+
+      <rect x="610" y="34" width="56" height="52" rx="8" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>
+      <text x="638" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#14532D">Step 9</text>
+      <text x="638" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#15803D">Verify</text>
+      <text x="638" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#15803D">All ✅</text>
+
+      <!-- Time label -->
+      <text x="340" y="110" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⏱ Steps 1–4: ~20 min in browser</text>
+      <text x="340" y="124" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⏱ Steps 5–9: ~25 min in terminal</text>
+    </svg>
+  </div>
+
+  <!-- ══════════════════════════════════
+       STEP 1: CREATE AWS ACCOUNT
+  ══════════════════════════════════ -->
+  <h2>Steps 1–4 — In the AWS Console</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 1 — Create AWS Account</div>
+    <div class="step-title">Sign up at aws.amazon.com</div>
+    <div class="step-body">
+      <p style="margin:0 0 12px">If you already have an AWS account, skip to Step 2.</p>
+      <ol style="padding-left:20px;color:#4B5563;font-size:.93rem;line-height:2">
+        <li>Go to <strong>aws.amazon.com</strong> → click <em>Create an AWS Account</em></li>
+        <li>Enter your email and choose an account name (e.g. <code>neuron-platform</code>)</li>
+        <li>Enter credit card details — nothing in this chapter costs money</li>
+        <li>Choose the <strong>Basic (Free) support plan</strong></li>
+        <li>Wait for the confirmation email, then sign in</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="callout callout-danger">
+    <div class="callout-icon">🔴</div>
+    <div class="callout-body"><strong>Do this immediately after creating your account:</strong> Enable MFA on your root account. Console → top-right account name → Security credentials → Multi-factor authentication → Assign MFA device. Never use the root account for day-to-day work.</div>
+  </div>
+
+  <!-- DIAGRAM 2.3: IAM Security Model -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 2.3 — IAM Security Model: Root vs IAM User vs IRSA</div>
+    <svg width="100%" viewBox="0 0 680 180" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Three levels of AWS identity: Root Account, IAM User for dev, IRSA for K8s pods</title>
+      <desc>Root account should only be used for billing and account setup. IAM user used for local development. IRSA used for Kubernetes pods in production with no stored credentials.</desc>
+
+      <!-- Root account (red - dangerous) -->
+      <rect x="14" y="20" width="196" height="140" rx="12" fill="#FEF2F2" stroke="#EF4444" stroke-width="1.5"/>
+      <rect x="14" y="20" width="196" height="36" rx="12" fill="#FCA5A5"/>
+      <rect x="14" y="40" width="196" height="16" fill="#FCA5A5"/>
+      <text x="112" y="43" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">🔴 Root Account</text>
+      <text x="112" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#991B1B">Use ONLY for:</text>
+      <text x="28"  y="90" font-family="'Sora',sans-serif" font-size="9" fill="#B91C1C">• Billing and cost management</text>
+      <text x="28"  y="106" font-family="'Sora',sans-serif" font-size="9" fill="#B91C1C">• Account-level settings</text>
+      <text x="28"  y="122" font-family="'Sora',sans-serif" font-size="9" fill="#B91C1C">• Creating the first IAM user</text>
+      <rect x="24" y="132" width="176" height="20" rx="4" fill="#FECACA"/>
+      <text x="112" y="146" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#991B1B">⚠ Never use in code or CLI</text>
+
+      <!-- IAM User (blue - local dev) -->
+      <rect x="242" y="20" width="196" height="140" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="242" y="20" width="196" height="36" rx="12" fill="#60A5FA"/>
+      <rect x="242" y="40" width="196" height="16" fill="#60A5FA"/>
+      <text x="340" y="43" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">🔵 IAM User</text>
+      <text x="340" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E40AF">Use for:</text>
+      <text x="256"  y="90" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">• Local development (this chapter)</text>
+      <text x="256"  y="106" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">• AWS CLI on your laptop</text>
+      <text x="256"  y="122" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">• Name: <strong>neuron-dev-user</strong></text>
+      <rect x="252" y="132" width="176" height="20" rx="4" fill="#BFDBFE"/>
+      <text x="340" y="146" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1E40AF">✓ Safe for development use</text>
+
+      <!-- IRSA (green - production) -->
+      <rect x="470" y="20" width="196" height="140" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="470" y="20" width="196" height="36" rx="12" fill="#34D399"/>
+      <rect x="470" y="40" width="196" height="16" fill="#34D399"/>
+      <text x="568" y="43" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">🟢 IRSA (K8s Pods)</text>
+      <text x="568" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Use for:</text>
+      <text x="484"  y="90" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• Kubernetes pods on EKS</text>
+      <text x="484"  y="106" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• No credentials stored anywhere</text>
+      <text x="484"  y="122" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• Set up in Chapter 14</text>
+      <rect x="480" y="132" width="176" height="20" rx="4" fill="#BBF7D0"/>
+      <text x="568" y="146" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">✓ Production best practice</text>
+    </svg>
+  </div>
+
+  <!-- STEP 2: BEDROCK -->
+  <div class="step-box">
+    <div class="step-num">Step 2 — Enable Amazon Bedrock Models</div>
+    <div class="step-title">Request Claude access in the AWS Console</div>
+    <div class="step-body">
+      <p style="margin:0 0 12px">AWS Bedrock does not give you Claude access by default — you must request it.</p>
+      <ol style="padding-left:20px;color:#4B5563;font-size:.93rem;line-height:2.2">
+        <li>Sign in to <strong>console.aws.amazon.com</strong></li>
+        <li>Search <em>Bedrock</em> in the top bar → click <strong>Amazon Bedrock</strong></li>
+        <li>Set region to <strong>us-east-1</strong> (top-right dropdown) — use this region throughout</li>
+        <li>Left sidebar → <strong>Model access</strong></li>
+        <li>Click <strong>Modify model access</strong> (orange button, top right)</li>
+        <li>Check these three models:</li>
+      </ol>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Model</th><th>Used For</th><th>Cost (approx)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Claude Sonnet 4</strong><br><code>anthropic.claude-sonnet-4...</code></td><td>Main model — all agent reasoning</td><td>$3 / 1M input tokens</td></tr>
+      <tr><td><strong>Claude Haiku 4</strong><br><code>anthropic.claude-haiku-4...</code></td><td>Cheap fast tasks — routing, summarisation</td><td>$0.25 / 1M input tokens</td></tr>
+      <tr><td><strong>Titan Embeddings V2</strong><br><code>amazon.titan-embed-text-v2...</code></td><td>Knowledge Base RAG (Chapter 20)</td><td>$0.02 / 1M tokens</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">⏱</div>
+    <div class="callout-body">After clicking Save, wait <strong>2–5 minutes</strong> and refresh. Status changes from "Available" → <strong>"Access granted"</strong>. Do not proceed until you see this.</div>
+  </div>
+
+  <!-- STEP 3: IAM USER -->
+  <div class="step-box">
+    <div class="step-num">Step 3 — Create IAM User</div>
+    <div class="step-title">Create neuron-dev-user with the right permissions</div>
+    <div class="step-body">
+      <ol style="padding-left:20px;color:#4B5563;font-size:.93rem;line-height:2.2">
+        <li>In AWS Console → search <strong>IAM</strong> → click Users → <strong>Create user</strong></li>
+        <li>Username: <code>neuron-dev-user</code> → Next</li>
+        <li>Select <strong>Attach policies directly</strong></li>
+        <li>Search and check these four policies:</li>
+      </ol>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Policy Name</th><th>Why We Need It</th></tr></thead>
+    <tbody>
+      <tr><td><code>AmazonBedrockFullAccess</code></td><td>Call Claude via the Bedrock API</td></tr>
+      <tr><td><code>AmazonDynamoDBFullAccess</code></td><td>Read/write conversation sessions</td></tr>
+      <tr><td><code>AmazonS3FullAccess</code></td><td>Upload documents for Knowledge Base</td></tr>
+      <tr><td><code>AmazonECR_FullAccess</code></td><td>Push Docker images (Chapter 14)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- STEP 4: ACCESS KEYS -->
+  <div class="step-box">
+    <div class="step-num">Step 4 — Create Access Keys</div>
+    <div class="step-title">Generate credentials for your laptop</div>
+    <div class="step-body">
+      <ol style="padding-left:20px;color:#4B5563;font-size:.93rem;line-height:2.2">
+        <li>Click <code>neuron-dev-user</code> in the users list</li>
+        <li>Click the <strong>Security credentials</strong> tab</li>
+        <li>Under <em>Access keys</em> → <strong>Create access key</strong></li>
+        <li>Select <strong>Local code</strong> → Next → Create access key</li>
+        <li><strong>Download the CSV file NOW</strong> — you cannot see the secret key again after this screen</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="callout callout-danger">
+    <div class="callout-icon">🔴</div>
+    <div class="callout-body"><strong>Never commit these keys to GitHub.</strong> They give full access to your AWS account. Store them in 1Password, macOS Keychain, or a secure note. We add them to a <code>.env</code> file which is always in <code>.gitignore</code>.</div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       STEPS 5–9: TERMINAL
+  ══════════════════════════════════ -->
+  <h2>Steps 5–9 — In Your Terminal</h2>
+
+  <!-- STEP 5: AWS CLI -->
+  <div class="step-box">
+    <div class="step-num">Step 5 — Install and Configure AWS CLI</div>
+    <div class="step-title">Connect your terminal to AWS</div>
+    <div class="step-body">
+      <p style="margin:0 0 14px">The AWS CLI lets you control AWS from your terminal — creating tables, pushing images, and checking costs.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Install AWS CLI</span>
+    </div>
+    <div class="code-body"><pre><span class="comment"># macOS</span>
+<span class="cmd">brew install awscli</span>
+
+<span class="comment"># Ubuntu / Debian</span>
+<span class="cmd">sudo apt-get install awscli</span>
+
+<span class="comment"># Verify installation</span>
+<span class="cmd">aws --version</span>
+<span class="comment"># Expected: aws-cli/2.x.x Python/3.x.x</span></pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Configure with your IAM user credentials</span>
+    </div>
+    <div class="code-body"><pre><span class="cmd">aws configure --profile neuron-dev</span>
+
+<span class="comment"># Enter when prompted:</span>
+<span class="comment"># AWS Access Key ID:     [paste from the CSV you downloaded]</span>
+<span class="comment"># AWS Secret Access Key: [paste from the CSV you downloaded]</span>
+<span class="comment"># Default region name:   us-east-1</span>
+<span class="comment"># Default output format: json</span>
+
+<span class="comment"># Verify it works — should show your account ID</span>
+<span class="cmd">aws sts get-caller-identity --profile neuron-dev</span></pre></div>
+  </div>
+
+  <!-- STEP 6: uv -->
+  <div class="step-box">
+    <div class="step-num">Step 6 — Install uv (Python Package Manager)</div>
+    <div class="step-title">The modern replacement for pip — used in every chapter</div>
+    <div class="step-body">
+      <p style="margin:0">We use <code>uv</code> instead of <code>pip</code> throughout this guide. It is 10–100× faster, creates reproducible builds, and manages Python versions automatically.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Install uv</span>
+    </div>
+    <div class="code-body"><pre><span class="comment"># macOS / Linux</span>
+<span class="cmd">curl -LsSf https://astral.sh/uv/install.sh | sh</span>
+
+<span class="comment"># Windows (PowerShell)</span>
+<span class="cmd">powershell -c "irm https://astral.sh/uv/install.ps1 | iex"</span>
+
+<span class="comment"># Verify</span>
+<span class="cmd">uv --version</span>
+<span class="comment"># Expected: uv 0.x.x</span></pre></div>
+  </div>
+
+  <!-- STEP 7: DYNAMODB -->
+  <div class="step-box">
+    <div class="step-num">Step 7 — Create DynamoDB Table</div>
+    <div class="step-title">The database that stores all conversation history</div>
+    <div class="step-body">
+      <p style="margin:0">DynamoDB is AWS's serverless database. "Serverless" means you pay only for what you use — at our scale, the cost is essentially $0 per month. No maintenance, no servers to manage.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Create the neuron-sessions table</span>
+    </div>
+    <div class="code-body"><pre><span class="comment"># Create the sessions table</span>
+<span class="cmd">aws dynamodb create-table \</span>
+  <span class="flag">--table-name</span> neuron-sessions \
+  <span class="flag">--attribute-definitions</span> AttributeName=session_id,AttributeType=S \
+  <span class="flag">--key-schema</span> AttributeName=session_id,KeyType=HASH \
+  <span class="flag">--billing-mode</span> PAY_PER_REQUEST \
+  <span class="flag">--region</span> us-east-1 \
+  <span class="flag">--profile</span> neuron-dev
+
+<span class="comment"># Enable TTL — auto-delete sessions after 24 hours</span>
+<span class="cmd">aws dynamodb update-time-to-live \</span>
+  <span class="flag">--table-name</span> neuron-sessions \
+  <span class="flag">--time-to-live-specification</span> <span class="str">"Enabled=true,AttributeName=ttl"</span> \
+  <span class="flag">--region</span> us-east-1 \
+  <span class="flag">--profile</span> neuron-dev
+
+<span class="comment"># Verify table is ACTIVE</span>
+<span class="cmd">aws dynamodb describe-table \</span>
+  <span class="flag">--table-name</span> neuron-sessions \
+  <span class="flag">--region</span> us-east-1 \
+  <span class="flag">--profile</span> neuron-dev \
+  <span class="flag">--query</span> <span class="str">"Table.TableStatus"</span>
+<span class="comment"># Expected: "ACTIVE"</span></pre></div>
+  </div>
+
+  <!-- DIAGRAM 2.4: DynamoDB Schema -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 2.4 — DynamoDB Table Schema for neuron-sessions</div>
+    <svg width="100%" viewBox="0 0 680 190" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>DynamoDB table schema showing primary key session_id and attributes messages, user_id, summary, ttl</title>
+
+      <!-- Table box -->
+      <rect x="80" y="14" width="520" height="162" rx="14" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+
+      <!-- Header row -->
+      <rect x="80" y="14" width="520" height="38" rx="14" fill="#1D4ED8"/>
+      <rect x="80" y="36" width="520" height="16" fill="#1D4ED8"/>
+      <text x="340" y="37" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">neuron-sessions — DynamoDB Table</text>
+
+      <!-- Column headers -->
+      <rect x="92" y="58" width="100" height="24" rx="4" fill="#BFDBFE"/>
+      <text x="142" y="74" text-anchor="middle" font-family="'IBM Plex Mono',sans-serif" font-size="10" font-weight="700" fill="#1E40AF">session_id</text>
+      <rect x="200" y="58" width="386" height="24" rx="4" fill="#DBEAFE"/>
+      <text x="250" y="74" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="#1D4ED8">messages</text>
+      <text x="340" y="74" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="#1D4ED8">user_id</text>
+      <text x="430" y="74" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="#1D4ED8">summary</text>
+      <text x="530" y="74" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="#1D4ED8">ttl</text>
+
+      <!-- Row 1 -->
+      <line x1="92" y1="86" x2="588" y2="86" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="142" y="100" text-anchor="middle" font-family="'IBM Plex Mono',sans-serif" font-size="9" fill="#1D4ED8">abc-123-def</text>
+      <text x="250" y="100" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">[{role,content}...]</text>
+      <text x="340" y="100" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">user@co.com</text>
+      <text x="430" y="100" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">null</text>
+      <text x="530" y="100" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">1718000000</text>
+
+      <!-- Row 2 -->
+      <line x1="92" y1="108" x2="588" y2="108" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="142" y="122" text-anchor="middle" font-family="'IBM Plex Mono',sans-serif" font-size="9" fill="#1D4ED8">xyz-789-ghi</text>
+      <text x="250" y="122" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">[last 10 msgs]</text>
+      <text x="340" y="122" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">dev@co.com</text>
+      <text x="430" y="122" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">"User asked about..."</text>
+      <text x="530" y="122" font-family="'IBM Plex Mono',sans-serif" font-size="8" fill="#374151">1718086400</text>
+
+      <!-- Key badge -->
+      <rect x="92" y="136" width="100" height="30" rx="6" fill="#DBEAFE"/>
+      <text x="142" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1E40AF">🔑 PRIMARY KEY</text>
+      <text x="142" y="162" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Partition key</text>
+
+      <!-- TTL badge -->
+      <rect x="502" y="136" width="84" height="30" rx="6" fill="#FEF3C7"/>
+      <text x="544" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">⏱ TTL ENABLED</text>
+      <text x="544" y="162" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">Auto-expires 24h</text>
+    </svg>
+  </div>
+
+  <!-- STEP 8: S3 -->
+  <div class="step-box">
+    <div class="step-num">Step 8 — Create S3 Bucket</div>
+    <div class="step-title">Object storage for documents and Docker image layers</div>
+    <div class="step-body">
+      <p style="margin:0 0 10px">The S3 bucket holds documents for the Bedrock Knowledge Base (Chapter 20). We create it now so the name is reserved.</p>
+      <p style="margin:0"><strong>Replace YOUR_ACCOUNT_ID</strong> with your 12-digit AWS account ID. Run <code>aws sts get-caller-identity --query Account --output text --profile neuron-dev</code> to find it.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Create S3 bucket with account ID suffix for uniqueness</span>
+    </div>
+    <div class="code-body"><pre><span class="comment"># Get your account ID</span>
+<span class="cmd">ACCOUNT_ID=$(aws sts get-caller-identity \</span>
+  <span class="flag">--query</span> Account <span class="flag">--output</span> text <span class="flag">--profile</span> neuron-dev)
+
+<span class="comment"># Create bucket (name must be globally unique — account ID ensures this)</span>
+<span class="cmd">aws s3 mb s3://neuron-platform-docs-$ACCOUNT_ID \</span>
+  <span class="flag">--region</span> us-east-1 \
+  <span class="flag">--profile</span> neuron-dev
+
+<span class="comment"># Verify</span>
+<span class="cmd">aws s3 ls --profile neuron-dev | grep neuron-platform-docs</span>
+<span class="comment"># Expected: 2024-xx-xx xx:xx:xx  neuron-platform-docs-123456789012</span></pre></div>
+  </div>
+
+  <!-- STEP 9: PROJECT STRUCTURE -->
+  <div class="step-box">
+    <div class="step-num">Step 9 — Create Project Structure</div>
+    <div class="step-title">Set up the three-repo folder structure on your laptop</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Create workspace and three repositories</span>
+    </div>
+    <div class="code-body"><pre><span class="comment"># Create workspace root</span>
+<span class="cmd">mkdir neuron-platform && cd neuron-platform</span>
+
+<span class="comment"># Create the three repos</span>
+<span class="cmd">mkdir neuron-mcp-server neuron-mcp-client neuron-frontend</span>
+
+<span class="comment"># Create root .env file — NEVER commit this to git</span>
+<span class="cmd">cat > .env << 'EOF'</span>
+<span class="comment"># AWS</span>
+AWS_PROFILE=neuron-dev
+AWS_DEFAULT_REGION=us-east-1
+AWS_ACCOUNT_ID=YOUR_12_DIGIT_ACCOUNT_ID
+
+<span class="comment"># DynamoDB</span>
+DYNAMODB_TABLE=neuron-sessions
+
+<span class="comment"># S3</span>
+S3_BUCKET=neuron-platform-docs-YOUR_ACCOUNT_ID
+
+<span class="comment"># MCP Server (filled in Chapter 3)</span>
+MCP_SERVER_URL=http://localhost:8001
+MCP_AUTH_TOKEN=dev-token-change-in-production
+
+<span class="comment"># Integrations (filled in Chapters 8-10)</span>
+GITHUB_TOKEN=
+JIRA_DOMAIN=
+JIRA_USER=
+JIRA_API_TOKEN=
+SLACK_BOT_TOKEN=
+EOF
+
+<span class="comment"># Create .gitignore</span>
+<span class="cmd">cat > .gitignore << 'EOF'</span>
+.env
+.env.*
+*.pyc
+__pycache__/
+.venv/
+.DS_Store
+EOF</pre></div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       VERIFICATION SCRIPT
+  ══════════════════════════════════ -->
+  <h2>Step 10 — Verify Everything Works</h2>
+  <p>Use this Claude prompt to generate a verification script, then run it. <strong>All checks must pass before moving to Chapter 3.</strong></p>
+
+  <div class="step-box">
+    <div class="step-num">Claude Prompt</div>
+    <div class="step-title">Copy this prompt into Claude to generate verify_aws.py</div>
+    <div class="step-body">
+      <p style="margin:0;font-style:italic;color:#6C63FF;background:#F5F3FF;border-radius:8px;padding:14px;font-size:.93rem;line-height:1.7">"I am building Neuron, an agentic AI platform. Tech stack: Python 3.11, uv, AWS Bedrock, DynamoDB, region us-east-1, profile neuron-dev.<br><br>Generate a Python script called verify_aws.py that tests:<br>1. AWS credentials valid — sts.get_caller_identity<br>2. Bedrock accessible — list models, check Claude Sonnet 4 present<br>3. DynamoDB working — write test item to neuron-sessions, read it back, delete it<br>4. S3 working — write and read a test file from neuron-platform-docs-{account_id}<br><br>Print ✅ for each passing check and ❌ with the error for each failing check. Exit code 0 if all pass, 1 if any fail. Use boto3. Add clear comments."</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">bash</span>
+      <span class="code-desc">Run the verification script</span>
+    </div>
+    <div class="code-body"><pre><span class="cmd">cd neuron-platform</span>
+<span class="cmd">uv run python verify_aws.py</span>
+
+<span class="comment"># Expected output:</span>
+<span class="cmd">✅ AWS credentials valid — Account: 123456789012, User: neuron-dev-user</span>
+<span class="cmd">✅ Bedrock accessible — Claude Sonnet 4 found and access granted</span>
+<span class="cmd">✅ DynamoDB working — neuron-sessions table ACTIVE, read/write OK</span>
+<span class="cmd">✅ S3 working — neuron-platform-docs-123456789012 accessible</span>
+<span class="cmd">
+All checks passed! You are ready for Chapter 3.</span></pre></div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       COST OVERVIEW
+  ══════════════════════════════════ -->
+  <h2>What This Chapter Costs</h2>
+
+  <table class="cost-table">
+    <thead><tr><th>Service</th><th>This chapter</th><th>Phase 1 monthly estimate</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Amazon Bedrock (Claude)</strong></td><td class="free">$0</td><td class="paid">~$3–8 during testing</td></tr>
+      <tr><td><strong>DynamoDB</strong></td><td class="free">$0</td><td class="free">$0 (free tier covers Phase 1)</td></tr>
+      <tr><td><strong>S3</strong></td><td class="free">$0</td><td class="free">$0 (pennies for small files)</td></tr>
+      <tr><td><strong>IAM</strong></td><td class="free">$0 always</td><td class="free">$0 always</td></tr>
+      <tr><td><strong>EKS / EC2</strong></td><td class="free">$0 (not used yet)</td><td class="free">$0 (Chapter 14 onwards)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Set a billing alarm now.</strong> In AWS Console → search <em>Billing</em> → Budgets → Create budget → choose $20/month. You will get an email if you accidentally leave something running.</div>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint — All Must Pass</h2>
+  <div class="checkpoint">
+    <h3>✅ Before moving to Chapter 3, verify:</h3>
+    <ol>
+      <li><code>aws sts get-caller-identity --profile neuron-dev</code> returns your account ID</li>
+      <li>Bedrock Model access page shows Claude Sonnet 4 as <strong>Access granted</strong></li>
+      <li><code>aws dynamodb describe-table --table-name neuron-sessions ...</code> returns <strong>ACTIVE</strong></li>
+      <li><code>aws s3 ls --profile neuron-dev</code> shows your bucket</li>
+      <li><code>uv run python verify_aws.py</code> prints four ✅ and exits with code 0</li>
+      <li>Your <code>.env</code> file is in <code>.gitignore</code> and never committed</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card">
+      <div class="lc-title">Amazon Bedrock</div>
+      <div class="lc-body">AWS's AI model hosting service. Claude lives here. You pay per token, AWS handles the infrastructure, and your data stays inside AWS.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">IAM — Least Privilege</div>
+      <div class="lc-body">Always use the least permissions needed. Root account only for billing. IAM user for local dev. IRSA for production pods — no credentials stored.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">DynamoDB is Serverless</div>
+      <div class="lc-body">No servers, no maintenance, pay per use. At small scale it's essentially free. TTL auto-expires old sessions so you never hit storage limits.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">uv over pip</div>
+      <div class="lc-body">uv manages Python versions, virtual environments, and dependencies. 10–100× faster than pip. We use it in every single chapter — learn it once.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Verify before building</div>
+      <div class="lc-body">A working foundation saves hours of debugging later. The verification script catches permission errors, typos, and missing resources before they cause confusing failures in later chapters.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Environment variables</div>
+      <div class="lc-body">Secrets go in <code>.env</code> files, never in code. <code>.env</code> is always in <code>.gitignore</code>. This is non-negotiable — one leaked key can cost thousands in AWS bills.</div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="ch-nav">
+    <a href="01-mental-model.html">
+      <span class="dir">← Previous</span>
+      Chapter 1: Mental Model
+    </a>
+    <a href="03-first-mcp-server.html" class="next">
+      <span class="dir">Next Chapter →</span>
+      Chapter 3: First MCP Server
+    </a>
+  </div>
+
+</div><!-- .page-wrap -->
+</body>
+</html>
