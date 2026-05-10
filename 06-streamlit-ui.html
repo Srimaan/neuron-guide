@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — Streamlit UI | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#F59E0B);height:100%;border-radius:20px;width:23.1%}
+.hero{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FDE68A;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(245,158,11,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#D97706}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#D97706;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+.cm{color:#6B7280}.kw{color:#93C5FD}.fn{color:#86EFAC}.st{color:#F9A8D4}.dc{color:#FCD34D}.pu{color:#C4B5FD}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html">
+    <div class="icon">⚡</div>
+    Neuron Guide
+  </a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="04-claude-desktop.html">Ch 4</a>
+    <a href="05-agent-backend.html">Ch 5</a>
+    <a href="06-streamlit-ui.html" class="active">Ch 6</a>
+    <a href="07-docker-compose.html">Ch 7</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 6 — Streamlit UI
+  </div>
+
+  <div class="progress-label">Chapter 6 of 26 — Phase 1</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 06 of 26</span>
+    </div>
+    <h1>The <span>Streamlit UI</span></h1>
+    <p>Build a real web chat interface in pure Python. Real-time streaming responses, tool-use visibility, quick action buttons, and session management — all running at <code>http://localhost:8501</code>.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">🐍 Streamlit</span>
+      <span class="meta-tag">🌐 Port 8501</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Build a working web chat UI at <code>http://localhost:8501</code> that streams AI responses in real time, shows which tools were called, has quick-action buttons, and manages multiple sessions.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> <code>neuron-frontend/</code> — a Streamlit app that connects to the agent backend (port 8000), streams responses word-by-word, shows tool badges under AI messages, and persists sessions across page interactions.</div>
+  </div>
+
+  <!-- ═══════════════════════════
+       WHY STREAMLIT NOW
+  ═══════════════════════════ -->
+  <h2>Why Streamlit for Phase 1</h2>
+
+  <p>Streamlit lets you build a working web UI in Python in hours. You won't win design awards, but you will have something genuinely useful running the same day you start it. We upgrade to <em>Reflex</em> (Python-to-React) in Phase 4 — but everything you learn about state, streaming, and UX applies directly.</p>
+
+  <table>
+    <thead><tr><th>Feature</th><th>Streamlit (now)</th><th>Reflex (Phase 4)</th></tr></thead>
+    <tbody>
+      <tr><td>Setup time</td><td>Hours</td><td>Days</td></tr>
+      <tr><td>Language</td><td>Pure Python</td><td>Pure Python → React</td></tr>
+      <tr><td>Streaming</td><td>Good (<code>st.write_stream</code>)</td><td>Excellent (WebSocket)</td></tr>
+      <tr><td>Routing / multiple pages</td><td>Basic</td><td>Full SPA routing</td></tr>
+      <tr><td>Production ready</td><td>Internal tools ✅</td><td>Public product ✅</td></tr>
+      <tr><td>When to use</td><td>Phase 1–3</td><td>Phase 4+</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════════════════════════
+       STREAMLIT STATE MODEL
+  ═══════════════════════════ -->
+  <h2>The Streamlit State Model</h2>
+  <p>Streamlit re-runs your <em>entire</em> Python script from top to bottom every time a user interacts with anything. <code>st.session_state</code> is the only thing that persists between reruns. Understanding this is the key to writing Streamlit apps that work correctly.</p>
+
+  <!-- DIAGRAM 6.1: Streamlit rerun model -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 6.1 — The Streamlit Rerun Model</div>
+    <svg width="100%" viewBox="0 0 680 230" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Streamlit rerun model showing script reruns on every interaction and session_state persisting</title>
+      <defs>
+        <marker id="ua" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Three rerun columns -->
+      <!-- Rerun 1 -->
+      <rect x="14" y="14" width="176" height="168" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="14" y="14" width="176" height="32" rx="12" fill="#2563EB"/>
+      <rect x="14" y="34" width="176" height="12" fill="#2563EB"/>
+      <text x="102" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Rerun 1 — Page load</text>
+      <text x="24" y="62" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1D4ED8">app.py runs top→bottom</text>
+      <line x1="24" y1="70" x2="178" y2="70" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="24" y="86" font-family="'Sora',sans-serif" font-size="9" fill="#374151">① Init session_state.messages=[]</text>
+      <text x="24" y="102" font-family="'Sora',sans-serif" font-size="9" fill="#374151">② Draw sidebar</text>
+      <text x="24" y="118" font-family="'Sora',sans-serif" font-size="9" fill="#374151">③ Draw empty chat area</text>
+      <text x="24" y="134" font-family="'Sora',sans-serif" font-size="9" fill="#374151">④ Draw chat input</text>
+      <text x="24" y="150" font-family="'Sora',sans-serif" font-size="9" fill="#374151">⑤ Wait for user</text>
+      <rect x="22" y="160" width="160" height="16" rx="4" fill="#DBEAFE"/>
+      <text x="102" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#1D4ED8">messages = []</text>
+
+      <!-- Arrow -->
+      <text x="214" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">→</text>
+      <text x="214" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">user sends</text>
+      <text x="214" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">message</text>
+
+      <!-- Rerun 2 -->
+      <rect x="242" y="14" width="176" height="168" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="242" y="14" width="176" height="32" rx="12" fill="#059669"/>
+      <rect x="242" y="34" width="176" height="12" fill="#059669"/>
+      <text x="330" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Rerun 2 — User typed</text>
+      <text x="252" y="62" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#065F46">app.py runs top→bottom</text>
+      <line x1="252" y1="70" x2="406" y2="70" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="252" y="86" font-family="'Sora',sans-serif" font-size="9" fill="#374151">① messages already has 1 item ✓</text>
+      <text x="252" y="102" font-family="'Sora',sans-serif" font-size="9" fill="#374151">② Draw sidebar</text>
+      <text x="252" y="118" font-family="'Sora',sans-serif" font-size="9" fill="#374151">③ Draw user message</text>
+      <text x="252" y="134" font-family="'Sora',sans-serif" font-size="9" fill="#374151">④ Stream AI response</text>
+      <text x="252" y="150" font-family="'Sora',sans-serif" font-size="9" fill="#374151">⑤ Append AI reply to messages</text>
+      <rect x="250" y="160" width="160" height="16" rx="4" fill="#DCFCE7"/>
+      <text x="330" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#065F46">messages = [user_msg]</text>
+
+      <!-- Arrow -->
+      <text x="442" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">→</text>
+      <text x="442" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">AI responds,</text>
+      <text x="442" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">user asks again</text>
+
+      <!-- Rerun 3 -->
+      <rect x="470" y="14" width="196" height="168" rx="12" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <rect x="470" y="14" width="196" height="32" rx="12" fill="#6C63FF"/>
+      <rect x="470" y="34" width="196" height="12" fill="#6C63FF"/>
+      <text x="568" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Rerun 3 — Second message</text>
+      <text x="480" y="62" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4B44CC">app.py runs top→bottom</text>
+      <line x1="480" y1="70" x2="654" y2="70" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="480" y="86" font-family="'Sora',sans-serif" font-size="9" fill="#374151">① messages has 2 items ✓</text>
+      <text x="480" y="102" font-family="'Sora',sans-serif" font-size="9" fill="#374151">② Draw sidebar</text>
+      <text x="480" y="118" font-family="'Sora',sans-serif" font-size="9" fill="#374151">③ Draw both messages</text>
+      <text x="480" y="134" font-family="'Sora',sans-serif" font-size="9" fill="#374151">④ Stream next response</text>
+      <text x="480" y="150" font-family="'Sora',sans-serif" font-size="9" fill="#374151">⑤ Append reply</text>
+      <rect x="478" y="160" width="176" height="16" rx="4" fill="#C7D2FE"/>
+      <text x="566" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#4B44CC">messages = [msg1, reply1]</text>
+
+      <!-- session_state annotation -->
+      <rect x="14" y="196" width="652" height="28" rx="8" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="340" y="207" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">🔑 st.session_state persists across ALL reruns — it is the only persistent memory in Streamlit</text>
+      <text x="340" y="219" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Everything else (variables, objects) is recreated fresh on every rerun</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       UI LAYOUT
+  ═══════════════════════════ -->
+  <h2>UI Layout Design</h2>
+  <p>Our UI has two zones: a fixed left sidebar for controls, and a main chat area with a streaming message feed and fixed input bar at the bottom.</p>
+
+  <!-- DIAGRAM 6.2: UI wireframe -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 6.2 — Streamlit UI Layout Wireframe</div>
+    <svg width="100%" viewBox="0 0 680 390" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>UI wireframe showing sidebar on left and main chat area on right</title>
+
+      <!-- Browser chrome -->
+      <rect x="20" y="10" width="640" height="370" rx="10" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <rect x="20" y="10" width="640" height="32" rx="10" fill="#E2E8F0"/>
+      <rect x="20" y="28" width="640" height="14" fill="#E2E8F0"/>
+      <circle cx="38" cy="26" r="5" fill="#FF5F57"/>
+      <circle cx="54" cy="26" r="5" fill="#FEBC2E"/>
+      <circle cx="70" cy="26" r="5" fill="#28C840"/>
+      <text x="340" y="30" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#9CA3AF">localhost:8501</text>
+
+      <!-- Sidebar -->
+      <rect x="20" y="42" width="160" height="338" fill="#F0F2F8" stroke="#E2E8F0" stroke-width="0.5"/>
+
+      <!-- Sidebar: Logo -->
+      <rect x="28" y="52" width="144" height="30" rx="6" fill="#6C63FF"/>
+      <text x="100" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">⚡ Neuron</text>
+
+      <!-- Sidebar: Session info -->
+      <text x="30" y="100" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">SESSION</text>
+      <rect x="28" y="106" width="144" height="18" rx="4" fill="#EEF0FF"/>
+      <text x="36" y="119" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#4B44CC">abc-123-def...</text>
+
+      <!-- Sidebar: New session button -->
+      <rect x="28" y="132" width="144" height="24" rx="5" fill="#fff" stroke="#E2E8F0"/>
+      <text x="100" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#374151">+ New Session</text>
+
+      <!-- Sidebar: Quick actions label -->
+      <text x="30" y="172" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">QUICK ACTIONS</text>
+      <rect x="28" y="178" width="144" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="36" y="192" font-family="'Sora',sans-serif" font-size="8" fill="#065F46">🔍 My open PRs</text>
+      <rect x="28" y="202" width="144" height="20" rx="4" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="36" y="216" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">🎫 My Jira tickets</text>
+      <rect x="28" y="226" width="144" height="20" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>
+      <text x="36" y="240" font-family="'Sora',sans-serif" font-size="8" fill="#1D4ED8">📊 Sprint summary</text>
+      <rect x="28" y="250" width="144" height="20" rx="4" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="36" y="264" font-family="'Sora',sans-serif" font-size="8" fill="#9D174D">🚨 Failed builds</text>
+
+      <!-- Sidebar: Status -->
+      <text x="30" y="290" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">BACKEND STATUS</text>
+      <rect x="28" y="296" width="144" height="20" rx="4" fill="#F0FDF4"/>
+      <text x="36" y="310" font-family="'Sora',sans-serif" font-size="8" fill="#065F46">✅ Connected · 5 tools</text>
+
+      <!-- Main area -->
+      <rect x="180" y="42" width="480" height="338" fill="#fff"/>
+
+      <!-- Main: header -->
+      <rect x="180" y="42" width="480" height="36" fill="#F8F9FF" stroke="none"/>
+      <text x="200" y="64" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#1E1E2E">Neuron AI Assistant</text>
+      <text x="640" y="64" text-anchor="end" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⚡ Claude Sonnet 4</text>
+      <line x1="180" y1="78" x2="660" y2="78" stroke="#E2E8F0" stroke-width="0.5"/>
+
+      <!-- Messages area -->
+      <!-- User message 1 -->
+      <rect x="350" y="90" width="280" height="42" rx="8" fill="#EEF0FF" stroke="#C7D2FE"/>
+      <text x="360" y="107" font-family="'Sora',sans-serif" font-size="9" fill="#374151">What are my open Jira tickets?</text>
+      <text x="620" y="138" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">you</text>
+
+      <!-- AI message 1 -->
+      <rect x="190" y="148" width="370" height="72" rx="8" fill="#F8F9FF" stroke="#E0E7FF"/>
+      <text x="200" y="165" font-family="'Sora',sans-serif" font-size="9" fill="#374151">You have 3 open tickets:</text>
+      <text x="200" y="181" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• ENG-234: Fix login bug (In Progress)</text>
+      <text x="200" y="197" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• ENG-245: Update dependencies (To Do)</text>
+      <!-- Tool badge -->
+      <rect x="200" y="207" width="140" height="14" rx="4" fill="#DBEAFE"/>
+      <text x="208" y="218" font-family="'Sora',sans-serif" font-size="7" fill="#1D4ED8">🔧 jira_search_issues</text>
+      <text x="190" y="228" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">Neuron</text>
+
+      <!-- User message 2 -->
+      <rect x="350" y="242" width="280" height="32" rx="8" fill="#EEF0FF" stroke="#C7D2FE"/>
+      <text x="360" y="262" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Create a PR for ENG-234 summary</text>
+
+      <!-- Streaming indicator -->
+      <rect x="190" y="286" width="240" height="32" rx="8" fill="#F8F9FF" stroke="#E0E7FF" stroke-dasharray="4 2"/>
+      <text x="200" y="306" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Neuron is thinking... ▋</text>
+
+      <!-- Input bar -->
+      <rect x="180" y="346" width="480" height="34" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="0.5"/>
+      <rect x="188" y="352" width="396" height="22" rx="6" fill="#fff" stroke="#E2E8F0"/>
+      <text x="196" y="367" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Ask Neuron anything...</text>
+      <rect x="592" y="350" width="60" height="26" rx="6" fill="#6C63FF"/>
+      <text x="622" y="367" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">Send →</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       HOW STREAMING WORKS IN STREAMLIT
+  ═══════════════════════════ -->
+  <h2>How Streaming Works in Streamlit</h2>
+  <p>Streamlit has <code>st.write_stream()</code> which accepts a Python generator and displays text progressively. We convert our SSE events into a generator that yields text chunks.</p>
+
+  <!-- DIAGRAM 6.3: Streaming flow -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 6.3 — SSE Events → Streamlit Streaming Generator</div>
+    <svg width="100%" viewBox="0 0 680 198" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Flow showing SSE events from backend converted into a Python generator consumed by st.write_stream</title>
+      <defs>
+        <marker id="ub" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Backend SSE events -->
+      <rect x="14" y="14" width="170" height="170" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="99" y="36" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E40AF">Agent Backend</text>
+      <text x="99" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#3B82F6">streams SSE events</text>
+      <rect x="22" y="60" width="154" height="16" rx="3" fill="#FEF3C7"/>
+      <text x="32" y="72" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#92400E">("thinking", "...")</text>
+      <rect x="22" y="82" width="154" height="16" rx="3" fill="#DBEAFE"/>
+      <text x="32" y="94" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#1E40AF">("tool_use", {...})</text>
+      <rect x="22" y="104" width="154" height="16" rx="3" fill="#DCFCE7"/>
+      <text x="32" y="116" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">("tool_result", {...})</text>
+      <rect x="22" y="126" width="154" height="16" rx="3" fill="#EDE9FE"/>
+      <text x="32" y="138" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#3C3489">("text", "You have...")</text>
+      <rect x="22" y="148" width="154" height="16" rx="3" fill="#EDE9FE"/>
+      <text x="32" y="160" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#3C3489">("text", " 3 tickets:")</text>
+      <rect x="22" y="170" width="154" height="8" rx="3" fill="#DCFCE7"/>
+      <text x="32" y="177" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#065F46">("complete", {...})</text>
+
+      <!-- Arrow to generator -->
+      <line x1="184" y1="99" x2="216" y2="99" stroke="#6C63FF" stroke-width="2" marker-end="url(#ub)"/>
+
+      <!-- Generator box -->
+      <rect x="218" y="26" width="196" height="146" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="316" y="48" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#26215C">response_generator()</text>
+      <text x="316" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Python generator function</text>
+      <line x1="230" y1="72" x2="402" y2="72" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="228" y="88" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">for event in sse:</text>
+      <text x="228" y="104" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">  if "thinking":</text>
+      <text x="228" y="119" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CA3AF">    spinner shown</text>
+      <text x="228" y="135" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">  if "tool_use":</text>
+      <text x="228" y="150" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CA3AF">    record tool name</text>
+      <text x="228" y="166" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">  if "text": <span style="color:#86EFAC">yield</span> chunk</text>
+
+      <!-- Arrow to st.write_stream -->
+      <line x1="414" y1="99" x2="446" y2="99" stroke="#D97706" stroke-width="2" marker-end="url(#ub)"/>
+
+      <!-- st.write_stream box -->
+      <rect x="448" y="26" width="218" height="146" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="557" y="48" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">st.write_stream()</text>
+      <text x="557" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Streamlit built-in</text>
+      <line x1="458" y1="72" x2="654" y2="72" stroke="#FDE68A" stroke-width="0.5"/>
+      <text x="558" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">🖥️</text>
+      <text x="558" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">"You have" → appears</text>
+      <text x="558" y="140" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">" 3 tickets:" → appended</text>
+      <text x="558" y="156" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">word by word in browser</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       PROJECT STRUCTURE
+  ═══════════════════════════ -->
+  <h2>Project Structure</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">text</span><span class="code-desc">neuron-frontend/ file structure</span></div>
+    <div class="code-body"><pre><span class="pu">neuron-frontend/</span>
+├── pyproject.toml
+├── uv.lock
+├── .env
+├── <span class="dc">.streamlit/</span>
+│   └── <span class="fn">config.toml</span>          <span class="cm">← theme: dark sidebar, brand colours</span>
+└── <span class="dc">frontend/</span>
+    ├── __init__.py
+    ├── <span class="st">app.py</span>              <span class="cm">← main Streamlit application</span>
+    ├── <span class="st">api_client.py</span>       <span class="cm">← HTTP client for backend calls</span>
+    └── <span class="dc">components/</span>
+        ├── __init__.py
+        ├── <span class="fn">chat.py</span>         <span class="cm">← render_message() component</span>
+        └── <span class="fn">sidebar.py</span>      <span class="cm">← sidebar layout component</span></pre></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       BUILD STEPS
+  ═══════════════════════════ -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 6.1 — Initialise the Project</div>
+    <div class="step-title">Create the frontend project and install Streamlit</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Create frontend project</span></div>
+    <div class="code-body"><pre><span class="fn">cd</span> neuron-platform/neuron-frontend
+
+<span class="fn">uv init</span> <span class="dc">--python</span> 3.11
+<span class="fn">uv add</span> <span class="st">"streamlit>=1.38.0"</span>
+<span class="fn">uv add</span> <span class="st">"httpx>=0.27.0"</span>
+<span class="fn">uv add</span> <span class="st">"python-dotenv>=1.0.0"</span>
+
+<span class="fn">mkdir</span> -p .streamlit frontend/components
+<span class="fn">touch</span> frontend/__init__.py frontend/components/__init__.py</pre></div>
+  </div>
+
+  <!-- Step 6.2: Theme config -->
+  <div class="step-box">
+    <div class="step-num">Step 6.2 — Create Streamlit Theme Config</div>
+    <div class="step-title">Brand colours and layout settings</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">toml</span><span class="code-desc">.streamlit/config.toml</span></div>
+    <div class="code-body"><pre>[theme]
+primaryColor       = <span class="st">"#6C63FF"</span>
+backgroundColor    = <span class="st">"#FFFFFF"</span>
+secondaryBackgroundColor = <span class="st">"#F8F9FF"</span>
+textColor          = <span class="st">"#1E1E2E"</span>
+font               = <span class="st">"sans serif"</span>
+
+[server]
+port               = <span class="dc">8501</span>
+headless           = <span class="kw">true</span>
+enableCORS         = <span class="kw">false</span></pre></div>
+  </div>
+
+  <!-- Step 6.3: API Client -->
+  <div class="step-box">
+    <div class="step-num">Step 6.3 — Write frontend/api_client.py</div>
+    <div class="step-title">HTTP client that calls the agent backend and parses SSE events</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-frontend, the Streamlit web UI for Neuron. The backend runs at BACKEND_URL env var (default http://localhost:8000).<br><br>Generate frontend/api_client.py with a NeuronAPIClient class:<br>
+    1. stream_chat(prompt, session_id, user_id='web-user') → Generator[dict, None, None]: POST to {base_url}/chat, parse SSE lines, yield parsed event dicts {event_type, content}. SSE format: 'data: {json}\n\n'. Handle connection errors: yield {event_type:'error', content: str(e)}<br>
+    2. reset_session(session_id) → bool: POST /chat/reset, return True on success<br>
+    3. get_health() → dict: GET /health, return dict or {'status':'unreachable'} on error<br><br>
+    Use httpx with stream=True. Timeout 120s. Type hints throughout."</em></div>
+  </div>
+
+  <!-- Step 6.4: App -->
+  <div class="step-box">
+    <div class="step-num">Step 6.4 — Write frontend/app.py</div>
+    <div class="step-title">The main Streamlit application — layout, state, streaming</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate frontend/app.py as the main Streamlit application for Neuron.<br><br>State (st.session_state):<br>
+    - messages: list[dict] = [] — each {role, content, tools_used: list[str]}<br>
+    - session_id: str = uuid.uuid4() as string<br>
+    - processing: bool = False<br><br>
+    Layout:<br>
+    SIDEBAR: Neuron logo, session ID (first 8 chars), 'New Session' button that clears messages and generates new session_id, divider, 'Quick Actions' with 4 buttons (My open PRs / My Jira tickets / Sprint summary / Failed builds) each setting a pending prompt, divider, backend status from api_client.get_health().<br><br>
+    MAIN AREA: Title 'Neuron AI Assistant', render all messages with st.chat_message, user messages right-aligned, assistant messages with gray background, tool badges as small st.caption under AI messages showing '🔧 tools: tool1, tool2', chat input with st.chat_input always visible at bottom.<br><br>
+    When message submitted: set processing=True, add user message to messages, call api_client.stream_chat(), parse events: thinking → show st.spinner, tool_use → append tool name to current tools_used list, text → feed to st.write_stream generator, complete → hide spinner set processing=False show tool badges.<br><br>
+    Use st.rerun() only when necessary. Never block the UI thread during streaming."</em></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       ENV AND RUN
+  ═══════════════════════════ -->
+  <h2>Configure and Run</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">neuron-frontend/.env</span></div>
+    <div class="code-body"><pre>BACKEND_URL=<span class="st">http://localhost:8000</span></pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Start all three services</span></div>
+    <div class="code-body"><pre><span class="cm"># Terminal 1 — MCP Server</span>
+<span class="fn">cd</span> neuron-platform/neuron-mcp-server
+<span class="fn">uv run python</span> -m mcp_server.main
+
+<span class="cm"># Terminal 2 — Agent Backend</span>
+<span class="fn">cd</span> neuron-platform/neuron-mcp-client
+<span class="fn">uv run python</span> -m mcp_client.main
+
+<span class="cm"># Terminal 3 — Streamlit UI</span>
+<span class="fn">cd</span> neuron-platform/neuron-frontend
+<span class="fn">uv run streamlit run</span> frontend/app.py
+
+<span class="cm"># Open in browser:</span>
+<span class="dc">http://localhost:8501</span></pre></div>
+  </div>
+
+  <!-- DIAGRAM 6.4: Complete Phase 1 stack running -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 6.4 — Complete Phase 1 Stack Running (All Three Services)</div>
+    <svg width="100%" viewBox="0 0 680 160" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>All three services running showing user browser connecting to Streamlit which calls Agent Backend which calls MCP Server</title>
+      <defs>
+        <marker id="uc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- User browser -->
+      <rect x="14" y="44" width="106" height="72" rx="10" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="67" y="70" text-anchor="middle" font-size="24">🌐</text>
+      <text x="67" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E1E2E">Your Browser</text>
+      <text x="67" y="107" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">localhost:8501</text>
+
+      <line x1="120" y1="80" x2="148" y2="80" stroke="#D97706" stroke-width="1.8" marker-end="url(#uc)"/>
+      <text x="134" y="71" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#D97706">HTTP</text>
+
+      <!-- Streamlit -->
+      <rect x="150" y="30" width="140" height="100" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <rect x="150" y="30" width="140" height="28" rx="10" fill="#D97706"/>
+      <rect x="150" y="46" width="140" height="12" fill="#D97706"/>
+      <text x="220" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">neuron-frontend ✅</text>
+      <text x="220" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">Streamlit</text>
+      <text x="220" y="94" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Port 8501</text>
+      <text x="220" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">Chat UI · SSE parser</text>
+
+      <line x1="290" y1="80" x2="318" y2="80" stroke="#3B82F6" stroke-width="1.8" marker-end="url(#uc)"/>
+      <text x="304" y="71" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#3B82F6">POST /chat</text>
+      <line x1="318" y1="88" x2="290" y2="88" stroke="#3B82F6" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#uc)"/>
+      <text x="304" y="101" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#3B82F6">SSE stream</text>
+
+      <!-- Agent Backend -->
+      <rect x="320" y="30" width="160" height="100" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="320" y="30" width="160" height="28" rx="10" fill="#2563EB"/>
+      <rect x="320" y="46" width="160" height="12" fill="#2563EB"/>
+      <text x="400" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">neuron-mcp-client ✅</text>
+      <text x="400" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E40AF">FastAPI + Strands</text>
+      <text x="400" y="94" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#3B82F6">Port 8000</text>
+      <text x="400" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#1D4ED8">Agent · Sessions · Bedrock</text>
+
+      <line x1="480" y1="80" x2="508" y2="80" stroke="#10B981" stroke-width="1.8" marker-end="url(#uc)"/>
+      <text x="494" y="71" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#10B981">MCP/SSE</text>
+      <line x1="508" y1="88" x2="480" y2="88" stroke="#10B981" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#uc)"/>
+      <text x="494" y="101" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#10B981">tool results</text>
+
+      <!-- MCP Server -->
+      <rect x="510" y="30" width="156" height="100" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="510" y="30" width="156" height="28" rx="10" fill="#059669"/>
+      <rect x="510" y="46" width="156" height="12" fill="#059669"/>
+      <text x="588" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">neuron-mcp-server ✅</text>
+      <text x="588" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">FastMCP</text>
+      <text x="588" y="94" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Port 8001</text>
+      <text x="588" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#065F46">5 tools · GitHub · Jira · Slack</text>
+
+      <!-- Phase complete badge -->
+      <text x="340" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#6C63FF">🎉 Phase 1 local stack complete — all three services running</text>
+    </svg>
+  </div>
+
+  <!-- TEST PROMPTS -->
+  <h2>Test It — The Full Demo</h2>
+  <p>Open <code>http://localhost:8501</code> and try these prompts in order. After each one, verify the result in the actual service.</p>
+
+  <table>
+    <thead><tr><th>Prompt to type</th><th>What to verify</th></tr></thead>
+    <tbody>
+      <tr><td><em>"What tools do you have available?"</em></td><td>AI describes all 5 tools. No tool badge (no tools called).</td></tr>
+      <tr><td>Click <strong>My open PRs</strong> quick action</td><td>Response lists real PRs. Badge shows <code>github_search_prs</code>.</td></tr>
+      <tr><td>Click <strong>My Jira tickets</strong> quick action</td><td>Response lists real tickets. Badge shows <code>jira_search_issues</code>.</td></tr>
+      <tr><td><em>"Create a Jira task to test the Neuron UI integration"</em></td><td>Go to Jira board — real ticket exists. Badge shows <code>jira_create_issue</code>.</td></tr>
+      <tr><td>Refresh the browser page, ask <em>"What did I ask you last?"</em></td><td>AI remembers previous questions (session persists via DynamoDB).</td></tr>
+      <tr><td>Click <strong>New Session</strong> button, ask the same</td><td>AI has no memory (fresh session). History properly isolated.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint — Before Moving On</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>UI loads at <code>http://localhost:8501</code> with sidebar showing "✅ Connected · 5 tools"</li>
+      <li>Responses stream word-by-word (not appearing all at once)</li>
+      <li>Tool badges appear under AI messages showing which tools were called</li>
+      <li>Quick action buttons trigger correct AI actions</li>
+      <li>After browser refresh — conversation history is still there (DynamoDB session)</li>
+      <li>New Session button clears history and generates a new session ID</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card">
+      <div class="lc-title">Streamlit reruns everything</div>
+      <div class="lc-body">The entire script re-runs on every interaction. <code>st.session_state</code> is the only persistent memory. Design your app around this constraint — not against it.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">st.write_stream() + generators</div>
+      <div class="lc-body">Convert SSE events into a Python generator that yields text chunks. <code>st.write_stream()</code> handles the incremental display. Clean, simple, effective.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Tool visibility builds trust</div>
+      <div class="lc-body">Showing which tools the AI called under each message builds user trust. Users understand <em>why</em> the AI said what it said — it's not a black box anymore.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Quick actions reduce friction</div>
+      <div class="lc-body">The four quick-action buttons cover 80% of daily use. Users shouldn't have to type for common tasks. One click beats ten keystrokes every time.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Phase 1 is complete</div>
+      <div class="lc-body">Three services running locally. A real web UI. Real GitHub, Jira, Slack integration. Session memory. This is a working agentic AI platform — built in 6 chapters.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Streamlit is a stepping stone</div>
+      <div class="lc-body">We replace Streamlit with Reflex in Phase 4. But everything here — state design, streaming, component thinking — transfers directly. You haven't wasted any time.</div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="ch-nav">
+    <a href="05-agent-backend.html">
+      <span class="dir">← Previous</span>
+      Chapter 5: Agent Backend
+    </a>
+    <a href="07-docker-compose.html" class="next">
+      <span class="dir">Next Chapter →</span>
+      Chapter 7: Docker Compose
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
