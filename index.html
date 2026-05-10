@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuron — Build Your Own Agentic AI Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand:#6C63FF;
+  --brand-dark:#4B44CC;
+  --brand-light:#EEF0FF;
+  --bg:#FFFFFF;
+  --surface:#F8F9FC;
+  --surface2:#F0F2F8;
+  --border:#E2E8F0;
+  --text:#1E1E2E;
+  --muted:#6B7280;
+  --code-bg:#F3F4F6;
+  --sidebar-w:280px;
+  --ph1:#3B82F6;
+  --ph2:#10B981;
+  --ph3:#F59E0B;
+  --ph4:#EC4899;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── TOP BAR ─────────────────────────────── */
+#topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:2px solid #E2E8F0;display:flex;align-items:center;padding:0 20px;z-index:100;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;color:#1E1E2E;text-decoration:none;white-space:nowrap}
+.logo-icon{width:30px;height:30px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-sub{font-weight:300;color:var(--muted);font-size:.8rem;border-left:1px solid var(--border);padding-left:12px;margin-left:4px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.badge-version{background:#EEF0FF;color:#4B44CC;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px}
+#search-input{background:#F0F2F8;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;font-size:.85rem;font-family:'Sora',sans-serif;width:200px;outline:none;transition:border .2s}
+#search-input:focus{border-color:var(--brand)}
+#search-input::placeholder{color:var(--muted)}
+.menu-btn{display:none;background:none;border:none;color:var(--text);cursor:pointer;font-size:1.3rem;padding:4px}
+@media(max-width:768px){.menu-btn{display:block}#search-input{display:none}.logo-sub{display:none}}
+
+/* ── LAYOUT ──────────────────────────────── */
+#layout{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
+
+/* ── SIDEBAR ─────────────────────────────── */
+#sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:56px;bottom:0;overflow-y:auto;padding:24px 0 60px;transition:transform .3s}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-track{background:transparent}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.nav-section{margin-bottom:8px}
+.nav-phase{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:#9CA3AF;text-transform:uppercase;padding:16px 20px 6px;display:flex;align-items:center;gap:8px}
+.phase-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ph1-dot{background:var(--ph1)}.ph2-dot{background:var(--ph2)}.ph3-dot{background:var(--ph3)}.ph4-dot{background:var(--ph4)}
+.nav-link{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:.85rem;color:#6B7280;text-decoration:none;cursor:pointer;transition:all .15s;border-left:3px solid transparent;user-select:none}
+.nav-link:hover{color:#1E1E2E;background:#EEF0FF}
+.nav-link.active{color:#4B44CC;background:rgba(108,99,255,.10);border-left-color:var(--brand)}
+.nav-link .ch-num{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#9CA3AF;flex-shrink:0;min-width:28px}
+.nav-link.active .ch-num{color:var(--brand)}
+.nav-link.home-link{font-weight:600;color:#1E1E2E;font-size:.9rem}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%);z-index:90}
+  #sidebar.open{transform:translateX(0)}
+}
+
+/* ── CONTENT AREA ────────────────────────── */
+#main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:48px 60px 100px}
+@media(max-width:1100px){#main{padding:40px 36px 80px}}
+@media(max-width:768px){#main{margin-left:0;padding:28px 20px 60px}}
+
+/* ── CHAPTER CONTENT ─────────────────────── */
+.chapter{display:none;animation:fadeIn .25s ease}
+.chapter.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.chapter-hero{background:linear-gradient(135deg,#F8F9FC 0%,#EEF0FF 100%);border:1px solid var(--border);border-radius:16px;padding:48px;margin-bottom:48px;position:relative;overflow:hidden}
+.chapter-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(108,99,255,.08) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-dark);margin-bottom:12px}
+.chapter-hero h1{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:16px;color:#1E1E2E}
+.chapter-hero .hero-desc{font-size:1.05rem;color:#4B5563;max-width:640px;line-height:1.7}
+.hero-tags{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap}
+.tag{background:#EEF0FF;border:1px solid #D4D0FF;color:#4B44CC;font-size:.75rem;font-weight:600;padding:4px 12px;border-radius:20px}
+
+/* Typography */
+.chapter h2{font-size:1.45rem;font-weight:700;color:#fff;margin:52px 0 16px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:10px}
+.chapter h2::before{content:'';display:inline-block;width:4px;height:20px;background:var(--brand);border-radius:2px;flex-shrink:0}
+.chapter h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:28px 0 10px}
+.chapter p{color:#4B5563;line-height:1.8;margin-bottom:16px;font-size:.97rem}
+.chapter strong{color:var(--text)}
+.chapter em{color:var(--brand);font-style:normal;font-weight:600}
+
+/* Diagram card */
+.diagram-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px 24px 20px;margin:32px 0;overflow-x:auto}
+.diagram-title{font-size:.72rem;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-title::before{content:'';width:3px;height:12px;background:var(--brand);border-radius:2px;display:inline-block}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.9rem}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
+thead th:first-child{border-radius:8px 0 0 0}thead th:last-child{border-radius:0 8px 0 0}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--border);color:#4B5563}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F0F2F8}
+
+/* Callouts */
+.callout{border-radius:10px;padding:16px 20px;margin:24px 0;display:flex;gap:14px;align-items:flex-start;font-size:.93rem}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.callout strong{color:#fff}
+
+/* Chapter nav */
+.chapter-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:1px solid var(--border);gap:16px}
+.nav-btn{background:#F8F9FC;border:1px solid var(--border);color:var(--text);padding:14px 22px;border-radius:10px;cursor:pointer;font-family:'Sora',sans-serif;font-size:.9rem;font-weight:600;transition:all .2s;text-align:left;min-width:180px}
+.nav-btn:hover{border-color:var(--brand);background:#EEF0FF;color:#4B44CC}
+.nav-btn .dir{font-size:.72rem;color:#9CA3AF;display:block;margin-bottom:4px;font-weight:400}
+.nav-btn.next{text-align:right}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* Phase badges */
+.phase-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:20px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.ph1-badge{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.25)}
+.ph2-badge{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
+.ph3-badge{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.25)}
+.ph4-badge{background:rgba(236,72,153,.15);color:#f9a8d4;border:1px solid rgba(236,72,153,.25)}
+
+/* Chapter grid */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:24px 0}
+.ch-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s}
+.ch-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 4px 16px rgba(108,99,255,.15)}
+.ch-card .ch-num{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--muted);margin-bottom:4px}
+.ch-card .ch-title{font-weight:700;font-size:.93rem;color:#1E1E2E;margin:4px 0 8px}
+.ch-card .ch-desc{font-size:.82rem;color:#6B7280;line-height:1.5}
+
+/* Overlay when sidebar open on mobile */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:85}
+@media(max-width:768px){#overlay.show{display:block}}
+
+/* Progress bar */
+#progress{position:fixed;top:56px;left:0;height:2px;background:var(--brand);z-index:99;transition:width .1s}
+
+/* Coming soon */
+.coming-soon{text-align:center;padding:80px 40px;color:var(--muted)}
+.coming-soon .big{font-size:3rem;margin-bottom:16px}
+.coming-soon h3{font-size:1.3rem;color:#1E1E2E;margin-bottom:10px}
+
+/* Code */
+code{font-family:'IBM Plex Mono',monospace;background:#F3F4F6;color:#6C63FF;padding:2px 8px;border-radius:4px;font-size:.85em}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;margin:20px 0}
+pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progress"></div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <a class="logo" onclick="navigate('home')" style="cursor:pointer">
+    <div class="logo-icon">⚡</div>
+    Neuron
+    <span class="logo-sub">Agentic AI Platform Guide</span>
+  </a>
+  <div class="topbar-right">
+    <input id="search-input" type="text" placeholder="Search chapters..." oninput="search(this.value)">
+    <span class="badge-version">v1.0</span>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+
+    <div class="nav-section">
+      <a class="nav-link home-link active" data-id="home" onclick="navigate('home')">
+        <span>🏠</span> Home
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-phase"><span class="phase-dot ph1-dot"></span>Phase 1 — Getting Started</div>
+      <a class="nav-link" data-id="ch1" onclick="navigate('ch1')"><span class="ch-num">01</span>Mental Model</a>
+      <a class="nav-link" data-id="ch2" onclick="navigate('ch2')"><span class="ch-num">02</span>AWS Setup</a>
+      <a class="nav-link" data-id="ch3" onclick="navigate('ch3')"><span class="ch-num">03</span>First MCP Server</a>
+      <a class="nav-link" data-id="ch4" onclick="navigate('ch4')"><span class="ch-num">04</span>Connect Claude Desktop</a>
+      <a class="nav-link" data-id="ch5" onclick="navigate('ch5')"><span class="ch-num">05</span>Agent Backend</a>
+      <a class="nav-link" data-id="ch6" onclick="navigate('ch6')"><span class="ch-num">06</span>Streamlit UI</a>
+      <a class="nav-link" data-id="ch7" onclick="navigate('ch7')"><span class="ch-num">07</span>Docker Compose</a>
+      <a class="nav-link" data-id="ch8" onclick="navigate('ch8')"><span class="ch-num">08</span>GitHub Tools</a>
+      <a class="nav-link" data-id="ch9" onclick="navigate('ch9')"><span class="ch-num">09</span>Jira Tools</a>
+      <a class="nav-link" data-id="ch10" onclick="navigate('ch10')"><span class="ch-num">10</span>Slack Tools</a>
+      <a class="nav-link" data-id="ch11" onclick="navigate('ch11')"><span class="ch-num">11</span>Dispatcher Pattern</a>
+      <a class="nav-link" data-id="ch12" onclick="navigate('ch12')"><span class="ch-num">12</span>Response Limiting</a>
+      <a class="nav-link" data-id="ch13" onclick="navigate('ch13')"><span class="ch-num">13</span>Session Memory</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-phase"><span class="phase-dot ph2-dot"></span>Phase 2 — Cloud Deploy</div>
+      <a class="nav-link" data-id="ch14" onclick="navigate('ch14')"><span class="ch-num">14</span>Deploy to AWS EKS</a>
+      <a class="nav-link" data-id="ch15" onclick="navigate('ch15')"><span class="ch-num">15</span>GitHub Actions CI/CD</a>
+      <a class="nav-link" data-id="ch16" onclick="navigate('ch16')"><span class="ch-num">16</span>Helm Charts</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-phase"><span class="phase-dot ph3-dot"></span>Phase 3 — Scale Intelligence</div>
+      <a class="nav-link" data-id="ch17" onclick="navigate('ch17')"><span class="ch-num">17</span>Slack Bot</a>
+      <a class="nav-link" data-id="ch18" onclick="navigate('ch18')"><span class="ch-num">18</span>Playwright Browser</a>
+      <a class="nav-link" data-id="ch19" onclick="navigate('ch19')"><span class="ch-num">19</span>Multi-Agent Workflows</a>
+      <a class="nav-link" data-id="ch20" onclick="navigate('ch20')"><span class="ch-num">20</span>Knowledge Base (RAG)</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-phase"><span class="phase-dot ph4-dot"></span>Phase 4 — Production</div>
+      <a class="nav-link" data-id="ch21" onclick="navigate('ch21')"><span class="ch-num">21</span>LiteLLM Routing</a>
+      <a class="nav-link" data-id="ch22" onclick="navigate('ch22')"><span class="ch-num">22</span>Redis Token Vault</a>
+      <a class="nav-link" data-id="ch23" onclick="navigate('ch23')"><span class="ch-num">23</span>Skills System</a>
+      <a class="nav-link" data-id="ch24" onclick="navigate('ch24')"><span class="ch-num">24</span>Reflex UI</a>
+      <a class="nav-link" data-id="ch25" onclick="navigate('ch25')"><span class="ch-num">25</span>Okta SSO</a>
+      <a class="nav-link" data-id="ch26" onclick="navigate('ch26')"><span class="ch-num">26</span>Observability</a>
+    </div>
+
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <!-- ══════════════════════════════════════
+         HOME PAGE
+    ══════════════════════════════════════ -->
+    <div class="chapter active" id="page-home">
+      <div class="chapter-hero">
+        <div class="hero-eyebrow">Complete Step-by-Step Guide</div>
+        <h1>Build Your Own<br>Agentic AI Platform</h1>
+        <p class="hero-desc">26 chapters. 4 phases. From a 5-tool local prototype to a production Kubernetes platform with multi-agent intelligence, Bedrock Knowledge Base, and enterprise SSO — all on your own AWS account.</p>
+        <div class="hero-tags">
+          <span class="tag">Python 3.11</span>
+          <span class="tag">FastMCP</span>
+          <span class="tag">Strands Agents</span>
+          <span class="tag">AWS Bedrock</span>
+          <span class="tag">Kubernetes</span>
+          <span class="tag">Claude Sonnet 4</span>
+        </div>
+      </div>
+
+      <h2>What Is Neuron?</h2>
+      <p>Neuron is an <strong>Agentic AI Productivity Platform</strong>. Unlike a chatbot that only generates text, Neuron gives the AI real <em>hands</em> — tools to take real actions in real systems. It is built in five layers, just like the human body.</p>
+
+      <!-- DIAGRAM: Human Body vs Platform Layers -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.1 — Platform Architecture: Human Body Analogy</div>
+        <svg width="100%" viewBox="0 0 680 500" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Neuron Platform Architecture compared to Human Body</title>
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- Headers -->
+          <text x="150" y="15" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9CA3AF" letter-spacing="0.08em">HUMAN BODY</text>
+          <text x="497" y="15" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9CA3AF" letter-spacing="0.08em">NEURON PLATFORM</text>
+          <!-- Divider -->
+          <line x1="330" y1="22" x2="330" y2="462" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+          <!-- LEGS (gray – Infrastructure) -->
+          <rect x="111" y="300" width="36" height="85" rx="13" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.2"/>
+          <rect x="157" y="300" width="36" height="85" rx="13" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.2"/>
+          <rect x="114" y="388" width="28" height="72" rx="11" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.2"/>
+          <rect x="162" y="388" width="28" height="72" rx="11" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.2"/>
+          <!-- knee caps -->
+          <ellipse cx="129" cy="300" rx="11" ry="7" fill="#E5E0D8" stroke="#5F5E5A" stroke-width="0.5"/>
+          <ellipse cx="175" cy="300" rx="11" ry="7" fill="#E5E0D8" stroke="#5F5E5A" stroke-width="0.5"/>
+          <!-- TORSO + ARMS (coral – Executor) -->
+          <rect x="108" y="147" width="84" height="153" rx="14" fill="#FAECE7" stroke="#D85A30" stroke-width="1.2"/>
+          <rect x="68"  y="152" width="36" height="88"  rx="14" fill="#FAECE7" stroke="#D85A30" stroke-width="1.2"/>
+          <rect x="73"  y="244" width="28" height="66"  rx="12" fill="#FAECE7" stroke="#D85A30" stroke-width="1.2"/>
+          <rect x="204" y="152" width="36" height="88"  rx="14" fill="#FAECE7" stroke="#D85A30" stroke-width="1.2"/>
+          <rect x="203" y="244" width="28" height="66"  rx="12" fill="#FAECE7" stroke="#D85A30" stroke-width="1.2"/>
+          <ellipse cx="86"  cy="244" rx="10" ry="6" fill="#F5C4B3" stroke="#D85A30" stroke-width="0.5"/>
+          <ellipse cx="217" cy="244" rx="10" ry="6" fill="#F5C4B3" stroke="#D85A30" stroke-width="0.5"/>
+          <!-- SPINE (teal – MCP) -->
+          <rect x="146" y="147" width="8" height="153" rx="4" fill="#5DCAA5" stroke="#1D9E75" stroke-width="0.5" opacity="0.9"/>
+          <ellipse cx="150" cy="165" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <ellipse cx="150" cy="185" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <ellipse cx="150" cy="205" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <ellipse cx="150" cy="225" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <ellipse cx="150" cy="245" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <ellipse cx="150" cy="265" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <ellipse cx="150" cy="285" rx="7" ry="4" fill="#1D9E75" opacity="0.7"/>
+          <!-- NECK -->
+          <rect x="140" y="125" width="20" height="22" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+          <!-- HEAD (purple – Interface) -->
+          <circle cx="150" cy="72" r="53" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+          <!-- BRAIN (amber) -->
+          <ellipse cx="150" cy="98" rx="34" ry="22" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.2"/>
+          <path d="M124,96 Q133,88 142,96 Q151,104 160,96 Q169,88 176,96" fill="none" stroke="#EF9F27" stroke-width="1" opacity="0.7"/>
+          <path d="M128,104 Q137,98 146,104 Q155,110 164,104" fill="none" stroke="#EF9F27" stroke-width="0.8" opacity="0.5"/>
+          <!-- EYES (purple) -->
+          <ellipse cx="131" cy="56" rx="10" ry="8" fill="#CECBF6" stroke="#7F77DD" stroke-width="1"/>
+          <circle cx="131" cy="56" r="4.5" fill="#6C63FF"/>
+          <circle cx="129" cy="54" r="1.5" fill="white" opacity="0.6"/>
+          <ellipse cx="169" cy="56" rx="10" ry="8" fill="#CECBF6" stroke="#7F77DD" stroke-width="1"/>
+          <circle cx="169" cy="56" r="4.5" fill="#6C63FF"/>
+          <circle cx="167" cy="54" r="1.5" fill="white" opacity="0.6"/>
+          <!-- Eyebrows -->
+          <path d="M120,45 Q131,40 140,45" fill="none" stroke="#AFA9EC" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M160,45 Q169,40 178,45" fill="none" stroke="#AFA9EC" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Nose -->
+          <path d="M150,62 L146,74 Q150,77 154,74 L150,62" fill="none" stroke="#7F77DD" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+          <!-- Smile -->
+          <path d="M133,80 Q150,92 167,80" fill="none" stroke="#AFA9EC" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- CONNECTORS -->
+          <line x1="198" y1="49" x2="355" y2="49" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+          <line x1="177" y1="117" x2="355" y2="117" stroke="#EF9F27" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+          <line x1="192" y1="185" x2="355" y2="185" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+          <line x1="231" y1="263" x2="355" y2="263" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+          <line x1="193" y1="376" x2="355" y2="376" stroke="#5F5E5A" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+
+          <!-- LAYER BOXES -->
+          <!-- Interface (purple) y=22 -->
+          <rect x="358" y="22" width="278" height="55" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+          <text x="370" y="41" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#26215C">Layer 5 — Interface</text>
+          <text x="370" y="57" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">Web UI · Slack Bot · Claude Desktop</text>
+          <text x="628" y="52" font-family="'Sora',sans-serif" font-size="9" fill="#7F77DD" text-anchor="end">👁 Face</text>
+          <!-- AI Brain (amber) y=90 -->
+          <rect x="358" y="90" width="278" height="55" rx="10" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
+          <text x="370" y="109" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#412402">Layer 4 — AI Intelligence</text>
+          <text x="370" y="125" font-family="'Sora',sans-serif" font-size="10" fill="#854F0B">Claude Agents · Multi-Agent Routing</text>
+          <text x="628" y="120" font-family="'Sora',sans-serif" font-size="9" fill="#EF9F27" text-anchor="end">🧠 Brain</text>
+          <!-- MCP (teal) y=158 -->
+          <rect x="358" y="158" width="278" height="55" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+          <text x="370" y="177" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#04342C">Layer 3 — MCP Tool Registry</text>
+          <text x="370" y="193" font-family="'Sora',sans-serif" font-size="10" fill="#0F6E56">FastMCP Server · 30+ Tools</text>
+          <text x="628" y="188" font-family="'Sora',sans-serif" font-size="9" fill="#1D9E75" text-anchor="end">⚡ Nervous System</text>
+          <!-- Executor (coral) y=236 -->
+          <rect x="358" y="236" width="278" height="55" rx="10" fill="#FAECE7" stroke="#D85A30" stroke-width="1.5"/>
+          <text x="370" y="255" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#4A1B0C">Layer 2 — Task Executor</text>
+          <text x="370" y="271" font-family="'Sora',sans-serif" font-size="10" fill="#993C1D">Kubernetes Jobs · Docker Containers</text>
+          <text x="628" y="266" font-family="'Sora',sans-serif" font-size="9" fill="#D85A30" text-anchor="end">💪 Muscles</text>
+          <!-- Infrastructure (gray) y=316 -->
+          <rect x="358" y="316" width="278" height="132" rx="10" fill="#F1EFE8" stroke="#888780" stroke-width="1.5"/>
+          <rect x="358" y="396" width="278" height="52" rx="0" fill="#E5E0D8" opacity="0.6"/>
+          <text x="370" y="338" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#2C2C2A">Layer 1 — Infrastructure</text>
+          <text x="370" y="356" font-family="'Sora',sans-serif" font-size="10" fill="#5F5E5A">AWS · Kubernetes (EKS)</text>
+          <text x="370" y="372" font-family="'Sora',sans-serif" font-size="10" fill="#5F5E5A">Docker · GitHub Actions · Terraform</text>
+          <text x="370" y="418" font-family="'Sora',sans-serif" font-size="9" fill="#888780">Foundation — everything else runs on top</text>
+          <text x="628" y="356" font-family="'Sora',sans-serif" font-size="9" fill="#5F5E5A" text-anchor="end">🦴 Skeleton</text>
+
+          <!-- Legend -->
+          <line x1="14" y1="472" x2="666" y2="472" stroke="#E2E8F0" stroke-width="0.5"/>
+          <rect x="14"  y="478" width="9" height="9" rx="2" fill="#7F77DD"/>
+          <text x="27" y="487" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Interface</text>
+          <rect x="95"  y="478" width="9" height="9" rx="2" fill="#EF9F27"/>
+          <text x="108" y="487" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">AI Brain</text>
+          <rect x="175" y="478" width="9" height="9" rx="2" fill="#1D9E75"/>
+          <text x="188" y="487" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">MCP Nervous System</text>
+          <rect x="320" y="478" width="9" height="9" rx="2" fill="#D85A30"/>
+          <text x="333" y="487" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Executor Muscles</text>
+          <rect x="438" y="478" width="9" height="9" rx="2" fill="#5F5E5A"/>
+          <text x="451" y="487" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Skeleton Infrastructure</text>
+        </svg>
+      </div>
+
+      <h2>The 4 Phases</h2>
+      <p>Each phase is a complete, working system. Stop at any phase — you'll have something genuinely useful.</p>
+
+      <!-- DIAGRAM: Phase Timeline -->
+      <div class="diagram-card">
+        <div class="diagram-title">Figure 1.2 — Four-Phase Build Plan</div>
+        <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+          <title>Four-phase build plan</title>
+          <defs>
+            <marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <line x1="170" y1="76" x2="190" y2="76" stroke="#CBD5E1" stroke-width="2" marker-end="url(#ah2)"/>
+          <line x1="340" y1="76" x2="360" y2="76" stroke="#CBD5E1" stroke-width="2" marker-end="url(#ah2)"/>
+          <line x1="510" y1="76" x2="530" y2="76" stroke="#CBD5E1" stroke-width="2" marker-end="url(#ah2)"/>
+
+          <!-- Phase 1 (blue) -->
+          <rect x="14"  y="20" width="156" height="190" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+          <rect x="14"  y="20" width="156" height="38" rx="12" fill="#1D4ED8"/>
+          <rect x="14"  y="40" width="156" height="18" fill="#1D4ED8"/>
+          <text x="92" y="44" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">Phase 1</text>
+          <text x="92" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1D4ED8">Getting Started</text>
+          <text x="92" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#3B82F6">Weeks 1 – 4</text>
+          <line x1="26" y1="100" x2="158" y2="100" stroke="#BFDBFE" stroke-width="1"/>
+          <text x="22" y="114" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">· Streamlit UI</text>
+          <text x="22" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">· Strands + FastMCP</text>
+          <text x="22" y="142" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">· GitHub + Jira + Slack</text>
+          <text x="22" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">· Docker Compose</text>
+          <rect x="22" y="180" width="120" height="20" rx="4" fill="#DBEAFE"/>
+          <text x="82" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">~$10 / month</text>
+
+          <!-- Phase 2 (green) -->
+          <rect x="184" y="20" width="156" height="190" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+          <rect x="184" y="20" width="156" height="38" rx="12" fill="#065F46"/>
+          <rect x="184" y="40" width="156" height="18" fill="#065F46"/>
+          <text x="262" y="44" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">Phase 2</text>
+          <text x="262" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#065F46">Cloud Deploy</text>
+          <text x="262" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#10B981">Weeks 5 – 8</text>
+          <line x1="196" y1="100" x2="328" y2="100" stroke="#BBF7D0" stroke-width="1"/>
+          <text x="192" y="114" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">· AWS EKS (Terraform)</text>
+          <text x="192" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">· GitHub Actions CI/CD</text>
+          <text x="192" y="142" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">· Helm Charts</text>
+          <text x="192" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">· Dispatcher pattern</text>
+          <rect x="192" y="180" width="120" height="20" rx="4" fill="#DCFCE7"/>
+          <text x="252" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">~$80 / month</text>
+
+          <!-- Phase 3 (amber) -->
+          <rect x="354" y="20" width="156" height="190" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+          <rect x="354" y="20" width="156" height="38" rx="12" fill="#92400E"/>
+          <rect x="354" y="40" width="156" height="18" fill="#92400E"/>
+          <text x="432" y="44" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">Phase 3</text>
+          <text x="432" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#92400E">Scale Intelligence</text>
+          <text x="432" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#F59E0B">Weeks 9 – 14</text>
+          <line x1="366" y1="100" x2="498" y2="100" stroke="#FDE68A" stroke-width="1"/>
+          <text x="362" y="114" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">· Multi-agent system</text>
+          <text x="362" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">· Knowledge Base (RAG)</text>
+          <text x="362" y="142" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">· Playwright browser</text>
+          <text x="362" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">· Slack Bot</text>
+          <rect x="362" y="180" width="120" height="20" rx="4" fill="#FEF3C7"/>
+          <text x="422" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">~$150 / month</text>
+
+          <!-- Phase 4 (pink) -->
+          <rect x="524" y="20" width="142" height="190" rx="12" fill="#FDF2F8" stroke="#EC4899" stroke-width="1.5"/>
+          <rect x="524" y="20" width="142" height="38" rx="12" fill="#9D174D"/>
+          <rect x="524" y="40" width="142" height="18" fill="#9D174D"/>
+          <text x="595" y="44" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">Phase 4</text>
+          <text x="595" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#9D174D">Production</text>
+          <text x="595" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#EC4899">Weeks 15 – 20</text>
+          <line x1="536" y1="100" x2="658" y2="100" stroke="#FBCFE8" stroke-width="1"/>
+          <text x="532" y="114" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">· Reflex UI (React)</text>
+          <text x="532" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">· Okta SSO</text>
+          <text x="532" y="142" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">· Redis Token Vault</text>
+          <text x="532" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">· Observability</text>
+          <rect x="532" y="180" width="120" height="20" rx="4" fill="#FCE7F3"/>
+          <text x="592" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9D174D">~$300 / month</text>
+        </svg>
+      </div>
+
+      <h2>Chapter Index</h2>
+      <div class="ch-grid">
+        <div class="ch-card" onclick="navigate('ch1')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapter 1</div><div class="ch-title">The Mental Model</div><div class="ch-desc">5 mental models, request journey, 3-repo architecture. Start here.</div></div>
+        <div class="ch-card" onclick="navigate('ch2')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapter 2</div><div class="ch-title">AWS Setup</div><div class="ch-desc">Bedrock, IAM, DynamoDB, S3. Everything before writing code.</div></div>
+        <div class="ch-card" onclick="navigate('ch3')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapter 3</div><div class="ch-title">First MCP Server</div><div class="ch-desc">FastMCP tool registry. 5 tools. The heart of Neuron.</div></div>
+        <div class="ch-card" onclick="navigate('ch4')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapter 4</div><div class="ch-title">Claude Desktop</div><div class="ch-desc">Prove it works. Watch Claude call your real GitHub and Jira.</div></div>
+        <div class="ch-card" onclick="navigate('ch5')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapter 5</div><div class="ch-title">Agent Backend</div><div class="ch-desc">FastAPI + Strands Agent + SSE streaming + DynamoDB memory.</div></div>
+        <div class="ch-card" onclick="navigate('ch6')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapters 6–7</div><div class="ch-title">UI + Docker Compose</div><div class="ch-desc">Streamlit chat UI. Then one command starts it all.</div></div>
+        <div class="ch-card" onclick="navigate('ch8')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapters 8–10</div><div class="ch-title">GitHub · Jira · Slack</div><div class="ch-desc">30+ tools. Standup generator. Bulk Jira. Rich Slack messages.</div></div>
+        <div class="ch-card" onclick="navigate('ch11')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapters 11–13</div><div class="ch-title">Patterns + Memory</div><div class="ch-desc">Dispatcher pattern. Response limits. Session rotation.</div></div>
+        <div class="ch-card" onclick="navigate('ch14')"><span class="phase-badge ph2-badge">Phase 2</span><div class="ch-num">Chapter 14</div><div class="ch-title">Deploy to AWS EKS</div><div class="ch-desc">Terraform + IRSA + K8s manifests. Real cloud deployment.</div></div>
+        <div class="ch-card" onclick="navigate('ch15')"><span class="phase-badge ph2-badge">Phase 2</span><div class="ch-num">Chapter 15</div><div class="ch-title">GitHub Actions CI/CD</div><div class="ch-desc">Push → test → build → deploy. Zero manual steps.</div></div>
+        <div class="ch-card" onclick="navigate('ch16')"><span class="phase-badge ph2-badge">Phase 2</span><div class="ch-num">Chapter 16</div><div class="ch-title">Helm Charts</div><div class="ch-desc">Production K8s packaging. Dev vs prod values.</div></div>
+        <div class="ch-card" onclick="navigate('ch19')"><span class="phase-badge ph3-badge">Phase 3</span><div class="ch-num">Chapter 19</div><div class="ch-title">Multi-Agent Workflows</div><div class="ch-desc">Supervisor + 4 specialists. Haiku routes, Sonnet executes.</div></div>
+        <div class="ch-card" onclick="navigate('ch20')"><span class="phase-badge ph3-badge">Phase 3</span><div class="ch-num">Chapter 20</div><div class="ch-title">Knowledge Base (RAG)</div><div class="ch-desc">AI answers from your internal runbooks and docs.</div></div>
+        <div class="ch-card" onclick="navigate('ch25')"><span class="phase-badge ph4-badge">Phase 4</span><div class="ch-num">Chapter 25</div><div class="ch-title">Okta SSO</div><div class="ch-desc">Enterprise authentication. JWKS validation. PKCE flow.</div></div>
+        <div class="ch-card" onclick="navigate('ch26')"><span class="phase-badge ph4-badge">Phase 4</span><div class="ch-num">Chapter 26</div><div class="ch-title">Observability</div><div class="ch-desc">CloudWatch metrics, dashboards, alarms, cost tracking.</div></div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">✅</div>
+        <div style="font-size:.93rem;color:#15803D"><strong>You can stop at any phase.</strong> Phase 1 alone gives you a fully working AI assistant connected to GitHub, Jira, and Slack — running for $10/month.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         CHAPTER PAGES (ch2–ch26 are coming soon)
+         Each chapter gets added here as we build
+    ══════════════════════════════════════ -->
+
+    <!-- CH1 placeholder (full chapter built next) -->
+    <div class="chapter" id="page-ch1">
+      <div class="chapter-hero">
+        <div class="hero-eyebrow"><span class="phase-badge ph1-badge">Phase 1 — Getting Started</span></div>
+        <h1>Chapter 1<br>The Mental Model</h1>
+        <p class="hero-desc">Understand the complete system before touching any code. Five mental models, the full request journey, and the three-repo architecture that keeps everything clean.</p>
+        <div class="hero-tags"><span class="tag">No code this chapter</span><span class="tag">Concepts only</span><span class="tag">~45 min read</span></div>
+      </div>
+      <div class="callout callout-info">
+        <div class="callout-icon">🔧</div>
+        <div style="font-size:.93rem;color:#1D4ED8">This chapter is being built. Check back soon — it will include architecture diagrams, sequence diagrams, and the full request journey walkthrough.</div>
+      </div>
+      <div class="chapter-nav">
+        <button class="nav-btn" onclick="navigate('home')"><span class="dir">← Back</span>Home</button>
+        <button class="nav-btn next" onclick="navigate('ch2')"><span class="dir">Next →</span>Chapter 2: AWS Setup</button>
+      </div>
+    </div>
+
+    <!-- GENERIC COMING SOON for ch2–ch26 -->
+    <script>
+      const comingSoon=['ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','ch13','ch14','ch15','ch16','ch17','ch18','ch19','ch20','ch21','ch22','ch23','ch24','ch25','ch26'];
+      const chMeta={
+        ch2:{num:2,title:'AWS Setup',phase:'ph1',prev:'ch1',prevT:'Mental Model',next:'ch3',nextT:'First MCP Server'},
+        ch3:{num:3,title:'First MCP Server',phase:'ph1',prev:'ch2',prevT:'AWS Setup',next:'ch4',nextT:'Claude Desktop'},
+        ch4:{num:4,title:'Connect Claude Desktop',phase:'ph1',prev:'ch3',prevT:'MCP Server',next:'ch5',nextT:'Agent Backend'},
+        ch5:{num:5,title:'The Agent Backend',phase:'ph1',prev:'ch4',prevT:'Claude Desktop',next:'ch6',nextT:'Streamlit UI'},
+        ch6:{num:6,title:'Streamlit UI',phase:'ph1',prev:'ch5',prevT:'Agent Backend',next:'ch7',nextT:'Docker Compose'},
+        ch7:{num:7,title:'Docker Compose',phase:'ph1',prev:'ch6',prevT:'Streamlit UI',next:'ch8',nextT:'GitHub Tools'},
+        ch8:{num:8,title:'GitHub Tools',phase:'ph1',prev:'ch7',prevT:'Docker Compose',next:'ch9',nextT:'Jira Tools'},
+        ch9:{num:9,title:'Jira Tools',phase:'ph1',prev:'ch8',prevT:'GitHub Tools',next:'ch10',nextT:'Slack Tools'},
+        ch10:{num:10,title:'Slack Tools',phase:'ph1',prev:'ch9',prevT:'Jira Tools',next:'ch11',nextT:'Dispatcher Pattern'},
+        ch11:{num:11,title:'Dispatcher Pattern',phase:'ph1',prev:'ch10',prevT:'Slack Tools',next:'ch12',nextT:'Response Limiting'},
+        ch12:{num:12,title:'Response Limiting',phase:'ph1',prev:'ch11',prevT:'Dispatcher Pattern',next:'ch13',nextT:'Session Memory'},
+        ch13:{num:13,title:'Session Memory',phase:'ph1',prev:'ch12',prevT:'Response Limiting',next:'ch14',nextT:'Deploy to EKS'},
+        ch14:{num:14,title:'Deploy to AWS EKS',phase:'ph2',prev:'ch13',prevT:'Session Memory',next:'ch15',nextT:'GitHub Actions'},
+        ch15:{num:15,title:'GitHub Actions CI/CD',phase:'ph2',prev:'ch14',prevT:'Deploy to EKS',next:'ch16',nextT:'Helm Charts'},
+        ch16:{num:16,title:'Helm Charts',phase:'ph2',prev:'ch15',prevT:'GitHub Actions',next:'ch17',nextT:'Slack Bot'},
+        ch17:{num:17,title:'The Slack Bot',phase:'ph3',prev:'ch16',prevT:'Helm Charts',next:'ch18',nextT:'Playwright'},
+        ch18:{num:18,title:'Playwright Browser',phase:'ph3',prev:'ch17',prevT:'Slack Bot',next:'ch19',nextT:'Multi-Agent'},
+        ch19:{num:19,title:'Multi-Agent Workflows',phase:'ph3',prev:'ch18',prevT:'Playwright',next:'ch20',nextT:'Knowledge Base'},
+        ch20:{num:20,title:'Knowledge Base (RAG)',phase:'ph3',prev:'ch19',prevT:'Multi-Agent',next:'ch21',nextT:'LiteLLM'},
+        ch21:{num:21,title:'LiteLLM Routing',phase:'ph4',prev:'ch20',prevT:'Knowledge Base',next:'ch22',nextT:'Token Vault'},
+        ch22:{num:22,title:'Redis Token Vault',phase:'ph4',prev:'ch21',prevT:'LiteLLM',next:'ch23',nextT:'Skills System'},
+        ch23:{num:23,title:'Skills System',phase:'ph4',prev:'ch22',prevT:'Token Vault',next:'ch24',nextT:'Reflex UI'},
+        ch24:{num:24,title:'Reflex UI',phase:'ph4',prev:'ch23',prevT:'Skills System',next:'ch25',nextT:'Okta SSO'},
+        ch25:{num:25,title:'Okta SSO',phase:'ph4',prev:'ch24',prevT:'Reflex UI',next:'ch26',nextT:'Observability'},
+        ch26:{num:26,title:'Observability',phase:'ph4',prev:'ch25',prevT:'Okta SSO',next:null,nextT:null},
+      };
+      comingSoon.forEach(id=>{
+        const m=chMeta[id];if(!m)return;
+        const phaseLabel={'ph1':'Phase 1 — Getting Started','ph2':'Phase 2 — Cloud Deploy','ph3':'Phase 3 — Scale Intelligence','ph4':'Phase 4 — Production'}[m.phase];
+        const el=document.createElement('div');
+        el.className='chapter';el.id='page-'+id;
+        el.innerHTML=`
+          <div class="chapter-hero">
+            <div class="hero-eyebrow"><span class="phase-badge ${m.phase}-badge">${phaseLabel}</span></div>
+            <h1>Chapter ${m.num}<br>${m.title}</h1>
+            <p class="hero-desc">Full chapter content with diagrams, step-by-step build instructions, and verified checkpoints — coming in the next update.</p>
+          </div>
+          <div class="callout callout-info">
+            <div class="callout-icon">🔧</div>
+            <div style="font-size:.93rem;color:#1D4ED8">This chapter is being built. It will include architecture diagrams, sequence diagrams, step-by-step Claude prompts, and a verified checkpoint before moving on.</div>
+          </div>
+          <div class="chapter-nav">
+            ${m.prev?`<button class="nav-btn" onclick="navigate('${m.prev}')"><span class="dir">← Previous</span>Ch ${m.num-1}: ${m.prevT}</button>`:'<span></span>'}
+            ${m.next?`<button class="nav-btn next" onclick="navigate('${m.next}')"><span class="dir">Next →</span>Ch ${m.num+1}: ${m.nextT}</button>`:'<button class="nav-btn next" onclick="navigate(\'home\')"><span class="dir">Done!</span>Back to Home</button>'}
+          </div>`;
+        document.getElementById('main').appendChild(el);
+      });
+    </script>
+
+  </main>
+</div>
+
+<script>
+// ── ROUTER ────────────────────────────────
+let current='home';
+const order=['home','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','ch13','ch14','ch15','ch16','ch17','ch18','ch19','ch20','ch21','ch22','ch23','ch24','ch25','ch26'];
+
+function navigate(id){
+  // hide current
+  const prev=document.getElementById('page-'+current);
+  if(prev)prev.classList.remove('active');
+  const prevLink=document.querySelector('.nav-link[data-id="'+current+'"]');
+  if(prevLink)prevLink.classList.remove('active');
+  // show new
+  current=id;
+  const next=document.getElementById('page-'+id);
+  if(next){next.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  const nextLink=document.querySelector(id==='home'?'.home-link':'.nav-link[data-id="'+id+'"]');
+  if(nextLink)nextLink.classList.add('active');
+  // hash
+  history.pushState(null,'','#'+id);
+  // close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// Handle hash on load
+window.addEventListener('load',()=>{
+  const h=location.hash.replace('#','');
+  if(h&&order.includes(h))navigate(h);
+});
+window.addEventListener('popstate',()=>{
+  const h=location.hash.replace('#','');
+  if(h&&order.includes(h))navigate(h);
+});
+
+// ── SIDEBAR TOGGLE (mobile) ───────────────
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ── READING PROGRESS ──────────────────────
+window.addEventListener('scroll',()=>{
+  const el=document.getElementById('main');
+  const pct=window.scrollY/(el.scrollHeight-window.innerHeight)*100;
+  document.getElementById('progress').style.width=Math.min(pct,100)+'%';
+});
+
+// ── SEARCH ────────────────────────────────
+const searchMap={
+  home:['home','introduction','welcome','what is neuron','overview'],
+  ch1:['mental model','concepts','architecture','brain hands','request journey','3 repo'],
+  ch2:['aws','bedrock','iam','dynamodb','s3','setup','credentials','boto3'],
+  ch3:['mcp server','fastmcp','tools','github tool','jira tool','slack tool'],
+  ch4:['claude desktop','stdio','config','test','prove'],
+  ch5:['agent backend','fastapi','strands','sse','streaming','session'],
+  ch6:['streamlit','ui','chat interface','browser'],
+  ch7:['docker','compose','makefile','local'],
+  ch8:['github','pull request','pr','diff','code search','workflow'],
+  ch9:['jira','tickets','sprint','jql','bulk create'],
+  ch10:['slack','message','bot token','block kit','dm'],
+  ch11:['dispatcher','list ops','token','savings','pattern'],
+  ch12:['response','limit','75kb','context','overflow','chunk'],
+  ch13:['session','memory','history','rotation','summarize','haiku'],
+  ch14:['eks','kubernetes','terraform','irsa','ecr','k8s','deploy'],
+  ch15:['github actions','cicd','ci','cd','pipeline','auto deploy'],
+  ch16:['helm','chart','values','packaging'],
+  ch17:['slack bot','socket mode','bolt','slash command'],
+  ch18:['playwright','browser','screenshot','navigate','click'],
+  ch19:['multi agent','supervisor','specialist','routing','a2a'],
+  ch20:['knowledge base','rag','bedrock kb','opensearch','vector','documents'],
+  ch21:['litellm','model routing','haiku','sonnet','opus','cost'],
+  ch22:['redis','token vault','credentials','fernet','encrypt'],
+  ch23:['skills','plugin','hot reload','dynamic'],
+  ch24:['reflex','react','websocket','production ui'],
+  ch25:['okta','sso','oauth','jwt','authentication','pkce'],
+  ch26:['cloudwatch','metrics','dashboard','alerts','observability','cost'],
+};
+function search(q){
+  if(!q.trim()){document.querySelectorAll('.nav-link').forEach(l=>l.style.display='');return;}
+  const term=q.toLowerCase();
+  Object.entries(searchMap).forEach(([id,keys])=>{
+    const match=keys.some(k=>k.includes(term));
+    const link=document.querySelector(id==='home'?'.home-link':'.nav-link[data-id="'+id+'"]');
+    if(link)link.style.display=match?'':'none';
+  });
+}
+</script>
+</body>
+</html>
