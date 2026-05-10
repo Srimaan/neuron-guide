@@ -27,7 +27,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-
+ 
 /* ── TOP BAR ─────────────────────────────── */
 #topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:2px solid #E2E8F0;display:flex;align-items:center;padding:0 20px;z-index:100;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;color:#1E1E2E;text-decoration:none;white-space:nowrap}
@@ -40,10 +40,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 #search-input::placeholder{color:var(--muted)}
 .menu-btn{display:none;background:none;border:none;color:var(--text);cursor:pointer;font-size:1.3rem;padding:4px}
 @media(max-width:768px){.menu-btn{display:block}#search-input{display:none}.logo-sub{display:none}}
-
+ 
 /* ── LAYOUT ──────────────────────────────── */
 #layout{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
-
+ 
 /* ── SIDEBAR ─────────────────────────────── */
 #sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:56px;bottom:0;overflow-y:auto;padding:24px 0 60px;transition:transform .3s}
 #sidebar::-webkit-scrollbar{width:4px}
@@ -63,17 +63,17 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
   #sidebar{transform:translateX(-100%);z-index:90}
   #sidebar.open{transform:translateX(0)}
 }
-
+ 
 /* ── CONTENT AREA ────────────────────────── */
 #main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:48px 60px 100px}
 @media(max-width:1100px){#main{padding:40px 36px 80px}}
 @media(max-width:768px){#main{margin-left:0;padding:28px 20px 60px}}
-
+ 
 /* ── CHAPTER CONTENT ─────────────────────── */
 .chapter{display:none;animation:fadeIn .25s ease}
 .chapter.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
+ 
 .chapter-hero{background:linear-gradient(135deg,#F8F9FC 0%,#EEF0FF 100%);border:1px solid var(--border);border-radius:16px;padding:48px;margin-bottom:48px;position:relative;overflow:hidden}
 .chapter-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(108,99,255,.08) 0%,transparent 70%);pointer-events:none}
 .hero-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-dark);margin-bottom:12px}
@@ -81,7 +81,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .chapter-hero .hero-desc{font-size:1.05rem;color:#4B5563;max-width:640px;line-height:1.7}
 .hero-tags{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap}
 .tag{background:#EEF0FF;border:1px solid #D4D0FF;color:#4B44CC;font-size:.75rem;font-weight:600;padding:4px 12px;border-radius:20px}
-
+ 
 /* Typography */
 .chapter h2{font-size:1.45rem;font-weight:700;color:#fff;margin:52px 0 16px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:10px}
 .chapter h2::before{content:'';display:inline-block;width:4px;height:20px;background:var(--brand);border-radius:2px;flex-shrink:0}
@@ -89,12 +89,12 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .chapter p{color:#4B5563;line-height:1.8;margin-bottom:16px;font-size:.97rem}
 .chapter strong{color:var(--text)}
 .chapter em{color:var(--brand);font-style:normal;font-weight:600}
-
+ 
 /* Diagram card */
 .diagram-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px 24px 20px;margin:32px 0;overflow-x:auto}
 .diagram-title{font-size:.72rem;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .diagram-title::before{content:'';width:3px;height:12px;background:var(--brand);border-radius:2px;display:inline-block}
-
+ 
 /* Tables */
 table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.9rem}
 thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
@@ -102,7 +102,7 @@ thead th:first-child{border-radius:8px 0 0 0}thead th:last-child{border-radius:0
 tbody td{padding:11px 16px;border-bottom:1px solid var(--border);color:#4B5563}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:#F0F2F8}
-
+ 
 /* Callouts */
 .callout{border-radius:10px;padding:16px 20px;margin:24px 0;display:flex;gap:14px;align-items:flex-start;font-size:.93rem}
 .callout-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8}
@@ -110,7 +110,7 @@ tbody tr:hover td{background:#F0F2F8}
 .callout-warn{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
 .callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
 .callout strong{color:#fff}
-
+ 
 /* Chapter nav */
 .chapter-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:1px solid var(--border);gap:16px}
 .nav-btn{background:#F8F9FC;border:1px solid var(--border);color:var(--text);padding:14px 22px;border-radius:10px;cursor:pointer;font-family:'Sora',sans-serif;font-size:.9rem;font-weight:600;transition:all .2s;text-align:left;min-width:180px}
@@ -118,14 +118,14 @@ tbody tr:hover td{background:#F0F2F8}
 .nav-btn .dir{font-size:.72rem;color:#9CA3AF;display:block;margin-bottom:4px;font-weight:400}
 .nav-btn.next{text-align:right}
 .nav-btn:disabled{opacity:.3;cursor:not-allowed}
-
+ 
 /* Phase badges */
 .phase-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:20px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
 .ph1-badge{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.25)}
 .ph2-badge{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
 .ph3-badge{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.25)}
 .ph4-badge{background:rgba(236,72,153,.15);color:#f9a8d4;border:1px solid rgba(236,72,153,.25)}
-
+ 
 /* Chapter grid */
 .ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:24px 0}
 .ch-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s}
@@ -133,19 +133,19 @@ tbody tr:hover td{background:#F0F2F8}
 .ch-card .ch-num{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--muted);margin-bottom:4px}
 .ch-card .ch-title{font-weight:700;font-size:.93rem;color:#1E1E2E;margin:4px 0 8px}
 .ch-card .ch-desc{font-size:.82rem;color:#6B7280;line-height:1.5}
-
+ 
 /* Overlay when sidebar open on mobile */
 #overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:85}
 @media(max-width:768px){#overlay.show{display:block}}
-
+ 
 /* Progress bar */
 #progress{position:fixed;top:56px;left:0;height:2px;background:var(--brand);z-index:99;transition:width .1s}
-
+ 
 /* Coming soon */
 .coming-soon{text-align:center;padding:80px 40px;color:var(--muted)}
 .coming-soon .big{font-size:3rem;margin-bottom:16px}
 .coming-soon h3{font-size:1.3rem;color:#1E1E2E;margin-bottom:10px}
-
+ 
 /* Code */
 code{font-family:'IBM Plex Mono',monospace;background:#F3F4F6;color:#6C63FF;padding:2px 8px;border-radius:4px;font-size:.85em}
 pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;margin:20px 0}
@@ -153,10 +153,10 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
 </style>
 </head>
 <body>
-
+ 
 <!-- PROGRESS BAR -->
 <div id="progress"></div>
-
+ 
 <!-- TOP BAR -->
 <div id="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
@@ -170,22 +170,22 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
     <span class="badge-version">v1.0</span>
   </div>
 </div>
-
+ 
 <!-- OVERLAY -->
 <div id="overlay" onclick="toggleSidebar()"></div>
-
+ 
 <!-- LAYOUT -->
 <div id="layout">
-
+ 
   <!-- SIDEBAR -->
   <nav id="sidebar">
-
+ 
     <div class="nav-section">
       <a class="nav-link home-link active" data-id="home" onclick="navigate('home')">
         <span>🏠</span> Home
       </a>
     </div>
-
+ 
     <div class="nav-section">
       <div class="nav-phase"><span class="phase-dot ph1-dot"></span>Phase 1 — Getting Started</div>
       <a class="nav-link" data-id="ch1" onclick="navigate('ch1')"><span class="ch-num">01</span>Mental Model</a>
@@ -202,14 +202,14 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
       <a class="nav-link" data-id="ch12" onclick="navigate('ch12')"><span class="ch-num">12</span>Response Limiting</a>
       <a class="nav-link" data-id="ch13" onclick="navigate('ch13')"><span class="ch-num">13</span>Session Memory</a>
     </div>
-
+ 
     <div class="nav-section">
       <div class="nav-phase"><span class="phase-dot ph2-dot"></span>Phase 2 — Cloud Deploy</div>
       <a class="nav-link" data-id="ch14" onclick="navigate('ch14')"><span class="ch-num">14</span>Deploy to AWS EKS</a>
       <a class="nav-link" data-id="ch15" onclick="navigate('ch15')"><span class="ch-num">15</span>GitHub Actions CI/CD</a>
       <a class="nav-link" data-id="ch16" onclick="navigate('ch16')"><span class="ch-num">16</span>Helm Charts</a>
     </div>
-
+ 
     <div class="nav-section">
       <div class="nav-phase"><span class="phase-dot ph3-dot"></span>Phase 3 — Scale Intelligence</div>
       <a class="nav-link" data-id="ch17" onclick="navigate('ch17')"><span class="ch-num">17</span>Slack Bot</a>
@@ -217,7 +217,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
       <a class="nav-link" data-id="ch19" onclick="navigate('ch19')"><span class="ch-num">19</span>Multi-Agent Workflows</a>
       <a class="nav-link" data-id="ch20" onclick="navigate('ch20')"><span class="ch-num">20</span>Knowledge Base (RAG)</a>
     </div>
-
+ 
     <div class="nav-section">
       <div class="nav-phase"><span class="phase-dot ph4-dot"></span>Phase 4 — Production</div>
       <a class="nav-link" data-id="ch21" onclick="navigate('ch21')"><span class="ch-num">21</span>LiteLLM Routing</a>
@@ -227,12 +227,12 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
       <a class="nav-link" data-id="ch25" onclick="navigate('ch25')"><span class="ch-num">25</span>Okta SSO</a>
       <a class="nav-link" data-id="ch26" onclick="navigate('ch26')"><span class="ch-num">26</span>Observability</a>
     </div>
-
+ 
   </nav>
-
+ 
   <!-- MAIN CONTENT -->
   <main id="main">
-
+ 
     <!-- ══════════════════════════════════════
          HOME PAGE
     ══════════════════════════════════════ -->
@@ -250,10 +250,10 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <span class="tag">Claude Sonnet 4</span>
         </div>
       </div>
-
+ 
       <h2>What Is Neuron?</h2>
       <p>Neuron is an <strong>Agentic AI Productivity Platform</strong>. Unlike a chatbot that only generates text, Neuron gives the AI real <em>hands</em> — tools to take real actions in real systems. It is built in five layers, just like the human body.</p>
-
+ 
       <!-- DIAGRAM: Human Body vs Platform Layers -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.1 — Platform Architecture: Human Body Analogy</div>
@@ -316,14 +316,14 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <path d="M150,62 L146,74 Q150,77 154,74 L150,62" fill="none" stroke="#7F77DD" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
           <!-- Smile -->
           <path d="M133,80 Q150,92 167,80" fill="none" stroke="#AFA9EC" stroke-width="2" stroke-linecap="round"/>
-
+ 
           <!-- CONNECTORS -->
           <line x1="198" y1="49" x2="355" y2="49" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
           <line x1="177" y1="117" x2="355" y2="117" stroke="#EF9F27" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
           <line x1="192" y1="185" x2="355" y2="185" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
           <line x1="231" y1="263" x2="355" y2="263" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
           <line x1="193" y1="376" x2="355" y2="376" stroke="#5F5E5A" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
-
+ 
           <!-- LAYER BOXES -->
           <!-- Interface (purple) y=22 -->
           <rect x="358" y="22" width="278" height="55" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
@@ -353,7 +353,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="370" y="372" font-family="'Sora',sans-serif" font-size="10" fill="#5F5E5A">Docker · GitHub Actions · Terraform</text>
           <text x="370" y="418" font-family="'Sora',sans-serif" font-size="9" fill="#888780">Foundation — everything else runs on top</text>
           <text x="628" y="356" font-family="'Sora',sans-serif" font-size="9" fill="#5F5E5A" text-anchor="end">🦴 Skeleton</text>
-
+ 
           <!-- Legend -->
           <line x1="14" y1="472" x2="666" y2="472" stroke="#E2E8F0" stroke-width="0.5"/>
           <rect x="14"  y="478" width="9" height="9" rx="2" fill="#7F77DD"/>
@@ -368,10 +368,10 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="451" y="487" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Skeleton Infrastructure</text>
         </svg>
       </div>
-
+ 
       <h2>The 4 Phases</h2>
       <p>Each phase is a complete, working system. Stop at any phase — you'll have something genuinely useful.</p>
-
+ 
       <!-- DIAGRAM: Phase Timeline -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.2 — Four-Phase Build Plan</div>
@@ -385,7 +385,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <line x1="170" y1="76" x2="190" y2="76" stroke="#CBD5E1" stroke-width="2" marker-end="url(#ah2)"/>
           <line x1="340" y1="76" x2="360" y2="76" stroke="#CBD5E1" stroke-width="2" marker-end="url(#ah2)"/>
           <line x1="510" y1="76" x2="530" y2="76" stroke="#CBD5E1" stroke-width="2" marker-end="url(#ah2)"/>
-
+ 
           <!-- Phase 1 (blue) -->
           <rect x="14"  y="20" width="156" height="190" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
           <rect x="14"  y="20" width="156" height="38" rx="12" fill="#1D4ED8"/>
@@ -400,7 +400,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="22" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">· Docker Compose</text>
           <rect x="22" y="180" width="120" height="20" rx="4" fill="#DBEAFE"/>
           <text x="82" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">~$10 / month</text>
-
+ 
           <!-- Phase 2 (green) -->
           <rect x="184" y="20" width="156" height="190" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <rect x="184" y="20" width="156" height="38" rx="12" fill="#065F46"/>
@@ -415,7 +415,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="192" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">· Dispatcher pattern</text>
           <rect x="192" y="180" width="120" height="20" rx="4" fill="#DCFCE7"/>
           <text x="252" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">~$80 / month</text>
-
+ 
           <!-- Phase 3 (amber) -->
           <rect x="354" y="20" width="156" height="190" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
           <rect x="354" y="20" width="156" height="38" rx="12" fill="#92400E"/>
@@ -430,7 +430,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="362" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">· Slack Bot</text>
           <rect x="362" y="180" width="120" height="20" rx="4" fill="#FEF3C7"/>
           <text x="422" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">~$150 / month</text>
-
+ 
           <!-- Phase 4 (pink) -->
           <rect x="524" y="20" width="142" height="190" rx="12" fill="#FDF2F8" stroke="#EC4899" stroke-width="1.5"/>
           <rect x="524" y="20" width="142" height="38" rx="12" fill="#9D174D"/>
@@ -447,7 +447,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="592" y="194" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9D174D">~$300 / month</text>
         </svg>
       </div>
-
+ 
       <h2>Chapter Index</h2>
       <div class="ch-grid">
         <div class="ch-card" onclick="navigate('ch1')"><span class="phase-badge ph1-badge">Phase 1</span><div class="ch-num">Chapter 1</div><div class="ch-title">The Mental Model</div><div class="ch-desc">5 mental models, request journey, 3-repo architecture. Start here.</div></div>
@@ -466,21 +466,21 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
         <div class="ch-card" onclick="navigate('ch25')"><span class="phase-badge ph4-badge">Phase 4</span><div class="ch-num">Chapter 25</div><div class="ch-title">Okta SSO</div><div class="ch-desc">Enterprise authentication. JWKS validation. PKCE flow.</div></div>
         <div class="ch-card" onclick="navigate('ch26')"><span class="phase-badge ph4-badge">Phase 4</span><div class="ch-num">Chapter 26</div><div class="ch-title">Observability</div><div class="ch-desc">CloudWatch metrics, dashboards, alarms, cost tracking.</div></div>
       </div>
-
+ 
       <div class="callout callout-tip">
         <div class="callout-icon">✅</div>
         <div style="font-size:.93rem;color:#15803D"><strong>You can stop at any phase.</strong> Phase 1 alone gives you a fully working AI assistant connected to GitHub, Jira, and Slack — running for $10/month.</div>
       </div>
     </div>
-
+ 
     <!-- ══════════════════════════════════════
          CHAPTER PAGES (ch2–ch26 are coming soon)
          Each chapter gets added here as we build
     ══════════════════════════════════════ -->
-
+ 
     <!-- CH1 placeholder (full chapter built next) -->
     <div class="chapter" id="page-ch1">
-
+ 
       <!-- HERO -->
       <div class="chapter-hero">
         <div class="hero-eyebrow"><span class="phase-badge ph1-badge">Phase 1 — Getting Started</span></div>
@@ -493,30 +493,30 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <span class="tag">5 diagrams</span>
         </div>
       </div>
-
+ 
       <!-- GOAL -->
       <div class="callout callout-tip">
         <div class="callout-icon">🎯</div>
         <div><strong>Goal of this chapter:</strong> Build a clear mental picture of what Neuron is, how all the pieces fit together, and why each piece exists. A developer who understands the mental model makes better decisions and debugs faster.</div>
       </div>
-
+ 
       <!-- DELIVERABLE -->
       <div class="callout callout-info">
         <div class="callout-icon">🧱</div>
         <div><strong>What you will have at the end:</strong> A solid mental model of the full system. You will be able to explain the architecture to someone else in 5 minutes, and you will understand every term used in the remaining 25 chapters.</div>
       </div>
-
+ 
       <!-- ── SECTION 1: 5 MENTAL MODELS ─────────────────────── -->
       <h2>The Five Mental Models</h2>
       <p>Before writing a single line of code, you need these five mental models in your head. Each one explains a different aspect of how Neuron works.</p>
-
+ 
       <!-- DIAGRAM 1: 5 Mental Models Overview -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.1 — The Five Mental Models at a Glance</div>
         <svg width="100%" viewBox="0 0 680 258" role="img" xmlns="http://www.w3.org/2000/svg">
           <title>Five mental models for understanding the Neuron platform</title>
           <desc>Five colored boxes arranged in a 3 plus 2 grid showing: AI as FaaS, MCP equals USB, Brain vs Hands, Layered Onion, Three Repos</desc>
-
+ 
           <!-- Row 1: 3 boxes -->
           <!-- Box 1: AI as FaaS (blue) -->
           <rect x="14" y="14" width="200" height="96" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
@@ -527,7 +527,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="26" y="75" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">Like AWS Lambda — but instead</text>
           <text x="26" y="90" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">of code, you submit a prompt.</text>
           <text x="26" y="105" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">The AI figures out what to do.</text>
-
+ 
           <!-- Box 2: MCP = USB (teal) -->
           <rect x="228" y="14" width="200" height="96" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <rect x="228" y="14" width="200" height="32" rx="10" fill="#DCFCE7"/>
@@ -537,7 +537,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="240" y="75" font-family="'Sora',sans-serif" font-size="10" fill="#10B981">Before USB every device had a</text>
           <text x="240" y="90" font-family="'Sora',sans-serif" font-size="10" fill="#10B981">different cable. MCP is the</text>
           <text x="240" y="105" font-family="'Sora',sans-serif" font-size="10" fill="#10B981">universal AI-to-tool connector.</text>
-
+ 
           <!-- Box 3: Brain vs Hands (amber) -->
           <rect x="442" y="14" width="224" height="96" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
           <rect x="442" y="14" width="224" height="32" rx="10" fill="#FEF3C7"/>
@@ -547,7 +547,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="454" y="75" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">The AI Agent thinks and decides.</text>
           <text x="454" y="90" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">The MCP Tools execute and act.</text>
           <text x="454" y="105" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">Never mix these two concerns.</text>
-
+ 
           <!-- Row 2: 2 boxes centered -->
           <!-- Box 4: Layered Onion (purple) -->
           <rect x="118" y="124" width="200" height="96" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
@@ -558,7 +558,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="130" y="185" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">UI → Agent → MCP → Executor</text>
           <text x="130" y="200" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">→ Infrastructure. Each layer</text>
           <text x="130" y="215" font-family="'Sora',sans-serif" font-size="10" fill="#534AB7">is replaceable independently.</text>
-
+ 
           <!-- Box 5: Three Repos (coral) -->
           <rect x="362" y="124" width="200" height="96" rx="10" fill="#FAECE7" stroke="#D85A30" stroke-width="1.5"/>
           <rect x="362" y="124" width="200" height="32" rx="10" fill="#FAECE7" stroke="none"/>
@@ -571,11 +571,11 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="374" y="215" font-family="'Sora',sans-serif" font-size="10" fill="#993C1D">No tight coupling between them.</text>
         </svg>
       </div>
-
+ 
       <!-- ── MENTAL MODEL 1 ──────────────────────────────────── -->
       <h3>Mental Model 1 — Neuron is "FaaS for AI Agents"</h3>
       <p>Think of <strong>AWS Lambda</strong>. You submit a function, it runs in a container, you get a result back. Neuron is the same idea — but instead of a function, you submit a <em>plain-English prompt</em>, and the AI agent figures out what tools to call and in what order.</p>
-
+ 
       <table>
         <thead><tr><th>AWS Lambda</th><th>Neuron</th></tr></thead>
         <tbody>
@@ -585,11 +585,11 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <tr><td>You define the logic</td><td>AI defines the logic from your prompt</td></tr>
         </tbody>
       </table>
-
+ 
       <!-- ── MENTAL MODEL 2 ──────────────────────────────────── -->
       <h3>Mental Model 2 — MCP is the USB Standard for AI Tools</h3>
       <p>Before USB, every device (keyboard, mouse, printer) had a different connector. USB created one universal standard that works with everything. <strong>MCP (Model Context Protocol)</strong> does the same for AI tools.</p>
-
+ 
       <!-- DIAGRAM 2: MCP = USB Standard -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.2 — Why MCP Changes Everything</div>
@@ -601,61 +601,61 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
               <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </marker>
           </defs>
-
+ 
           <!-- LEFT: Without MCP -->
           <text x="160" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#DC2626">Without MCP</text>
           <rect x="16" y="84" width="100" height="44" rx="8" fill="#F8F9FC" stroke="#94A3B8" stroke-width="1.5"/>
           <text x="66" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#1E1E2E">Claude</text>
           <text x="66" y="118" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">or any AI</text>
-
+ 
           <rect x="220" y="28" width="90" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
           <text x="265" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#991B1B">GitHub API</text>
           <rect x="220" y="87" width="90" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
           <text x="265" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#991B1B">Jira API</text>
           <rect x="220" y="148" width="90" height="34" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
           <text x="265" y="169" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#991B1B">Slack API</text>
-
+ 
           <line x1="116" y1="93" x2="220" y2="45" stroke="#FCA5A5" stroke-width="1.5" marker-end="url(#ma)"/>
           <line x1="116" y1="106" x2="220" y2="104" stroke="#FCA5A5" stroke-width="1.5" marker-end="url(#ma)"/>
           <line x1="116" y1="119" x2="220" y2="162" stroke="#FCA5A5" stroke-width="1.5" marker-end="url(#ma)"/>
-
+ 
           <text x="168" y="53" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#DC2626">custom</text>
           <text x="168" y="104" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#DC2626">custom</text>
           <text x="168" y="153" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#DC2626">custom</text>
-
+ 
           <rect x="16" y="198" width="294" height="24" rx="6" fill="#FEF2F2" stroke="#FECACA"/>
           <text x="163" y="214" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#DC2626">3 separate integrations · breaks when AI changes</text>
-
+ 
           <!-- VS divider -->
           <circle cx="340" cy="106" r="22" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
           <text x="340" y="111" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#374151">vs</text>
-
+ 
           <!-- RIGHT: With MCP -->
           <text x="516" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#059669">With MCP</text>
-
+ 
           <rect x="370" y="42" width="100" height="32" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <text x="420" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#065F46">Claude / GPT</text>
           <text x="420" y="70" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">any AI model</text>
-
+ 
           <rect x="370" y="100" width="100" height="32" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <text x="420" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#065F46">Gemini</text>
           <text x="420" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">future AI model</text>
-
+ 
           <rect x="370" y="158" width="100" height="32" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <text x="420" y="174" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#065F46">Your IDE</text>
           <text x="420" y="186" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Claude Desktop</text>
-
+ 
           <!-- MCP Server box -->
           <rect x="490" y="88" width="86" height="56" rx="10" fill="#F0FDF4" stroke="#059669" stroke-width="2"/>
           <text x="533" y="109" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Neuron</text>
           <text x="533" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">MCP Server</text>
           <text x="533" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">1 integration</text>
-
+ 
           <!-- Arrows from AIs to MCP -->
           <line x1="470" y1="58" x2="490" y2="100" stroke="#10B981" stroke-width="1.5" marker-end="url(#ma)"/>
           <line x1="470" y1="116" x2="490" y2="116" stroke="#10B981" stroke-width="1.5" marker-end="url(#ma)"/>
           <line x1="470" y1="174" x2="490" y2="132" stroke="#10B981" stroke-width="1.5" marker-end="url(#ma)"/>
-
+ 
           <!-- Services on right of MCP -->
           <rect x="594" y="34" width="72" height="28" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
           <text x="630" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">GitHub</text>
@@ -665,22 +665,22 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="630" y="144" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">Slack</text>
           <rect x="594" y="172" width="72" height="28" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
           <text x="630" y="190" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#166534">Browser</text>
-
+ 
           <!-- Arrows from MCP to services -->
           <line x1="576" y1="102" x2="594" y2="48" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
           <line x1="576" y1="110" x2="594" y2="94" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
           <line x1="576" y1="118" x2="594" y2="140" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
           <line x1="576" y1="126" x2="594" y2="186" stroke="#059669" stroke-width="1.2" marker-end="url(#ma)"/>
-
+ 
           <rect x="370" y="198" width="296" height="24" rx="6" fill="#F0FDF4" stroke="#BBF7D0"/>
           <text x="518" y="214" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">1 MCP server works with ANY AI · add tools without changing AI code</text>
         </svg>
       </div>
-
+ 
       <!-- ── MENTAL MODEL 3 ──────────────────────────────────── -->
       <h3>Mental Model 3 — The Brain vs The Hands</h3>
       <p>This is the most important distinction in the entire platform. The AI agent is the <em>brain</em> — it thinks, reasons, and decides. The MCP tools are the <em>hands</em> — they execute, call APIs, and return data. Never mix these two responsibilities.</p>
-
+ 
       <!-- DIAGRAM 3: Brain vs Hands -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.3 — Brain vs Hands: Strict Separation of Concerns</div>
@@ -691,7 +691,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
               <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </marker>
           </defs>
-
+ 
           <!-- Brain side (left) -->
           <rect x="14" y="14" width="290" height="172" rx="14" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
           <text x="159" y="40" text-anchor="middle" font-family="'Sora',sans-serif" font-size="14" font-weight="800" fill="#78350F">🧠 The Brain</text>
@@ -704,13 +704,13 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="30" y="148" font-family="'Sora',sans-serif" font-size="10" fill="#D97706">✦  Synthesises results into a response</text>
           <rect x="28" y="158" width="258" height="20" rx="5" fill="#FEF3C7"/>
           <text x="157" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Lives in: neuron-mcp-client</text>
-
+ 
           <!-- Arrow in centre -->
           <line x1="304" y1="100" x2="374" y2="100" stroke="#6C63FF" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#mb)"/>
           <text x="339" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6C63FF">signals</text>
           <line x1="374" y1="110" x2="304" y2="110" stroke="#6C63FF" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#mb)"/>
           <text x="339" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6C63FF">results</text>
-
+ 
           <!-- Hands side (right) -->
           <rect x="376" y="14" width="290" height="172" rx="14" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <text x="521" y="40" text-anchor="middle" font-family="'Sora',sans-serif" font-size="14" font-weight="800" fill="#14532D">🤲 The Hands</text>
@@ -725,16 +725,16 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="519" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Lives in: neuron-mcp-server</text>
         </svg>
       </div>
-
+ 
       <div class="callout callout-warn">
         <div class="callout-icon">⚠️</div>
         <div><strong>The golden rule:</strong> The MCP tools are <em>dumb</em>. <code>jira_create_issue()</code> just calls the Jira API. It has zero intelligence. All the intelligence — <em>which</em> tool, <em>when</em>, <em>with what parameters</em> — lives entirely in the AI Agent. Never put business logic in a tool.</div>
       </div>
-
+ 
       <!-- ── MENTAL MODEL 4 ──────────────────────────────────── -->
       <h3>Mental Model 4 — Three Repos, Each With One Job</h3>
       <p>Neuron is split into <strong>three repositories</strong>. Each has exactly one responsibility. This separation means you can upgrade, replace, or scale any layer without touching the others.</p>
-
+ 
       <!-- DIAGRAM 4: Three Repo Architecture -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.4 — Three-Repository Architecture</div>
@@ -746,7 +746,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
               <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </marker>
           </defs>
-
+ 
           <!-- Repo 1: neuron-frontend (purple) -->
           <rect x="14" y="30" width="186" height="160" rx="12" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
           <rect x="14" y="30" width="186" height="36" rx="12" fill="#AFA9EC"/>
@@ -760,13 +760,13 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="30" y="158" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Chat UI · Session sidebar</text>
           <text x="30" y="173" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Streaming responses</text>
           <text x="107" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="600" fill="#7F77DD">Port 8501</text>
-
+ 
           <!-- Arrow frontend → client -->
           <text x="248" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">POST /chat</text>
           <line x1="200" y1="114" x2="246" y2="114" stroke="#6C63FF" stroke-width="2" marker-end="url(#mc)"/>
           <text x="248" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">SSE stream</text>
           <line x1="246" y1="120" x2="200" y2="120" stroke="#6C63FF" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#mc)"/>
-
+ 
           <!-- Repo 2: neuron-mcp-client (blue/teal) -->
           <rect x="250" y="30" width="180" height="160" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
           <rect x="250" y="30" width="180" height="36" rx="12" fill="#60A5FA"/>
@@ -780,13 +780,13 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="266" y="158" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">DynamoDB sessions</text>
           <text x="266" y="173" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">AWS Bedrock calls</text>
           <text x="340" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="600" fill="#3B82F6">Port 8000</text>
-
+ 
           <!-- Arrow client → server -->
           <text x="474" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">MCP SSE</text>
           <line x1="430" y1="114" x2="476" y2="114" stroke="#10B981" stroke-width="2" marker-end="url(#mc)"/>
           <text x="474" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">tool results</text>
           <line x1="476" y1="120" x2="430" y2="120" stroke="#10B981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#mc)"/>
-
+ 
           <!-- Repo 3: neuron-mcp-server (green) -->
           <rect x="480" y="30" width="186" height="160" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <rect x="480" y="30" width="186" height="36" rx="12" fill="#34D399"/>
@@ -802,11 +802,11 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="573" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="600" fill="#10B981">Port 8001</text>
         </svg>
       </div>
-
+ 
       <!-- ── THE REQUEST JOURNEY ─────────────────────────────── -->
       <h2>The Full Request Journey</h2>
       <p>Here is <em>exactly</em> what happens — step by step — when you type <strong>"Find my open Jira tickets"</strong> into the Neuron UI.</p>
-
+ 
       <!-- DIAGRAM 5: Sequence Diagram -->
       <div class="diagram-card">
         <div class="diagram-title">Figure 1.5 — The 12-Step Request Journey (Sequence Diagram)</div>
@@ -818,109 +818,109 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
               <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </marker>
           </defs>
-
+ 
           <!-- ── ACTOR BOXES ── -->
           <!-- You: cx=55 -->
           <rect x="10" y="16" width="90" height="40" rx="8" fill="#F8F9FC" stroke="#6C63FF" stroke-width="1.5"/>
           <text x="55" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E1E2E">You</text>
           <text x="55" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">the human</text>
-
+ 
           <!-- Neuron UI: cx=185 -->
           <rect x="140" y="16" width="90" height="40" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
           <text x="185" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">Neuron UI</text>
           <text x="185" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Streamlit</text>
-
+ 
           <!-- Agent Backend: cx=340 -->
           <rect x="290" y="16" width="100" height="40" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
           <text x="340" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Agent Backend</text>
           <text x="340" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#10B981">FastAPI + Strands</text>
-
+ 
           <!-- MCP Server: cx=490 -->
           <rect x="443" y="16" width="94" height="40" rx="8" fill="#FDF4FF" stroke="#9333EA" stroke-width="1.5"/>
           <text x="490" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#581C87">MCP Server</text>
           <text x="490" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9333EA">FastMCP</text>
-
+ 
           <!-- External APIs: cx=618 -->
           <rect x="572" y="16" width="94" height="40" rx="8" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
           <text x="619" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">Jira / GitHub</text>
           <text x="619" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#F59E0B">external APIs</text>
-
+ 
           <!-- ── LIFELINES ── -->
           <line x1="55"  y1="56" x2="55"  y2="428" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
           <line x1="185" y1="56" x2="185" y2="428" stroke="#BFDBFE" stroke-width="1" stroke-dasharray="4 4"/>
           <line x1="340" y1="56" x2="340" y2="428" stroke="#BBF7D0" stroke-width="1" stroke-dasharray="4 4"/>
           <line x1="490" y1="56" x2="490" y2="428" stroke="#E9D5FF" stroke-width="1" stroke-dasharray="4 4"/>
           <line x1="619" y1="56" x2="619" y2="428" stroke="#FDE68A" stroke-width="1" stroke-dasharray="4 4"/>
-
+ 
           <!-- ── STEP LABELS ── -->
           <!-- Step 1: You → UI -->
           <text x="6" y="82" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">①</text>
           <line x1="64" y1="80" x2="178" y2="80" stroke="#1E1E2E" stroke-width="1.5" marker-end="url(#ms)"/>
           <text x="121" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">type message</text>
-
+ 
           <!-- Step 2: UI → Agent -->
           <text x="6" y="108" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">②</text>
           <line x1="194" y1="106" x2="332" y2="106" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#ms)"/>
           <text x="263" y="98" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">POST /chat {prompt, session_id}</text>
-
+ 
           <!-- Step 3: Agent loads history (self note) -->
           <text x="6" y="132" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">③</text>
           <rect x="348" y="120" width="138" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
           <text x="417" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">load history from DynamoDB</text>
-
+ 
           <!-- Step 4: Strands thinks -->
           <text x="6" y="158" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">④</text>
           <rect x="348" y="146" width="138" height="20" rx="4" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
           <text x="417" y="160" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">Strands: "which tool to call?"</text>
-
+ 
           <!-- Step 5: Agent → MCP -->
           <text x="6" y="184" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑤</text>
           <line x1="349" y1="182" x2="484" y2="182" stroke="#10B981" stroke-width="1.5" marker-end="url(#ms)"/>
           <text x="417" y="174" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">jira_search_issues(jql="...")</text>
-
+ 
           <!-- Step 6: MCP → External API -->
           <text x="6" y="210" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑥</text>
           <line x1="499" y1="208" x2="613" y2="208" stroke="#9333EA" stroke-width="1.5" marker-end="url(#ms)"/>
           <text x="557" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">GET jira.atlassian.net/rest/api</text>
-
+ 
           <!-- Step 7: External → MCP (return, dashed) -->
           <text x="6" y="240" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑦</text>
           <line x1="613" y1="238" x2="499" y2="238" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
           <text x="557" y="230" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">issues: [{ENG-234, ...}, ...]</text>
-
+ 
           <!-- Step 8: slim_result applied -->
           <text x="6" y="264" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑧</text>
           <rect x="498" y="252" width="118" height="20" rx="4" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1"/>
           <text x="557" y="266" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#581C87">slim_result() — cap at 50 items</text>
-
+ 
           <!-- Step 9: MCP → Agent (return, dashed) -->
           <text x="6" y="292" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑨</text>
           <line x1="484" y1="290" x2="349" y2="290" stroke="#9333EA" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
           <text x="417" y="282" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">tool result {issues: [...]}</text>
-
+ 
           <!-- Step 10: Claude formats -->
           <text x="6" y="318" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑩</text>
           <rect x="348" y="306" width="138" height="20" rx="4" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
           <text x="417" y="320" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">Claude writes human response</text>
-
+ 
           <!-- Step 11: Agent → UI (SSE stream, dashed) -->
           <text x="6" y="346" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑪</text>
           <line x1="331" y1="344" x2="194" y2="344" stroke="#10B981" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
           <text x="263" y="336" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">SSE text chunks streaming</text>
-
+ 
           <!-- Step 12: UI → You (words appear) -->
           <text x="6" y="374" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑫</text>
           <line x1="176" y1="372" x2="64" y2="372" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ms)"/>
           <text x="120" y="364" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">words appear word by word</text>
-
+ 
           <!-- Save history note -->
           <text x="6" y="400" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6C63FF">⑬</text>
           <rect x="348" y="388" width="138" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
           <text x="417" y="402" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">save updated history → DynamoDB</text>
-
+ 
           <!-- Total time -->
           <text x="666" y="428" text-anchor="end" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⏱ ~3–8 seconds total</text>
-
+ 
           <!-- Legend -->
           <line x1="14" y1="436" x2="240" y2="436" stroke="#E2E8F0" stroke-width="0.5"/>
           <line x1="34" y1="442" x2="60" y2="442" stroke="#1E1E2E" stroke-width="1.5" marker-end="url(#ms)"/>
@@ -931,11 +931,11 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <text x="362" y="447" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">internal processing step</text>
         </svg>
       </div>
-
+ 
       <!-- ── KEY VOCABULARY ─────────────────────────────────── -->
       <h2>Key Vocabulary</h2>
       <p>These terms appear throughout all 26 chapters. Learn them once here, never be confused again.</p>
-
+ 
       <table>
         <thead><tr><th>Term</th><th>Simple explanation</th><th>Where it lives</th></tr></thead>
         <tbody>
@@ -955,11 +955,11 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <tr><td><strong>uv</strong></td><td>Modern Python package manager — 100x faster than pip</td><td>All three repos</td></tr>
         </tbody>
       </table>
-
+ 
       <!-- ── CHECKPOINT ─────────────────────────────────────── -->
       <h2>Checkpoint — Before Moving On</h2>
       <p>Answer these questions without looking. If you can answer all 6, you are ready for Chapter 2.</p>
-
+ 
       <div class="callout callout-info">
         <div class="callout-icon">✅</div>
         <div>
@@ -972,10 +972,10 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           6. Describe step-by-step what happens when you type "find my open Jira tickets"
         </div>
       </div>
-
+ 
       <!-- ── WHAT YOU LEARNED ───────────────────────────────── -->
       <h2>What You Have Learned</h2>
-
+ 
       <table>
         <thead><tr><th>Concept</th><th>The key insight</th></tr></thead>
         <tbody>
@@ -987,15 +987,15 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
           <tr><td><strong>slim_result() from day one</strong></td><td>Context overflow is a real problem. Cap your tool responses before they cause issues.</td></tr>
         </tbody>
       </table>
-
+ 
       <!-- ── NAV ── -->
       <div class="chapter-nav">
         <button class="nav-btn" onclick="navigate('home')"><span class="dir">← Back</span>Home</button>
         <button class="nav-btn next" onclick="navigate('ch2')"><span class="dir">Next Chapter →</span>Chapter 2: AWS Setup</button>
       </div>
-
+ 
     </div>
-
+ 
     <!-- GENERIC COMING SOON for ch2–ch26 -->
     <script>
       const comingSoon=['ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','ch13','ch14','ch15','ch16','ch17','ch18','ch19','ch20','ch21','ch22','ch23','ch24','ch25','ch26'];
@@ -1048,15 +1048,15 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
         document.getElementById('main').appendChild(el);
       });
     </script>
-
+ 
   </main>
 </div>
-
+ 
 <script>
 // ── ROUTER ────────────────────────────────
 let current='home';
 const order=['home','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','ch13','ch14','ch15','ch16','ch17','ch18','ch19','ch20','ch21','ch22','ch23','ch24','ch25','ch26'];
-
+ 
 function navigate(id){
   // hide current
   const prev=document.getElementById('page-'+current);
@@ -1075,7 +1075,7 @@ function navigate(id){
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
 }
-
+ 
 // Handle hash on load
 window.addEventListener('load',()=>{
   const h=location.hash.replace('#','');
@@ -1085,20 +1085,20 @@ window.addEventListener('popstate',()=>{
   const h=location.hash.replace('#','');
   if(h&&order.includes(h))navigate(h);
 });
-
+ 
 // ── SIDEBAR TOGGLE (mobile) ───────────────
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('show');
 }
-
+ 
 // ── READING PROGRESS ──────────────────────
 window.addEventListener('scroll',()=>{
   const el=document.getElementById('main');
   const pct=window.scrollY/(el.scrollHeight-window.innerHeight)*100;
   document.getElementById('progress').style.width=Math.min(pct,100)+'%';
 });
-
+ 
 // ── SEARCH ────────────────────────────────
 const searchMap={
   home:['home','introduction','welcome','what is neuron','overview'],
