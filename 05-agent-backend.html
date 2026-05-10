@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5 — The Agent Backend | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb a:hover{text-decoration:underline}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#3B82F6);height:100%;border-radius:20px;width:19.2%}
+.hero{background:linear-gradient(135deg,#EFF6FF,#F0FDF4);border:1px solid #BFDBFE;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(59,130,246,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#3B82F6}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#3B82F6;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+.cm{color:#6B7280}.kw{color:#93C5FD}.fn{color:#86EFAC}.st{color:#F9A8D4}.dc{color:#FCD34D}.pu{color:#C4B5FD}.nu{color:#FDE68A}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+.event-row{display:flex;align-items:stretch;gap:0;margin:6px 0;border-radius:8px;overflow:hidden;border:1px solid #E2E8F0}
+.event-type{font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:700;padding:10px 14px;min-width:110px;display:flex;align-items:center}
+.event-body{font-size:.85rem;padding:10px 14px;color:#374151;flex:1;display:flex;align-items:center}
+.ev-thinking{background:#FEF3C7;color:#92400E}
+.ev-tool{background:#DBEAFE;color:#1E40AF}
+.ev-result{background:#DCFCE7;color:#065F46}
+.ev-text{background:#EEEDFE;color:#3C3489}
+.ev-complete{background:#F0FDF4;color:#14532D}
+.ev-error{background:#FEF2F2;color:#991B1B}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html">
+    <div class="icon">⚡</div>
+    Neuron Guide
+  </a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="03-first-mcp-server.html">Ch 3</a>
+    <a href="04-claude-desktop.html">Ch 4</a>
+    <a href="05-agent-backend.html" class="active">Ch 5</a>
+    <a href="06-streamlit-ui.html">Ch 6</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 5 — The Agent Backend
+  </div>
+
+  <div class="progress-label">Chapter 5 of 26 — Phase 1</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 05 of 26</span>
+    </div>
+    <h1>The <span>Agent Backend</span></h1>
+    <p>Build the FastAPI service that powers your web application — the brain that receives messages, runs the Strands AI Agent, calls your MCP tools, and streams responses back word-by-word using Server-Sent Events.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 3–4 hours</span>
+      <span class="meta-tag">💰 ~$1–3 (Bedrock)</span>
+      <span class="meta-tag">🐍 FastAPI + Strands</span>
+      <span class="meta-tag">⚡ SSE Streaming</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Build <code>neuron-mcp-client</code> — a FastAPI service on port 8000 that accepts chat requests, runs a Strands Agent backed by Claude on Bedrock, calls tools on your MCP server, and streams the response via SSE.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> <code>POST /chat</code> endpoint streaming real SSE events. <code>GET /health</code> shows MCP server connected. A <code>curl</code> test returns a streaming AI response that calls real tools and remembers previous messages.</div>
+  </div>
+
+  <!-- ═══════════════════════════
+       THE FULL STACK SO FAR
+  ═══════════════════════════ -->
+  <h2>Where This Fits in the Stack</h2>
+  <p>After Chapter 5, two of the three services are running. The frontend (Chapter 6) plugs into this backend via HTTP. The MCP server (Chapter 3) is already running and providing tools.</p>
+
+  <!-- DIAGRAM 5.1: Stack overview -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 5.1 — The Three-Service Stack After Chapter 5</div>
+    <svg width="100%" viewBox="0 0 680 210" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Three service stack showing neuron-frontend not yet built, neuron-mcp-client built this chapter, neuron-mcp-server already built</title>
+      <defs>
+        <marker id="sa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- neuron-frontend (not built yet) -->
+      <rect x="14" y="24" width="180" height="162" rx="12" fill="#F8F9FC" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="6 3"/>
+      <text x="104" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9CA3AF">neuron-frontend</text>
+      <text x="104" y="74" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">🚧</text>
+      <text x="104" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#9CA3AF">Coming in</text>
+      <text x="104" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#9CA3AF">Chapter 6</text>
+      <rect x="24" y="150" width="160" height="28" rx="6" fill="#F1F5F9"/>
+      <text x="104" y="169" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Port 8501 (Streamlit)</text>
+
+      <!-- Arrow frontend → client -->
+      <line x1="194" y1="105" x2="228" y2="105" stroke="#D1D5DB" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#sa)"/>
+      <text x="211" y="96" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">POST /chat</text>
+      <text x="211" y="119" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">SSE stream</text>
+
+      <!-- neuron-mcp-client (BUILDING NOW) -->
+      <rect x="230" y="14" width="220" height="182" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+      <rect x="230" y="14" width="220" height="38" rx="12" fill="#2563EB"/>
+      <rect x="230" y="36" width="220" height="16" fill="#2563EB"/>
+      <text x="340" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-mcp-client ← BUILD NOW</text>
+      <text x="340" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E40AF">The Brain</text>
+      <text x="340" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#3B82F6">FastAPI HTTP server</text>
+      <line x1="248" y1="100" x2="432" y2="100" stroke="#BFDBFE" stroke-width="1"/>
+      <text x="248" y="116" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">• Strands Agent (think-act loop)</text>
+      <text x="248" y="132" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">• Claude Sonnet 4 on Bedrock</text>
+      <text x="248" y="148" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">• SSE streaming responses</text>
+      <text x="248" y="164" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">• DynamoDB session memory</text>
+      <rect x="244" y="174" width="172" height="16" rx="4" fill="#BFDBFE"/>
+      <text x="330" y="186" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1D4ED8">Port 8000</text>
+
+      <!-- Arrow client → server -->
+      <line x1="450" y1="105" x2="482" y2="105" stroke="#10B981" stroke-width="2" marker-end="url(#sa)"/>
+      <text x="466" y="96" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#10B981">MCP/SSE</text>
+      <text x="466" y="119" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#10B981">tool calls</text>
+
+      <!-- neuron-mcp-server (DONE) -->
+      <rect x="484" y="24" width="182" height="162" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="484" y="24" width="182" height="38" rx="12" fill="#34D399"/>
+      <rect x="484" y="44" width="182" height="18" fill="#34D399"/>
+      <text x="575" y="48" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-mcp-server ✅</text>
+      <text x="575" y="80" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#14532D">The Hands</text>
+      <text x="575" y="98" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#059669">Built in Chapter 3</text>
+      <line x1="496" y1="108" x2="654" y2="108" stroke="#BBF7D0" stroke-width="1"/>
+      <text x="496" y="124" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• 5 tools registered</text>
+      <text x="496" y="140" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• GitHub + Jira + Slack</text>
+      <text x="496" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• slim_result() applied</text>
+      <rect x="496" y="168" width="158" height="16" rx="4" fill="#BBF7D0"/>
+      <text x="575" y="180" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Port 8001</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       THE STRANDS AGENT LOOP
+  ═══════════════════════════ -->
+  <h2>The Strands Agent — Think, Act, Observe</h2>
+  <p>Strands Agents is AWS's open-source Python SDK for building AI agents. It implements the <em>think → act → observe</em> loop — the core cycle that makes an AI agent different from a simple chatbot.</p>
+
+  <!-- DIAGRAM 5.2: Think-Act-Observe loop -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 5.2 — The Strands Think-Act-Observe Loop</div>
+    <svg width="100%" viewBox="0 0 680 290" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Strands Agent think act observe loop showing three phases and what happens in each</title>
+      <defs>
+        <marker id="sb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Central circle -->
+      <circle cx="340" cy="145" r="52" fill="#EEF0FF" stroke="#6C63FF" stroke-width="2"/>
+      <text x="340" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="800" fill="#4B44CC">Strands</text>
+      <text x="340" y="156" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="800" fill="#4B44CC">Agent</text>
+      <text x="340" y="172" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6C63FF">Claude Sonnet 4</text>
+
+      <!-- THINK box (top) -->
+      <rect x="244" y="14" width="192" height="72" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="340" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="800" fill="#92400E">① THINK</text>
+      <text x="340" y="56" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Reads: prompt + history + tool schemas</text>
+      <text x="340" y="70" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Decides: which tool? what params? done?</text>
+      <!-- Arrow from THINK to centre -->
+      <line x1="340" y1="86" x2="340" y2="92" stroke="#F59E0B" stroke-width="2" marker-end="url(#sb)"/>
+
+      <!-- ACT box (bottom-left) -->
+      <rect x="30" y="188" width="200" height="82" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="130" y="213" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="800" fill="#065F46">② ACT</text>
+      <text x="130" y="231" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Calls the chosen MCP tool</text>
+      <text x="130" y="246" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">e.g. jira_search_issues(jql)</text>
+      <text x="130" y="261" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Real external API is called</text>
+      <!-- Arrow from centre to ACT -->
+      <path d="M298 188 L220 216" fill="none" stroke="#10B981" stroke-width="2" marker-end="url(#sb)"/>
+      <text x="246" y="194" font-family="'Sora',sans-serif" font-size="8" fill="#10B981">tool call</text>
+
+      <!-- OBSERVE box (bottom-right) -->
+      <rect x="450" y="188" width="200" height="82" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="550" y="213" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="800" fill="#1E40AF">③ OBSERVE</text>
+      <text x="550" y="231" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">Receives tool result</text>
+      <text x="550" y="246" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">Adds result to context</text>
+      <text x="550" y="261" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">Loops back to THINK</text>
+      <!-- Arrow from ACT to OBSERVE -->
+      <line x1="230" y1="240" x2="448" y2="240" stroke="#3B82F6" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#sb)"/>
+      <text x="340" y="232" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">slim_result(data)</text>
+      <!-- Arrow from OBSERVE back to centre (loop) -->
+      <path d="M460 210 L392 188" fill="none" stroke="#6C63FF" stroke-width="2" marker-end="url(#sb)"/>
+      <text x="438" y="194" font-family="'Sora',sans-serif" font-size="8" fill="#6C63FF">observe</text>
+
+      <!-- EXIT condition -->
+      <rect x="244" y="256" width="192" height="30" rx="8" fill="#DCFCE7" stroke="#10B981" stroke-width="1"/>
+      <text x="340" y="275" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">EXIT — When Claude decides no more tools needed → stream final response</text>
+      <line x1="340" y1="197" x2="340" y2="254" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#sb)"/>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       SSE STREAMING PROTOCOL
+  ═══════════════════════════ -->
+  <h2>The SSE Streaming Protocol</h2>
+  <p>Our backend doesn't send one big response at the end. It streams a series of typed events so the frontend can update the UI in real time — showing a spinner while thinking, tool names as they're called, and text as it streams.</p>
+
+  <!-- DIAGRAM 5.3: SSE event types -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 5.3 — The Six SSE Event Types</div>
+
+    <div class="event-row">
+      <span class="event-type ev-thinking">thinking</span>
+      <span class="event-body"><strong>Agent is processing.</strong> Show spinner in UI. Content: <code>"Analysing your request..."</code></span>
+    </div>
+    <div class="event-row">
+      <span class="event-type ev-tool">tool_use</span>
+      <span class="event-body"><strong>Tool is being called.</strong> Show tool badge. Content: <code>{"tool": "jira_search_issues", "input": {"jql": "..."}}</code></span>
+    </div>
+    <div class="event-row">
+      <span class="event-type ev-result">tool_result</span>
+      <span class="event-body"><strong>Tool returned data.</strong> Optional to show. Content: <code>{"tool": "jira_search_issues", "result": [...]}</code></span>
+    </div>
+    <div class="event-row">
+      <span class="event-type ev-text">text</span>
+      <span class="event-body"><strong>Text chunk from Claude.</strong> Append to response in UI. Content: <code>"You have 3 open tickets:"</code></span>
+    </div>
+    <div class="event-row">
+      <span class="event-type ev-complete">complete</span>
+      <span class="event-body"><strong>Stream finished.</strong> Hide spinner, save history. Content: <code>{"session_id": "abc-123", "tools_used": ["jira_search_issues"]}</code></span>
+    </div>
+    <div class="event-row">
+      <span class="event-type ev-error">error</span>
+      <span class="event-body"><strong>Something went wrong.</strong> Show error in UI, still ends gracefully. Content: <code>"MCP server connection failed"</code></span>
+    </div>
+  </div>
+
+  <!-- DIAGRAM 5.4: SSE sequence for one request -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 5.4 — SSE Event Sequence for a Real Request</div>
+    <svg width="100%" viewBox="0 0 680 280" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>SSE event sequence showing the order of events for a typical Jira search request</title>
+      <defs>
+        <marker id="sc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Timeline axis -->
+      <line x1="60" y1="20" x2="60" y2="262" stroke="#E2E8F0" stroke-width="2"/>
+      <text x="50" y="16" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#9CA3AF">t=0</text>
+
+      <!-- Event 1: thinking -->
+      <circle cx="60" cy="44" r="6" fill="#FCD34D"/>
+      <line x1="66" y1="44" x2="90" y2="44" stroke="#FCD34D" stroke-width="1.5" marker-end="url(#sc)"/>
+      <rect x="92" y="30" width="566" height="28" rx="6" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="102" y="44" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600" fill="#92400E">("thinking",</text>
+      <text x="196" y="44" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#374151"> "Searching your Jira tickets...")</text>
+      <text x="646" y="49" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">t=0.1s</text>
+
+      <!-- Event 2: tool_use -->
+      <circle cx="60" cy="90" r="6" fill="#93C5FD"/>
+      <line x1="66" y1="90" x2="90" y2="90" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#sc)"/>
+      <rect x="92" y="76" width="566" height="28" rx="6" fill="#DBEAFE" stroke="#BFDBFE"/>
+      <text x="102" y="90" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600" fill="#1E40AF">("tool_use",</text>
+      <text x="191" y="90" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#374151"> {"tool": "jira_search_issues", "input": {"jql": "..."}})</text>
+      <text x="646" y="95" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">t=0.3s</text>
+
+      <!-- Event 3: tool_result -->
+      <circle cx="60" cy="136" r="6" fill="#86EFAC"/>
+      <line x1="66" y1="136" x2="90" y2="136" stroke="#86EFAC" stroke-width="1.5" marker-end="url(#sc)"/>
+      <rect x="92" y="122" width="566" height="28" rx="6" fill="#DCFCE7" stroke="#BBF7D0"/>
+      <text x="102" y="136" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600" fill="#065F46">("tool_result",</text>
+      <text x="202" y="136" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#374151"> {"tool": "jira_search_issues", "result": [...]})</text>
+      <text x="646" y="141" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">t=1.8s</text>
+
+      <!-- Events 4a, 4b, 4c: text chunks -->
+      <circle cx="60" cy="180" r="6" fill="#C4B5FD"/>
+      <line x1="66" y1="180" x2="90" y2="180" stroke="#C4B5FD" stroke-width="1.5" marker-end="url(#sc)"/>
+      <rect x="92" y="166" width="566" height="28" rx="6" fill="#EDE9FE" stroke="#DDD6FE"/>
+      <text x="102" y="180" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600" fill="#3C3489">("text",</text>
+      <text x="163" y="180" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#374151"> "You have 3 open tickets:")</text>
+      <text x="350" y="180" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#9CA3AF">  ... more text chunks ...</text>
+      <text x="646" y="185" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">t=2–5s</text>
+
+      <!-- Event 5: complete -->
+      <circle cx="60" cy="244" r="6" fill="#34D399"/>
+      <line x1="66" y1="244" x2="90" y2="244" stroke="#34D399" stroke-width="1.5" marker-end="url(#sc)"/>
+      <rect x="92" y="230" width="566" height="28" rx="6" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1.5"/>
+      <text x="102" y="244" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600" fill="#065F46">("complete",</text>
+      <text x="196" y="244" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#374151"> {"session_id": "abc-123", "tools_used": ["jira_search_issues"]})</text>
+      <text x="646" y="249" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">t=5.2s</text>
+
+      <!-- End marker -->
+      <text x="50" y="270" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#9CA3AF">end</text>
+      <line x1="60" y1="262" x2="60" y2="272" stroke="#E2E8F0" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       PROJECT STRUCTURE
+  ═══════════════════════════ -->
+  <h2>Project Structure</h2>
+
+  <!-- DIAGRAM 5.5: File tree -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 5.5 — neuron-mcp-client File Structure</div>
+    <svg width="100%" viewBox="0 0 680 298" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>File tree for neuron-mcp-client</title>
+      <defs>
+        <marker id="sd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- File tree panel -->
+      <rect x="14" y="14" width="256" height="270" rx="12" fill="#1E1E2E" stroke="#2A2A3C"/>
+      <rect x="14" y="14" width="256" height="30" rx="12" fill="#2A2A3C"/>
+      <rect x="14" y="30" width="256" height="14" fill="#2A2A3C"/>
+      <text x="26" y="32" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#C4B5FD">neuron-mcp-client/</text>
+      <text x="26" y="62"  font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">├── pyproject.toml</text>
+      <text x="26" y="79"  font-family="'IBM Plex Mono',monospace" font-size="10" fill="#FCD34D">├── CLAUDE.md</text>
+      <text x="26" y="96"  font-family="'IBM Plex Mono',monospace" font-size="10" fill="#6B7280">├── .env</text>
+      <text x="26" y="113" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#93C5FD">├── mcp_client/</text>
+      <text x="26" y="130" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#F9A8D4">│   ├── main.py</text>
+      <text x="26" y="147" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#F9A8D4">│   ├── config.py</text>
+      <text x="26" y="164" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#93C5FD">│   ├── routers/</text>
+      <text x="26" y="181" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│   │   ├── chat.py</text>
+      <text x="26" y="198" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│   │   └── health.py</text>
+      <text x="26" y="215" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#93C5FD">│   ├── services/</text>
+      <text x="26" y="232" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│   │   ├── agent.py</text>
+      <text x="26" y="249" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">│   │   └── session.py</text>
+      <text x="26" y="266" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#93C5FD">│   └── models/</text>
+      <text x="26" y="276" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#86EFAC">        └── schemas.py</text>
+
+      <!-- Annotations -->
+      <line x1="270" y1="130" x2="308" y2="130" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#sd)"/>
+      <rect x="310" y="118" width="352" height="22" rx="5" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="320" y="133" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">FastAPI app + lifespan startup/shutdown</text>
+
+      <line x1="270" y1="147" x2="308" y2="147" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#sd)"/>
+      <rect x="310" y="135" width="352" height="22" rx="5" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="320" y="150" font-family="'Sora',sans-serif" font-size="9" fill="#9D174D">Pydantic Settings — reads from .env</text>
+
+      <line x1="270" y1="181" x2="308" y2="181" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#sd)"/>
+      <rect x="310" y="169" width="352" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="320" y="184" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">POST /chat — SSE streaming endpoint</text>
+
+      <line x1="270" y1="198" x2="308" y2="198" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#sd)"/>
+      <rect x="310" y="186" width="352" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="320" y="201" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">GET /health — checks MCP + Bedrock + DynamoDB</text>
+
+      <line x1="270" y1="232" x2="308" y2="232" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#sd)"/>
+      <rect x="310" y="220" width="352" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="320" y="235" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">NeuronAgent — Strands Agent + MCP client</text>
+
+      <line x1="270" y1="249" x2="308" y2="249" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#sd)"/>
+      <rect x="310" y="237" width="352" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="320" y="252" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">SessionManager — DynamoDB read/write/TTL</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════
+       BUILD STEPS
+  ═══════════════════════════ -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 5.1 — Initialise the Project</div>
+    <div class="step-title">Create the Python project and install all dependencies</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Create project + install dependencies</span></div>
+    <div class="code-body"><pre><span class="cm"># Navigate into the repo</span>
+<span class="fn">cd</span> neuron-platform/neuron-mcp-client
+
+<span class="cm"># Initialise uv project</span>
+<span class="fn">uv init</span> <span class="dc">--python</span> 3.11
+
+<span class="cm"># Runtime dependencies</span>
+<span class="fn">uv add</span> <span class="st">"fastapi>=0.115.0"</span>
+<span class="fn">uv add</span> <span class="st">"uvicorn>=0.32.0"</span>
+<span class="fn">uv add</span> <span class="st">"strands-agents>=0.1.0"</span>
+<span class="fn">uv add</span> <span class="st">"strands-agents-tools>=0.1.0"</span>
+<span class="fn">uv add</span> <span class="st">"boto3>=1.35.0"</span>
+<span class="fn">uv add</span> <span class="st">"httpx>=0.27.0"</span>
+<span class="fn">uv add</span> <span class="st">"pydantic>=2.6.0"</span>
+<span class="fn">uv add</span> <span class="st">"pydantic-settings>=2.2.0"</span>
+<span class="fn">uv add</span> <span class="st">"python-dotenv>=1.0.0"</span>
+<span class="fn">uv add</span> <span class="st">"mcp>=1.0.0"</span>
+
+<span class="cm"># Dev dependencies</span>
+<span class="fn">uv add</span> <span class="dc">--dev</span> pytest pytest-asyncio httpx ruff
+
+<span class="cm"># Create folder structure</span>
+<span class="fn">mkdir</span> -p mcp_client/routers mcp_client/services mcp_client/models tests
+<span class="fn">touch</span> mcp_client/__init__.py mcp_client/routers/__init__.py
+<span class="fn">touch</span> mcp_client/services/__init__.py mcp_client/models/__init__.py</pre></div>
+  </div>
+
+  <!-- Step 5.2: Config -->
+  <div class="step-box">
+    <div class="step-num">Step 5.2 — Write mcp_client/config.py</div>
+    <div class="step-title">Settings class with all configuration from environment variables</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am building neuron-mcp-client, the AI agent backend of Neuron. Tech stack: Python 3.11, FastAPI, Strands Agents, AWS Bedrock, DynamoDB.<br><br>Generate mcp_client/config.py with a pydantic BaseSettings class. Fields: app_name (str, 'neuron-mcp-client'), host (str, '0.0.0.0'), port (int, 8000), log_level (str, 'INFO'), aws_region (str, 'us-east-1'), bedrock_model_id (str, 'anthropic.claude-sonnet-4-20240229-v1:0'), mcp_server_url (str, 'http://localhost:8001/mcp'), mcp_auth_token (str, ''), dynamodb_table (str, 'neuron-sessions'), max_history_messages (int, 20), session_ttl_hours (int, 24), cors_origins (list[str], ['http://localhost:8501']), system_prompt (str, long default — see below).<br><br>Default system_prompt: 'You are Neuron, an AI assistant for software development teams. You have access to tools for GitHub, Jira, and Slack. Always be concise and actionable. When you take actions confirm what you did. When searching, summarise key results. Ask for clarification when the request is ambiguous.'<br><br>Include get_settings() cached with lru_cache. Read from .env if present."</em></div>
+  </div>
+
+  <!-- Step 5.3: Schemas -->
+  <div class="step-box">
+    <div class="step-num">Step 5.3 — Write mcp_client/models/schemas.py</div>
+    <div class="step-title">Pydantic request/response models for all endpoints</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate mcp_client/models/schemas.py with these Pydantic v2 models:<br>
+    1. ChatMessage: {role: Literal['user','assistant'], content: str}<br>
+    2. ChatRequest: {prompt: str (min 1, max 10000), session_id: str | None = None (auto UUID if missing), user_id: str = 'anonymous'}<br>
+    3. ChatStreamEvent: {event_type: Literal['thinking','tool_use','tool_result','text','complete','error'], content: str | dict | None}<br>
+    4. HealthResponse: {status: Literal['healthy','degraded'], mcp_server: str, bedrock: str, dynamodb: str, uptime_seconds: float}<br><br>
+    Include Config for Pydantic v2 and Field examples on each model."</em></div>
+  </div>
+
+  <!-- Step 5.4: Session Manager -->
+  <div class="step-box">
+    <div class="step-num">Step 5.4 — Write mcp_client/services/session.py</div>
+    <div class="step-title">DynamoDB-backed conversation history — the AI's memory</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate mcp_client/services/session.py with a SessionManager class that manages conversation history in DynamoDB table 'neuron-sessions'.<br><br>Methods:<br>
+    1. async get_history(session_id: str) → list[dict] — returns [{role, content}] or [] if not found<br>
+    2. async save_history(session_id: str, messages: list[dict], user_id: str = 'anonymous') → None — saves last max_history_messages messages, sets TTL = now + session_ttl_hours<br>
+    3. async clear_history(session_id: str) → None — deletes session<br>
+    4. async health_check() → bool — tests DynamoDB connectivity<br><br>
+    Use boto3. Handle all DynamoDB errors gracefully (log, never crash). Full type hints and docstrings."</em></div>
+  </div>
+
+  <!-- Step 5.5: Agent Service -->
+  <div class="step-box">
+    <div class="step-num">Step 5.5 — Write mcp_client/services/agent.py</div>
+    <div class="step-title">The Strands Agent — the intelligence that calls tools and streams responses</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate mcp_client/services/agent.py with a NeuronAgent class.<br><br>__init__(self, settings: Settings): Create a Strands Agent connected to the MCP server at settings.mcp_server_url using streamable HTTP transport. Add Authorization: Bearer header if mcp_auth_token is set. Use Bedrock model settings.bedrock_model_id with system_prompt from settings.<br><br>async invoke_streaming(prompt: str, session_id: str, history: list[dict]) → AsyncGenerator[tuple[str, Any], None]: Run the agent and yield streaming tuples: ('thinking', '...') when processing, ('tool_use', {'tool': name, 'input': args}) when calling a tool, ('tool_result', {'tool': name, 'result': ...}) after tool returns, ('text', 'chunk') for each text chunk, ('complete', {'session_id': session_id, 'tools_used': list}) when done, ('error', 'message') on failure — never raise, always yield error and return.<br><br>async health_check() → bool: tests MCP server connectivity.<br><br>Include full type hints, docstrings."</em></div>
+  </div>
+
+  <!-- Step 5.6: Chat Router -->
+  <div class="step-box">
+    <div class="step-num">Step 5.6 — Write mcp_client/routers/chat.py</div>
+    <div class="step-title">The POST /chat endpoint that streams SSE events</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate mcp_client/routers/chat.py with a FastAPI router.<br><br>POST /chat: accepts ChatRequest, generates session_id UUID if not provided, loads history from SessionManager, calls NeuronAgent.invoke_streaming(), returns StreamingResponse with media_type='text/event-stream'. Each SSE event: 'data: {json_encoded_ChatStreamEvent}\n\n'. After stream completes save updated history. On any exception yield error event then end gracefully.<br><br>POST /chat/reset: accepts {session_id: str}, clears history, returns {success: true}.<br><br>GET /chat/history/{session_id}: returns {session_id, messages: list[ChatMessage], message_count: int} or 404.<br><br>Get agent and session_manager from request.app.state. Log each request with timing."</em></div>
+  </div>
+
+  <!-- Step 5.7: Health Router -->
+  <div class="step-box">
+    <div class="step-num">Step 5.7 — Write mcp_client/routers/health.py</div>
+    <div class="step-title">Health check endpoint that tests all three dependencies in parallel</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate mcp_client/routers/health.py. GET /health: check MCP server (GET {mcp_server_url}/health timeout 5s), Bedrock (list_foundation_models timeout 5s), DynamoDB (describe_table 'neuron-sessions' timeout 5s) — run all three in parallel with asyncio.gather. Return HealthResponse: status 'healthy' if all pass, 'degraded' if any fail. Always return HTTP 200. Include uptime_seconds (calculate from app startup time stored in app.state)."</em></div>
+  </div>
+
+  <!-- Step 5.8: Main -->
+  <div class="step-box">
+    <div class="step-num">Step 5.8 — Write mcp_client/main.py</div>
+    <div class="step-title">FastAPI app with lifespan, routers, CORS, and global error handling</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate mcp_client/main.py. Create FastAPI app with title='Neuron MCP Client'. Use lifespan context manager: on startup initialise NeuronAgent (store in app.state.agent), SessionManager (store in app.state.session_manager), record app.state.start_time = time.time(), log startup with model ID and MCP URL and tools count. On shutdown log graceful shutdown. Add CORS middleware using settings.cors_origins. Include routers: health_router (prefix='') and chat_router (prefix='/chat'). Add global exception handler returning {detail: 'Internal server error'} HTTP 500. Add __main__ guard running uvicorn on settings.host:settings.port."</em></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       ENV FILE AND RUN
+  ═══════════════════════════ -->
+  <h2>Configure and Run</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">neuron-mcp-client/.env</span></div>
+    <div class="code-body"><pre><span class="cm"># AWS — inherits profile from shell or use explicit keys</span>
+AWS_PROFILE=<span class="st">neuron-dev</span>
+AWS_DEFAULT_REGION=<span class="st">us-east-1</span>
+
+<span class="cm"># Bedrock model</span>
+BEDROCK_MODEL_ID=<span class="st">anthropic.claude-sonnet-4-20240229-v1:0</span>
+
+<span class="cm"># DynamoDB (from Chapter 2)</span>
+DYNAMODB_TABLE=<span class="st">neuron-sessions</span>
+
+<span class="cm"># MCP Server (must be running on port 8001)</span>
+MCP_SERVER_URL=<span class="st">http://localhost:8001/mcp</span>
+MCP_AUTH_TOKEN=<span class="st">dev-secret-token</span>
+
+<span class="cm"># Logging</span>
+LOG_LEVEL=<span class="st">INFO</span></pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Start both services and test</span></div>
+    <div class="code-body"><pre><span class="cm"># Terminal 1 — start MCP server (from Chapter 3)</span>
+<span class="fn">cd</span> neuron-platform/neuron-mcp-server
+<span class="fn">uv run python</span> -m mcp_server.main
+<span class="cm"># INFO: Tools registered: 5  |  Listening on :8001</span>
+
+<span class="cm"># Terminal 2 — start Agent Backend</span>
+<span class="fn">cd</span> neuron-platform/neuron-mcp-client
+<span class="fn">uv run python</span> -m mcp_client.main
+<span class="cm"># INFO: neuron-mcp-client starting...</span>
+<span class="cm"># INFO: MCP Server: http://localhost:8001/mcp</span>
+<span class="cm"># INFO: Bedrock Model: anthropic.claude-sonnet-4-...</span>
+<span class="cm"># INFO: Tools available: 5</span>
+<span class="cm"># INFO: Listening on http://0.0.0.0:8000</span></pre></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       TEST IT
+  ═══════════════════════════ -->
+  <h2>Verify It Works</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Three verification commands</span></div>
+    <div class="code-body"><pre><span class="cm"># 1. Health check — should show all services connected</span>
+<span class="fn">curl</span> http://localhost:8000/health | python -m json.tool
+<span class="cm"># {</span>
+<span class="cm">#   "status": "healthy",</span>
+<span class="cm">#   "mcp_server": "connected",</span>
+<span class="cm">#   "bedrock": "connected",</span>
+<span class="cm">#   "dynamodb": "connected",</span>
+<span class="cm">#   "uptime_seconds": 4.2</span>
+<span class="cm"># }</span>
+
+<span class="cm"># 2. Chat request — watch SSE events stream</span>
+<span class="fn">curl</span> -X POST http://localhost:8000/chat \
+  -H <span class="st">"Content-Type: application/json"</span> \
+  -d <span class="st">'{"prompt":"What tools do you have?","session_id":"test-1"}'</span>
+<span class="cm"># data: {"event_type":"thinking","content":"Reviewing available tools..."}</span>
+<span class="cm"># data: {"event_type":"text","content":"I have access to 5 tools..."}</span>
+<span class="cm"># data: {"event_type":"complete","content":{"session_id":"test-1","tools_used":[]}}</span>
+
+<span class="cm"># 3. Second message — verify session memory works</span>
+<span class="fn">curl</span> -X POST http://localhost:8000/chat \
+  -H <span class="st">"Content-Type: application/json"</span> \
+  -d <span class="st">'{"prompt":"What did I just ask you?","session_id":"test-1"}'</span>
+<span class="cm"># AI should remember the previous question from DynamoDB</span></pre></div>
+  </div>
+
+  <!-- DIAGRAM 5.6: What health check validates -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 5.6 — What GET /health Checks in Parallel</div>
+    <svg width="100%" viewBox="0 0 680 166" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Health check diagram showing three parallel checks to MCP server Bedrock and DynamoDB</title>
+      <defs>
+        <marker id="se" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Health endpoint box -->
+      <rect x="14" y="52" width="148" height="62" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="88" y="76" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#1E40AF">GET /health</text>
+      <text x="88" y="93" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#3B82F6">asyncio.gather()</text>
+      <text x="88" y="107" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#3B82F6">all 3 in parallel</text>
+
+      <!-- Three arrows in parallel -->
+      <line x1="162" y1="69" x2="202" y2="38" stroke="#10B981" stroke-width="1.5" marker-end="url(#se)"/>
+      <line x1="162" y1="83" x2="202" y2="83" stroke="#D97706" stroke-width="1.5" marker-end="url(#se)"/>
+      <line x1="162" y1="97" x2="202" y2="128" stroke="#7F77DD" stroke-width="1.5" marker-end="url(#se)"/>
+
+      <!-- MCP check -->
+      <rect x="204" y="18" width="190" height="40" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.2"/>
+      <text x="214" y="35" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">MCP Server</text>
+      <text x="214" y="50" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#059669">GET :8001/health  timeout=5s</text>
+
+      <!-- Bedrock check -->
+      <rect x="204" y="63" width="190" height="40" rx="8" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.2"/>
+      <text x="214" y="80" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Bedrock</text>
+      <text x="214" y="95" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#D97706">list_foundation_models() timeout=5s</text>
+
+      <!-- DynamoDB check -->
+      <rect x="204" y="108" width="190" height="40" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.2"/>
+      <text x="214" y="125" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">DynamoDB</text>
+      <text x="214" y="140" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#534AB7">describe_table() timeout=5s</text>
+
+      <!-- Results merge -->
+      <line x1="394" y1="38" x2="434" y2="69" stroke="#10B981" stroke-width="1.5" marker-end="url(#se)"/>
+      <line x1="394" y1="83" x2="434" y2="83" stroke="#D97706" stroke-width="1.5" marker-end="url(#se)"/>
+      <line x1="394" y1="128" x2="434" y2="97" stroke="#7F77DD" stroke-width="1.5" marker-end="url(#se)"/>
+
+      <!-- Result box -->
+      <rect x="436" y="52" width="230" height="62" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="551" y="73" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#065F46">{"status": "healthy",</text>
+      <text x="551" y="89" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#065F46"> "mcp_server": "connected",</text>
+      <text x="551" y="105" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#065F46"> "uptime_seconds": 4.2}</text>
+
+      <!-- timing -->
+      <text x="340" y="158" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⏱ Total: ≤5 seconds  ·  HTTP 200 always returned  ·  status field indicates health</text>
+    </svg>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint — Before Moving On</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>Both services start without errors (MCP server on :8001, Agent Backend on :8000)</li>
+      <li><code>GET /health</code> returns <code>status: "healthy"</code> with all three dependencies connected</li>
+      <li><code>POST /chat</code> with a simple question returns streaming SSE events ending with <code>complete</code></li>
+      <li>A second message to the same <code>session_id</code> shows the AI remembers the first message</li>
+      <li>DynamoDB table <code>neuron-sessions</code> has a new item after the first chat</li>
+      <li>Errors in tools return gracefully — they do not crash the stream</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card">
+      <div class="lc-title">Strands think-act-observe loop</div>
+      <div class="lc-body">The agent cycles through think → act → observe automatically. You provide the model, tools, and prompt. Strands handles the loop, tool dispatch, and result injection.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">SSE streaming events</div>
+      <div class="lc-body">Six event types: thinking, tool_use, tool_result, text, complete, error. Each tells the frontend exactly what is happening. The UI can show a spinner, tool names, and streaming text simultaneously.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">FastAPI lifespan</div>
+      <div class="lc-body">Initialise services in the lifespan context manager — not at module level. This ensures clean startup and shutdown, and avoids import-time side effects that break testing.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Session memory via DynamoDB</div>
+      <div class="lc-body">The AI remembers your conversation because we save messages to DynamoDB after each turn and load them before the next. The TTL auto-deletes old sessions — no cleanup needed.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Health checks run in parallel</div>
+      <div class="lc-body"><code>asyncio.gather()</code> runs all three dependency checks simultaneously — total time is the slowest check, not the sum. Always return HTTP 200 — use the body to communicate health status.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Errors yield, never raise</div>
+      <div class="lc-body">In a streaming generator, an unhandled exception kills the stream mid-message. Always catch exceptions, yield an error event, then return cleanly. The frontend handles it gracefully.</div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="ch-nav">
+    <a href="04-claude-desktop.html">
+      <span class="dir">← Previous</span>
+      Chapter 4: Claude Desktop
+    </a>
+    <a href="06-streamlit-ui.html" class="next">
+      <span class="dir">Next Chapter →</span>
+      Chapter 6: Streamlit UI
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
