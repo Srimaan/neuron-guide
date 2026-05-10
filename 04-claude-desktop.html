@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4 — Connect Claude Desktop | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb a:hover{text-decoration:underline}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#7F77DD);height:100%;border-radius:20px;width:15.4%}
+.hero{background:linear-gradient(135deg,#EEEDFE,#F5F3FF);border:1px solid #C7D2FE;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(108,99,255,.12),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#6C63FF}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#6C63FF;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+.cm{color:#6B7280}.kw{color:#93C5FD}.fn{color:#86EFAC}.st{color:#F9A8D4}.dc{color:#FCD34D}.pu{color:#C4B5FD}.nu{color:#FDE68A}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.os-tabs{display:flex;gap:8px;margin:20px 0 0}
+.os-tab{padding:7px 18px;border-radius:8px 8px 0 0;font-size:.82rem;font-weight:700;border:1.5px solid #E2E8F0;border-bottom:none;cursor:pointer;background:#F8F9FC;color:#6B7280;transition:all .15s}
+.os-tab.active{background:#1E1E2E;color:#fff;border-color:#1E1E2E}
+.os-content{display:none}
+.os-content.active{display:block}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+.highlight-box{background:linear-gradient(135deg,#F0FDF4,#EEEDFE);border:1.5px solid #C7D2FE;border-radius:14px;padding:24px;margin:28px 0}
+.highlight-box h3{color:#4B44CC;margin:0 0 12px;font-size:1rem;border:none}
+.path-box{background:#1E1E2E;border-radius:10px;padding:16px 20px;margin:16px 0;font-family:'IBM Plex Mono',monospace;font-size:.88rem}
+.path-row{display:flex;align-items:center;gap:16px;padding:8px 0;border-bottom:1px solid #2A2A3C}
+.path-row:last-child{border-bottom:none}
+.path-os{color:#FCD34D;font-weight:600;min-width:80px;font-size:.78rem}
+.path-value{color:#86EFAC;font-size:.82rem}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html">
+    <div class="icon">⚡</div>
+    Neuron Guide
+  </a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="01-mental-model.html">Ch 1</a>
+    <a href="02-aws-setup.html">Ch 2</a>
+    <a href="03-first-mcp-server.html">Ch 3</a>
+    <a href="04-claude-desktop.html" class="active">Ch 4</a>
+    <a href="05-agent-backend.html">Ch 5</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 4 — Connect Claude Desktop
+  </div>
+
+  <div class="progress-label">Chapter 4 of 26 — Phase 1</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 04 of 26</span>
+    </div>
+    <h1>Connect<br><span>Claude Desktop</span></h1>
+    <p>Prove your MCP server works with real AI in under 15 minutes. You will watch Claude read your actual GitHub PRs, create a real Jira ticket, and post a real Slack message — all from a single plain-English request.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 15–30 min</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">🔧 No new code</span>
+      <span class="meta-tag">🎯 Proof of concept</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Connect Claude Desktop to your local MCP server using stdio transport. Then ask Claude to use your real GitHub, Jira, and Slack tools and verify the results appear in those systems.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> Claude Desktop shows your 5 Neuron tools in its tool panel. A single prompt triggers real API calls and creates a real Jira ticket. You have end-to-end proof the system works before building the web UI.</div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       HOW CLAUDE DESKTOP USES MCP
+  ═══════════════════════════════ -->
+  <h2>How Claude Desktop Uses MCP</h2>
+  <p>Claude Desktop can connect to MCP servers in two ways. We use <em>stdio</em> in this chapter because it requires zero network configuration — Claude Desktop just launches your Python script directly.</p>
+
+  <!-- DIAGRAM 4.1: Two transports compared -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 4.1 — stdio vs SSE Transport: When to Use Each</div>
+    <svg width="100%" viewBox="0 0 680 230" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Comparison of stdio transport used by Claude Desktop versus SSE HTTP transport used by the AI backend</title>
+      <defs>
+        <marker id="ta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- stdio panel (left) -->
+      <rect x="14" y="14" width="310" height="202" rx="14" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <rect x="14" y="14" width="310" height="38" rx="14" fill="#7F77DD"/>
+      <rect x="14" y="36" width="310" height="16" fill="#7F77DD"/>
+      <text x="169" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">stdio Transport ← We use this now</text>
+
+      <!-- Claude Desktop box -->
+      <rect x="30" y="70" width="110" height="50" rx="8" fill="#fff" stroke="#AFA9EC" stroke-width="1.2"/>
+      <text x="85"  y="91" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#26215C">Claude</text>
+      <text x="85"  y="107" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#26215C">Desktop</text>
+
+      <!-- Arrow: launch -->
+      <line x1="140" y1="95" x2="172" y2="95" stroke="#6C63FF" stroke-width="1.8" marker-end="url(#ta)"/>
+      <text x="156" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6C63FF">spawns</text>
+
+      <!-- MCP process box -->
+      <rect x="174" y="70" width="136" height="50" rx="8" fill="#fff" stroke="#AFA9EC" stroke-width="1.2"/>
+      <text x="242" y="88" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">neuron-mcp-server</text>
+      <text x="242" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">subprocess (uv run)</text>
+      <text x="242" y="115" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7F77DD">stdin / stdout</text>
+
+      <rect x="30" y="134" width="280" height="72" rx="8" fill="#fff" stroke="#C7D2FE" stroke-width="1"/>
+      <text x="40" y="153" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#4B44CC">How it works:</text>
+      <text x="40" y="169" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">• Claude Desktop reads claude_desktop_config.json</text>
+      <text x="40" y="183" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">• Launches your Python script as a child process</text>
+      <text x="40" y="197" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">• Communicates via stdin/stdout — no ports, no auth</text>
+
+      <!-- SSE panel (right) -->
+      <rect x="356" y="14" width="310" height="202" rx="14" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="356" y="14" width="310" height="38" rx="14" fill="#10B981"/>
+      <rect x="356" y="36" width="310" height="16" fill="#10B981"/>
+      <text x="511" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">SSE HTTP Transport ← Chapter 5</text>
+
+      <!-- AI Backend box -->
+      <rect x="372" y="70" width="110" height="50" rx="8" fill="#fff" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="427" y="91" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">AI Backend</text>
+      <text x="427" y="107" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">neuron-mcp-client</text>
+
+      <!-- Arrow: HTTP -->
+      <line x1="482" y1="95" x2="514" y2="95" stroke="#10B981" stroke-width="1.8" marker-end="url(#ta)"/>
+      <text x="498" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#10B981">HTTP/SSE</text>
+
+      <!-- Running server box -->
+      <rect x="516" y="70" width="136" height="50" rx="8" fill="#fff" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="584" y="88" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">neuron-mcp-server</text>
+      <text x="584" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">running on :8001</text>
+      <text x="584" y="115" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#10B981">POST /mcp SSE</text>
+
+      <rect x="372" y="134" width="280" height="72" rx="8" fill="#fff" stroke="#BBF7D0" stroke-width="1"/>
+      <text x="382" y="153" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">How it works:</text>
+      <text x="382" y="169" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• AI backend connects to running HTTP server</text>
+      <text x="382" y="183" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• Authenticates with Bearer token header</text>
+      <text x="382" y="197" font-family="'Sora',sans-serif" font-size="9" fill="#059669">• Works across machines, behind load balancers</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 1: INSTALL CLAUDE DESKTOP
+  ═══════════════════════════════ -->
+  <h2>Setup Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 4.1 — Install Claude Desktop</div>
+    <div class="step-title">Download and install the Claude Desktop application</div>
+    <div class="step-body">
+      <ol style="padding-left:20px;line-height:2.2">
+        <li>Go to <strong>claude.ai/download</strong></li>
+        <li>Download the version for your operating system</li>
+        <li>Install and sign in with your Anthropic account</li>
+        <li>You need <strong>Claude Pro ($20/month)</strong> or higher to use MCP servers</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>No Claude Pro?</strong> You can skip this chapter and come back later. Chapter 5 builds the AI backend that powers the web UI — no Claude Desktop needed. Every feature works through the web app. Claude Desktop is just a fast way to prove the MCP server works.</div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 2: CONFIG FILE
+  ═══════════════════════════════ -->
+  <div class="step-box">
+    <div class="step-num">Step 4.2 — Find the Config File Location</div>
+    <div class="step-title">Claude Desktop reads a JSON config file to discover MCP servers</div>
+  </div>
+
+  <div class="highlight-box">
+    <h3>📁 Config File Location by Operating System</h3>
+    <div class="path-box">
+      <div class="path-row">
+        <span class="path-os">macOS</span>
+        <span class="path-value">~/Library/Application Support/Claude/claude_desktop_config.json</span>
+      </div>
+      <div class="path-row">
+        <span class="path-os">Windows</span>
+        <span class="path-value">%APPDATA%\Claude\claude_desktop_config.json</span>
+      </div>
+      <div class="path-row">
+        <span class="path-os">Linux</span>
+        <span class="path-value">~/.config/Claude/claude_desktop_config.json</span>
+      </div>
+    </div>
+    <p style="margin:12px 0 0;font-size:.88rem;color:#6B7280">If the file doesn't exist yet, create it. Claude Desktop creates the directory on first launch.</p>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 3: WRITE CONFIG
+  ═══════════════════════════════ -->
+  <div class="step-box">
+    <div class="step-num">Step 4.3 — Write the Config File</div>
+    <div class="step-title">Tell Claude Desktop where your MCP server is and how to launch it</div>
+    <div class="step-body">
+      <p style="margin:0 0 12px">Open the config file in any text editor. Paste in this JSON — replacing the path and credentials with your real values.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">json</span><span class="code-desc">claude_desktop_config.json</span></div>
+    <div class="code-body"><pre>{
+  <span class="pu">"mcpServers"</span>: {
+    <span class="pu">"neuron"</span>: {
+      <span class="kw">"command"</span>: <span class="st">"uv"</span>,
+      <span class="kw">"args"</span>: [
+        <span class="st">"--directory"</span>,
+        <span class="st">"/FULL/PATH/TO/neuron-platform/neuron-mcp-server"</span>,
+        <span class="st">"run"</span>,
+        <span class="st">"python"</span>,
+        <span class="st">"-m"</span>,
+        <span class="st">"mcp_server.main"</span>
+      ],
+      <span class="kw">"env"</span>: {
+        <span class="pu">"TRANSPORT"</span>:      <span class="st">"stdio"</span>,
+        <span class="pu">"GITHUB_TOKEN"</span>:   <span class="st">"ghp_your_token_here"</span>,
+        <span class="pu">"JIRA_DOMAIN"</span>:    <span class="st">"yourcompany.atlassian.net"</span>,
+        <span class="pu">"JIRA_USER"</span>:     <span class="st">"your@email.com"</span>,
+        <span class="pu">"JIRA_API_TOKEN"</span>: <span class="st">"your_jira_api_token"</span>,
+        <span class="pu">"SLACK_BOT_TOKEN"</span>:<span class="st">"xoxb-your-slack-token"</span>
+      }
+    }
+  }
+}</pre></div>
+  </div>
+
+  <div class="callout callout-danger">
+    <div class="callout-icon">🔴</div>
+    <div class="callout-body"><strong>Replace the path!</strong> Change <code>/FULL/PATH/TO/neuron-platform/neuron-mcp-server</code> to the actual path on your laptop. Run <code>cd neuron-mcp-server && pwd</code> in your terminal to get it. It must be the absolute path — relative paths do not work.</div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 4: RESTART + VERIFY
+  ═══════════════════════════════ -->
+  <div class="step-box">
+    <div class="step-num">Step 4.4 — Restart Claude Desktop</div>
+    <div class="step-title">Close completely and reopen to load the new config</div>
+    <div class="step-body">
+      <ol style="padding-left:20px;line-height:2.2">
+        <li><strong>macOS:</strong> Right-click the dock icon → <em>Quit</em>. Do not just close the window.</li>
+        <li><strong>Windows:</strong> Right-click the system tray icon → <em>Exit</em></li>
+        <li>Reopen Claude Desktop</li>
+        <li>Start a new conversation</li>
+        <li>Look for the <strong>hammer icon</strong> (🔨) at the bottom of the input box</li>
+        <li>Click it — you should see your 5 Neuron tools listed</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- DIAGRAM 4.2: What you should see in Claude Desktop -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 4.2 — What You Should See in Claude Desktop After Connecting</div>
+    <svg width="100%" viewBox="0 0 680 310" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Claude Desktop UI mockup showing tools panel with 5 Neuron tools listed</title>
+
+      <!-- Window frame -->
+      <rect x="80" y="10" width="520" height="290" rx="14" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <!-- Title bar -->
+      <rect x="80" y="10" width="520" height="36" rx="14" fill="#EEEDFE" stroke="none"/>
+      <rect x="80" y="30" width="520" height="16" fill="#EEEDFE"/>
+      <!-- Traffic lights -->
+      <circle cx="102" cy="28" r="6" fill="#FF5F57"/>
+      <circle cx="120" cy="28" r="6" fill="#FEBC2E"/>
+      <circle cx="138" cy="28" r="6" fill="#28C840"/>
+      <text x="340" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="600" fill="#534AB7">Claude — New conversation</text>
+
+      <!-- Chat area -->
+      <rect x="96" y="56" width="488" height="168" rx="8" fill="#fff" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="340" y="130" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" fill="#9CA3AF">Start a conversation...</text>
+      <text x="340" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" fill="#C4CAFF">Your 5 tools are ready to use</text>
+
+      <!-- Input box -->
+      <rect x="96" y="234" width="380" height="40" rx="8" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="108" y="259" font-family="'Sora',sans-serif" font-size="11" fill="#9CA3AF">Ask Claude to use your tools...</text>
+
+      <!-- Tool hammer button -->
+      <rect x="488" y="234" width="40" height="40" rx="8" fill="#EEF0FF" stroke="#6C63FF" stroke-width="1.5"/>
+      <text x="508" y="259" text-anchor="middle" font-size="18">🔨</text>
+
+      <!-- Send button -->
+      <rect x="540" y="234" width="44" height="40" rx="8" fill="#6C63FF"/>
+      <text x="562" y="259" text-anchor="middle" font-size="16" fill="white">↑</text>
+
+      <!-- Tools popup panel -->
+      <rect x="390" y="110" width="200" height="148" rx="10" fill="#fff" stroke="#6C63FF" stroke-width="1.5" filter="drop-shadow(0 4px 12px rgba(108,99,255,0.15))"/>
+      <rect x="390" y="110" width="200" height="30" rx="10" fill="#6C63FF"/>
+      <rect x="390" y="128" width="200" height="12" fill="#6C63FF"/>
+      <text x="490" y="129" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">neuron — 5 tools</text>
+
+      <!-- Tool list items -->
+      <rect x="400" y="148" width="180" height="20" rx="4" fill="#F0FDF4"/>
+      <text x="410" y="162" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#065F46">github_search_prs</text>
+
+      <rect x="400" y="172" width="180" height="20" rx="4" fill="#F0FDF4"/>
+      <text x="410" y="186" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#065F46">github_get_pr_diff</text>
+
+      <rect x="400" y="196" width="180" height="20" rx="4" fill="#FEF3C7"/>
+      <text x="410" y="210" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#92400E">jira_search_issues</text>
+
+      <rect x="400" y="220" width="180" height="20" rx="4" fill="#FEF3C7"/>
+      <text x="410" y="234" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#92400E">jira_create_issue</text>
+
+      <rect x="400" y="244" width="180" height="20" rx="4" fill="#EFF6FF"/>
+      <text x="410" y="258" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1D4ED8">slack_send_message</text>
+
+      <!-- Arrow pointing to hammer -->
+      <path d="M486 232 L508 275" fill="none" stroke="#6C63FF" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ta)"/>
+    </svg>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div class="callout callout-warn">
+    <div class="callout-icon">🔧</div>
+    <div class="callout-body">
+      <strong>Don't see the tools?</strong> Open Claude Desktop logs:<br><br>
+      <strong>macOS:</strong> Help menu → Open Logs Folder → check <code>mcp*.log</code><br>
+      <strong>Windows:</strong> <code>%APPDATA%\Claude\logs\</code><br><br>
+      Common fixes: wrong absolute path in config · invalid JSON syntax · Python or uv not found (use full path like <code>/usr/local/bin/uv</code>) · <code>.env</code> file not in the right folder
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       THE 3 TEST PROMPTS
+  ═══════════════════════════════ -->
+  <h2>The 3 Proof Tests</h2>
+  <p>Run these three prompts in Claude Desktop. After each one, go and verify the result actually appeared in GitHub, Jira, or Slack. These are real actions — not simulations.</p>
+
+  <!-- DIAGRAM 4.3: Three test scenarios -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 4.3 — Three Proof Tests and What to Verify</div>
+    <svg width="100%" viewBox="0 0 680 260" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Three test prompts showing what you type, what Claude does, and where to verify the result</title>
+
+      <!-- TEST 1: GitHub -->
+      <rect x="14" y="14" width="198" height="232" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="14" y="14" width="198" height="32" rx="12" fill="#10B981"/>
+      <rect x="14" y="34" width="198" height="12" fill="#10B981"/>
+      <text x="113" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Test 1 — GitHub</text>
+
+      <text x="26" y="62" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">YOU TYPE:</text>
+      <rect x="22" y="68" width="182" height="52" rx="6" fill="#fff" stroke="#BBF7D0"/>
+      <text x="32" y="84" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">"Search for open pull</text>
+      <text x="32" y="98" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">requests in my GitHub</text>
+      <text x="32" y="112" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">that mention 'fix'"</text>
+
+      <text x="26" y="136" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">CLAUDE CALLS:</text>
+      <rect x="22" y="142" width="182" height="24" rx="5" fill="#DCFCE7"/>
+      <text x="32" y="158" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">github_search_prs(</text>
+      <text x="32" y="170" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">  query="fix")</text>
+
+      <text x="26" y="190" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">VERIFY IN:</text>
+      <rect x="22" y="196" width="182" height="40" rx="6" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="32" y="212" font-family="'Sora',sans-serif" font-size="9" fill="#059669">✓ Response lists real PRs</text>
+      <text x="32" y="228" font-family="'Sora',sans-serif" font-size="9" fill="#059669">✓ PR numbers match GitHub</text>
+
+      <!-- TEST 2: Jira -->
+      <rect x="242" y="14" width="198" height="232" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <rect x="242" y="14" width="198" height="32" rx="12" fill="#D97706"/>
+      <rect x="242" y="34" width="198" height="12" fill="#D97706"/>
+      <text x="341" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Test 2 — Jira</text>
+
+      <text x="254" y="62" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">YOU TYPE:</text>
+      <rect x="250" y="68" width="182" height="52" rx="6" fill="#fff" stroke="#FDE68A"/>
+      <text x="260" y="84" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">"Create a Jira ticket</text>
+      <text x="260" y="98" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">in project [YOUR KEY]</text>
+      <text x="260" y="112" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">to test Neuron setup"</text>
+
+      <text x="254" y="136" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">CLAUDE CALLS:</text>
+      <rect x="250" y="142" width="182" height="32" rx="5" fill="#FEF3C7"/>
+      <text x="260" y="158" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#92400E">jira_create_issue(</text>
+      <text x="260" y="170" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#92400E">  project_key=...)</text>
+
+      <text x="254" y="190" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">VERIFY IN:</text>
+      <rect x="250" y="196" width="182" height="40" rx="6" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="260" y="212" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">✓ Go to your Jira board</text>
+      <text x="260" y="228" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">✓ See the real ticket (ENG-xxx)</text>
+
+      <!-- TEST 3: Combo -->
+      <rect x="470" y="14" width="196" height="232" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="470" y="14" width="196" height="32" rx="12" fill="#2563EB"/>
+      <rect x="470" y="34" width="196" height="12" fill="#2563EB"/>
+      <text x="568" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Test 3 — Combo</text>
+
+      <text x="482" y="62" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">YOU TYPE:</text>
+      <rect x="478" y="68" width="180" height="52" rx="6" fill="#fff" stroke="#BFDBFE"/>
+      <text x="488" y="84" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">"Find my most recent</text>
+      <text x="488" y="98" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">open PR and create a</text>
+      <text x="488" y="112" font-family="'Sora',sans-serif" font-size="9" fill="#374151" font-style="italic">Jira ticket for it"</text>
+
+      <text x="482" y="136" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">CLAUDE CALLS:</text>
+      <rect x="478" y="142" width="180" height="38" rx="5" fill="#DBEAFE"/>
+      <text x="488" y="158" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#1D4ED8">github_search_prs()</text>
+      <text x="488" y="172" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#1D4ED8">→ jira_create_issue()</text>
+
+      <text x="482" y="190" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">VERIFY IN:</text>
+      <rect x="478" y="196" width="180" height="40" rx="6" fill="#EFF6FF" stroke="#BFDBFE"/>
+      <text x="488" y="212" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">✓ Jira ticket references PR</text>
+      <text x="488" y="228" font-family="'Sora',sans-serif" font-size="9" fill="#2563EB">✓ Two tool calls chained</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════
+       WHAT JUST HAPPENED
+  ═══════════════════════════════ -->
+  <h2>What Just Happened — Under the Hood</h2>
+  <p>When you ran Test 3, here is exactly what happened step by step. This is the same flow that will power your web UI in Chapter 5.</p>
+
+  <!-- DIAGRAM 4.4: Detailed flow for Test 3 -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 4.4 — Test 3 Detailed Flow (Two Chained Tool Calls)</div>
+    <svg width="100%" viewBox="0 0 680 370" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Detailed step by step flow for the combo test showing two chained tool calls</title>
+      <defs>
+        <marker id="tf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Two columns: what Claude thinks / what runs -->
+      <text x="190" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9CA3AF" letter-spacing="0.06em">CLAUDE'S REASONING</text>
+      <text x="510" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9CA3AF" letter-spacing="0.06em">WHAT ACTUALLY RUNS</text>
+      <line x1="350" y1="24" x2="350" y2="358" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <!-- Step 1: User asks -->
+      <rect x="20" y="30" width="310" height="44" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1.2"/>
+      <text x="175" y="49" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#26215C">① User asks about PRs and Jira</text>
+      <text x="175" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">"Find my most recent PR and create a Jira ticket"</text>
+      <!-- arrow right -->
+      <line x1="330" y1="52" x2="360" y2="52" stroke="#AFA9EC" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="362" y="30" width="300" height="44" rx="8" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.2"/>
+      <text x="512" y="56" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#6B7280">Claude receives prompt + list of 5 available tools</text>
+
+      <!-- Step 2: Claude plans -->
+      <line x1="175" y1="74" x2="175" y2="94" stroke="#6C63FF" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="20" y="96" width="310" height="56" rx="8" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="175" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">② Claude thinks and plans</text>
+      <text x="175" y="132" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">"Step 1: search PRs → get most recent"</text>
+      <text x="175" y="144" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">"Step 2: create Jira ticket referencing that PR"</text>
+      <line x1="330" y1="124" x2="360" y2="124" stroke="#FDE68A" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="362" y="96" width="300" height="56" rx="8" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.2"/>
+      <text x="512" y="120" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">No external calls yet.</text>
+      <text x="512" y="136" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Planning happens inside Claude's context.</text>
+
+      <!-- Step 3: First tool call -->
+      <line x1="175" y1="152" x2="175" y2="172" stroke="#6C63FF" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="20" y="174" width="310" height="44" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.2"/>
+      <text x="175" y="193" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">③ Calls github_search_prs()</text>
+      <text x="175" y="209" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">state="open", sorted by newest</text>
+      <line x1="330" y1="196" x2="360" y2="196" stroke="#10B981" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="362" y="174" width="300" height="44" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.2"/>
+      <text x="512" y="193" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Your Python runs → GitHub REST API called</text>
+      <text x="512" y="209" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">slim_result() caps result → returned to Claude</text>
+
+      <!-- Step 4: Claude reads result -->
+      <line x1="175" y1="218" x2="175" y2="238" stroke="#6C63FF" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="20" y="240" width="310" height="44" rx="8" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="175" y="259" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">④ Claude reads PR list</text>
+      <text x="175" y="275" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">"Most recent: PR #234 'Fix login bug'"</text>
+      <line x1="330" y1="262" x2="360" y2="262" stroke="#FDE68A" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="362" y="240" width="300" height="44" rx="8" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.2"/>
+      <text x="512" y="262" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Tool result added to Claude's context.</text>
+      <text x="512" y="276" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#6B7280">Claude now knows PR #234 details.</text>
+
+      <!-- Step 5: Second tool call -->
+      <line x1="175" y1="284" x2="175" y2="304" stroke="#6C63FF" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="20" y="306" width="310" height="44" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.2"/>
+      <text x="175" y="325" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9A3412">⑤ Calls jira_create_issue()</text>
+      <text x="175" y="341" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#C2410C">summary="Track PR #234: Fix login bug"</text>
+      <line x1="330" y1="328" x2="360" y2="328" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#tf)"/>
+      <rect x="362" y="306" width="300" height="44" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.2"/>
+      <text x="512" y="325" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#C2410C">Jira REST API called → real ticket created</text>
+      <text x="512" y="341" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#C2410C">Returns {key: "ENG-445", url: "..."}</text>
+
+      <text x="340" y="365" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">⏱ Total elapsed: ~4 seconds · Two real API calls · Zero manual steps</text>
+    </svg>
+  </div>
+
+  <!-- KEY INSIGHT BOX -->
+  <div class="callout callout-purple">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <strong>The key insight from Test 3:</strong> Claude decided on its own to make two tool calls in sequence. You did not tell it to call GitHub first. You did not tell it to pass the PR number to Jira. Claude reasoned through the steps itself — the only thing your code does is execute each individual tool when asked. <em>Intelligence in the agent. Execution in the tools.</em>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       WHAT STDIO TRANSPORT MEANS
+  ═══════════════════════════════ -->
+  <h2>Understanding stdio Transport</h2>
+  <p>When Claude Desktop launches your MCP server, here is exactly what happens at the process level. Understanding this helps you debug connection issues.</p>
+
+  <!-- DIAGRAM 4.5: stdio process model -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 4.5 — stdio Process Model: Parent and Child</div>
+    <svg width="100%" viewBox="0 0 680 192" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>stdio process model showing Claude Desktop as parent spawning neuron-mcp-server as child process communicating via stdin stdout</title>
+      <defs>
+        <marker id="tg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Claude Desktop (parent) -->
+      <rect x="30" y="30" width="220" height="132" rx="12" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <rect x="30" y="30" width="220" height="32" rx="12" fill="#7F77DD"/>
+      <rect x="30" y="50" width="220" height="12" fill="#7F77DD"/>
+      <text x="140" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Claude Desktop (Parent)</text>
+      <text x="140" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#26215C">Reads config JSON on startup</text>
+      <text x="140" y="98" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#26215C">Spawns: uv run python -m</text>
+      <text x="140" y="114" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4B44CC">  mcp_server.main</text>
+      <text x="140" y="132" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Injects env vars from config</text>
+      <text x="140" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7">Keeps process alive for session</text>
+
+      <!-- stdin arrow (request) -->
+      <line x1="250" y1="96" x2="330" y2="96" stroke="#6C63FF" stroke-width="2" marker-end="url(#tg)"/>
+      <text x="290" y="87" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#6C63FF">stdin →</text>
+      <text x="290" y="113" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">JSON-RPC requests</text>
+
+      <!-- stdout arrow (response) -->
+      <line x1="330" y1="106" x2="250" y2="106" stroke="#10B981" stroke-width="2" marker-end="url(#tg)"/>
+      <text x="290" y="130" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#10B981">← stdout</text>
+      <text x="290" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">JSON-RPC responses</text>
+
+      <!-- MCP Server (child) -->
+      <rect x="332" y="30" width="220" height="132" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="332" y="30" width="220" height="32" rx="12" fill="#10B981"/>
+      <rect x="332" y="50" width="220" height="12" fill="#10B981"/>
+      <text x="442" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">neuron-mcp-server (Child)</text>
+      <text x="442" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#065F46">Starts in stdio mode</text>
+      <text x="442" y="98" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#059669">TRANSPORT=stdio</text>
+      <text x="442" y="116" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#065F46">Reads tool calls from stdin</text>
+      <text x="442" y="132" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#065F46">Calls GitHub / Jira / Slack</text>
+      <text x="442" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" fill="#065F46">Writes results to stdout</text>
+
+      <!-- Important note -->
+      <rect x="30" y="172" width="522" height="16" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="291" y="183" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#92400E">⚠  Never write to stdout in stdio mode — it corrupts the MCP protocol. Use stderr for all logs.</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════
+       CHECKPOINT
+  ═══════════════════════════════ -->
+  <h2>Checkpoint — Before Moving On</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>Claude Desktop shows 5 Neuron tools when you click the 🔨 icon</li>
+      <li>Test 1 — GitHub search returns real PR data from your account</li>
+      <li>Test 2 — A real Jira ticket was created (go verify in Jira)</li>
+      <li>Test 3 — Claude made two tool calls automatically in sequence</li>
+      <li>You can explain: why is intelligence in the agent, not the tools?</li>
+      <li>You understand: what is the difference between stdio and SSE transport?</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card">
+      <div class="lc-title">stdio transport — no config needed</div>
+      <div class="lc-body">Claude Desktop spawns your Python script as a child process. No ports, no auth tokens, no network config. Communication happens over stdin/stdout. Perfect for local development.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">The AI chains tools automatically</div>
+      <div class="lc-body">You did not tell Claude to call GitHub first then Jira. It planned the sequence itself. This is the "agentic" part — reasoning through multi-step tasks without explicit instruction.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">One MCP server, many clients</div>
+      <div class="lc-body">The same <code>neuron-mcp-server</code> works for Claude Desktop now and for your web app in Chapter 5. You don't write the tools twice — one server, any number of clients.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Real actions, not simulation</div>
+      <div class="lc-body">The Jira ticket created in Test 2 is a real ticket on your board. The GitHub API was called with your real credentials. This is not a sandbox — treat it carefully.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">config.json controls everything</div>
+      <div class="lc-body">Adding a new MCP server to Claude Desktop is just adding a new entry in the JSON file. No Claude Desktop code changes. The config file is the entire integration surface.</div>
+    </div>
+    <div class="learn-card">
+      <div class="lc-title">Never write to stdout in stdio mode</div>
+      <div class="lc-body">If you <code>print()</code> anything in your server when running in stdio mode, it corrupts the JSON-RPC protocol and breaks the connection. Always use <code>stderr</code> for logs.</div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="ch-nav">
+    <a href="03-first-mcp-server.html">
+      <span class="dir">← Previous</span>
+      Chapter 3: First MCP Server
+    </a>
+    <a href="05-agent-backend.html" class="next">
+      <span class="dir">Next Chapter →</span>
+      Chapter 5: Agent Backend
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
