@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 — GitHub Tools | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#10B981);height:100%;border-radius:20px;width:30.8%}
+.hero{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1px solid #BBF7D0;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(16,185,129,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#10B981}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#10B981;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:24px 0}
+.tool-card{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:18px;transition:all .2s}
+.tool-card:hover{border-color:#10B981;box-shadow:0 4px 14px rgba(16,185,129,.1);transform:translateY(-2px)}
+.tool-card.new{border-color:#BBF7D0;background:#F0FDF4}
+.tool-card.existing{border-color:#E2E8F0;background:#F8F9FC}
+.tc-badge{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:8px}
+.badge-new{background:#DCFCE7;color:#15803D}
+.badge-existing{background:#F1F5F9;color:#6B7280}
+.tc-name{font-family:'IBM Plex Mono',monospace;font-size:.88rem;font-weight:700;color:#065F46;margin-bottom:6px}
+.tc-name.old{color:#6B7280}
+.tc-desc{font-size:.82rem;color:#6B7280;line-height:1.5}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="06-streamlit-ui.html">Ch 6</a>
+    <a href="07-docker-compose.html">Ch 7</a>
+    <a href="08-github-tools.html" class="active">Ch 8</a>
+    <a href="09-jira-tools.html">Ch 9</a>
+  </div>
+</nav>
+<div class="page-wrap">
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 8 — GitHub Tools
+  </div>
+  <div class="progress-label">Chapter 8 of 26 — Phase 1 (Integrations)</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 08 of 26</span>
+    </div>
+    <h1>GitHub <span>Tools</span></h1>
+    <p>Expand from 2 basic GitHub tools to a comprehensive 12-tool set. The AI gains deep codebase understanding — it can search code, manage issues, trigger workflows, and post review comments across all your repositories.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">🐙 GitHub API</span>
+      <span class="meta-tag">🔧 12 tools total</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Add 7 new GitHub tools to <code>neuron-mcp-server</code>, expanding from 2 to 12 total. Give the AI the ability to search code, manage issues, read repository info, list files, and trigger CI/CD workflows.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> <code>github_tools.py</code> expanded to 12 tools. Health check returns <code>tools_registered: 20</code>. A single AI prompt can search code, find a related issue, and trigger a workflow — all automatically.</div>
+  </div>
+
+  <!-- DIAGRAM 8.1: Tool expansion -->
+  <h2>From 2 to 12 — What We Are Adding</h2>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 8.1 — GitHub Tool Inventory: Existing vs New</div>
+    <svg width="100%" viewBox="0 0 680 310" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>GitHub tools showing 2 existing tools and 7 new tools being added organized by category</title>
+
+      <!-- Header -->
+      <rect x="14" y="14" width="308" height="28" rx="8" fill="#F1F5F9" stroke="#E2E8F0"/>
+      <text x="168" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#6B7280">EXISTING (Chapter 3) — 2 tools</text>
+
+      <rect x="358" y="14" width="308" height="28" rx="8" fill="#DCFCE7" stroke="#86EFAC"/>
+      <text x="512" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">NEW (This Chapter) — 7 tools</text>
+
+      <!-- Existing tools -->
+      <rect x="14" y="50" width="308" height="40" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="68" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">github_search_prs</text>
+      <text x="30" y="84" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Search pull requests by query and state</text>
+
+      <rect x="14" y="98" width="308" height="40" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="116" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">github_get_pr_diff</text>
+      <text x="30" y="132" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Get complete diff of a pull request</text>
+
+      <!-- New tools -->
+      <rect x="358" y="50" width="308" height="36" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="374" y="68" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_get_file</text>
+      <text x="374" y="82" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Read file contents from any repo and branch</text>
+
+      <rect x="358" y="94" width="308" height="36" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="374" y="112" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_list_pr_files</text>
+      <text x="374" y="126" font-family="'Sora',sans-serif" font-size="9" fill="#059669">List all files changed in a PR with stats</text>
+
+      <rect x="358" y="138" width="308" height="36" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="374" y="156" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_create_pr_comment</text>
+      <text x="374" y="170" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Post a review comment on a pull request</text>
+
+      <rect x="358" y="182" width="308" height="36" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="374" y="200" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_search_issues</text>
+      <text x="374" y="214" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Search GitHub issues by query, labels, assignee</text>
+
+      <rect x="358" y="226" width="308" height="36" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="374" y="244" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_search_code</text>
+      <text x="374" y="258" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Search code across repositories — find usages</text>
+
+      <rect x="14" y="146" width="308" height="40" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="30" y="164" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_get_repository_info</text>
+      <text x="30" y="178" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Repo metadata: stars, branches, topics, issues count</text>
+
+      <rect x="14" y="194" width="308" height="40" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="30" y="212" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_list_workflows</text>
+      <text x="30" y="226" font-family="'Sora',sans-serif" font-size="9" fill="#059669">List GitHub Actions workflows in a repository</text>
+
+      <rect x="14" y="242" width="308" height="40" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.2"/>
+      <text x="30" y="260" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">github_trigger_workflow</text>
+      <text x="30" y="274" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Trigger a GitHub Actions workflow run</text>
+
+      <!-- Divider note -->
+      <rect x="14" y="290" width="652" height="16" rx="4" fill="#DCFCE7" stroke="#86EFAC"/>
+      <text x="340" y="302" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Total after this chapter: 12 GitHub tools  ·  MCP server tool count: 20</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 8.2: GitHub API categories -->
+  <h2>GitHub API — Four Capability Areas</h2>
+  <p>The 12 tools map to four distinct capability areas. This is how the AI thinks about GitHub — not as random API calls, but as four coherent categories of action.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 8.2 — Four GitHub Capability Areas</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Four GitHub capability areas: Code Understanding, Pull Requests, Issue Tracking, CI CD Automation</title>
+
+      <!-- Code Understanding -->
+      <rect x="14" y="14" width="154" height="192" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="14" y="14" width="154" height="34" rx="12" fill="#059669"/>
+      <rect x="14" y="34" width="154" height="14" fill="#059669"/>
+      <text x="91" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Code Understanding</text>
+      <text x="22" y="64" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">search_prs</text>
+      <text x="22" y="80" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">get_pr_diff</text>
+      <text x="22" y="96" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">list_pr_files</text>
+      <text x="22" y="112" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">get_file</text>
+      <text x="22" y="128" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">search_code</text>
+      <line x1="22" y1="136" x2="156" y2="136" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="22" y="150" font-family="'Sora',sans-serif" font-size="8" fill="#059669">AI reads your code,</text>
+      <text x="22" y="164" font-family="'Sora',sans-serif" font-size="8" fill="#059669">understands changes,</text>
+      <text x="22" y="178" font-family="'Sora',sans-serif" font-size="8" fill="#059669">finds patterns</text>
+      <text x="22" y="196" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#10B981">5 tools</text>
+
+      <!-- Pull Requests -->
+      <rect x="182" y="14" width="154" height="192" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="182" y="14" width="154" height="34" rx="12" fill="#2563EB"/>
+      <rect x="182" y="34" width="154" height="14" fill="#2563EB"/>
+      <text x="259" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">PR Management</text>
+      <text x="190" y="64" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#1D4ED8">search_prs</text>
+      <text x="190" y="80" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#1D4ED8">get_pr_diff</text>
+      <text x="190" y="96" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#1D4ED8">list_pr_files</text>
+      <text x="190" y="112" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#1D4ED8">create_pr_comment</text>
+      <line x1="190" y1="120" x2="324" y2="120" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="190" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#2563EB">AI reviews PRs,</text>
+      <text x="190" y="152" font-family="'Sora',sans-serif" font-size="8" fill="#2563EB">posts comments,</text>
+      <text x="190" y="168" font-family="'Sora',sans-serif" font-size="8" fill="#2563EB">summarises changes</text>
+      <text x="190" y="196" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#3B82F6">4 tools</text>
+
+      <!-- Issue Tracking -->
+      <rect x="350" y="14" width="154" height="192" rx="12" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+      <rect x="350" y="14" width="154" height="34" rx="12" fill="#C2410C"/>
+      <rect x="350" y="34" width="154" height="14" fill="#C2410C"/>
+      <text x="427" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Issue Tracking</text>
+      <text x="358" y="64" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9A3412">search_issues</text>
+      <text x="358" y="80" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9A3412">get_repository_info</text>
+      <line x1="358" y1="88" x2="492" y2="88" stroke="#FED7AA" stroke-width="0.5"/>
+      <text x="358" y="104" font-family="'Sora',sans-serif" font-size="8" fill="#C2410C">AI finds bugs,</text>
+      <text x="358" y="120" font-family="'Sora',sans-serif" font-size="8" fill="#C2410C">links PRs to issues,</text>
+      <text x="358" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#C2410C">reports repo health</text>
+      <text x="358" y="196" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#EA580C">2 tools</text>
+
+      <!-- CI/CD -->
+      <rect x="518" y="14" width="148" height="192" rx="12" fill="#FDF4FF" stroke="#9333EA" stroke-width="1.5"/>
+      <rect x="518" y="14" width="148" height="34" rx="12" fill="#7E22CE"/>
+      <rect x="518" y="34" width="148" height="14" fill="#7E22CE"/>
+      <text x="592" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">CI/CD Automation</text>
+      <text x="526" y="64" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B21A8">list_workflows</text>
+      <text x="526" y="80" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B21A8">trigger_workflow</text>
+      <line x1="526" y1="88" x2="654" y2="88" stroke="#E9D5FF" stroke-width="0.5"/>
+      <text x="526" y="104" font-family="'Sora',sans-serif" font-size="8" fill="#7E22CE">AI triggers builds,</text>
+      <text x="526" y="120" font-family="'Sora',sans-serif" font-size="8" fill="#7E22CE">watches deployments,</text>
+      <text x="526" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#7E22CE">runs test suites</text>
+      <text x="526" y="196" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#9333EA">2 tools</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 8.3: Power scenario sequence -->
+  <h2>What Becomes Possible — The Power Scenario</h2>
+  <p>With 12 GitHub tools, the AI can understand your entire development workflow in one request. Here is an example of a single prompt that would have been impossible with just 2 tools.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 8.3 — Sequence: "Analyse our open PRs for security issues"</div>
+    <svg width="100%" viewBox="0 0 680 330" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Sequence diagram showing AI making five chained tool calls to analyse open PRs for security issues</title>
+      <defs>
+        <marker id="ga" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- User prompt box -->
+      <rect x="14" y="14" width="652" height="34" rx="8" fill="#EEEDFE" stroke="#AFA9EC"/>
+      <text x="340" y="26" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">You type:</text>
+      <text x="340" y="40" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#534AB7" font-style="italic">"Search our open PRs, read the diff for each, check for SQL injection vulnerabilities, and post a comment on any PR that looks risky"</text>
+
+      <!-- Step 1 -->
+      <rect x="14" y="62" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="77" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">①</text>
+      <rect x="52" y="62" width="614" height="22" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="62" y="75" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#065F46">github_search_prs</text>
+      <text x="212" y="75" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(query="", state="open") → returns list of open PRs</text>
+
+      <!-- Step 2 -->
+      <rect x="14" y="92" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="107" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">②</text>
+      <rect x="52" y="92" width="614" height="22" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="62" y="105" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#065F46">github_list_pr_files</text>
+      <text x="222" y="105" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(owner, repo, pull_number) → quick overview of changed files</text>
+
+      <!-- Step 3 -->
+      <rect x="14" y="122" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="137" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">③</text>
+      <rect x="52" y="122" width="614" height="22" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="62" y="135" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#065F46">github_get_pr_diff</text>
+      <text x="212" y="135" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(owner, repo, pull_number) → full diff with code patches</text>
+
+      <!-- Step 4: code search for context -->
+      <rect x="14" y="152" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="167" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">④</text>
+      <rect x="52" y="152" width="614" height="22" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="62" y="165" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#065F46">github_search_code</text>
+      <text x="212" y="165" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(query="raw SQL string concat", repo="myorg/myrepo") → find risky patterns</text>
+
+      <!-- AI reasoning -->
+      <rect x="14" y="182" width="652" height="36" rx="8" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="29" y="196" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">🧠 Claude reasons:</text>
+      <text x="29" y="210" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">"PR #234 has a SQL query built with string concatenation on line 47 of UserController.py — this is a SQL injection vulnerability. I should post a review comment."</text>
+
+      <!-- Step 5 -->
+      <rect x="14" y="228" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="243" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">⑤</text>
+      <rect x="52" y="228" width="614" height="22" rx="4" fill="#DBEAFE" stroke="#BFDBFE"/>
+      <text x="62" y="241" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#1E40AF">github_create_pr_comment</text>
+      <text x="266" y="241" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(owner, repo, pr_number, body="⚠ Potential SQL injection on line 47...")</text>
+
+      <!-- Result -->
+      <rect x="14" y="264" width="652" height="52" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <text x="340" y="284" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Result: Security review comment posted on PR #234 in GitHub</text>
+      <text x="340" y="300" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">5 tool calls · fully automated · ~8 seconds · zero manual steps</text>
+      <text x="340" y="314" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">This required: search_prs + list_pr_files + get_pr_diff + search_code + create_pr_comment</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 8.4: GitHub token scopes -->
+  <h2>GitHub Token Scopes</h2>
+  <p>Different tools require different GitHub token permissions. Make sure your Personal Access Token has all required scopes before running these tools.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 8.4 — Required GitHub Token Scopes Per Tool Category</div>
+    <svg width="100%" viewBox="0 0 680 178" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>GitHub token scopes required for each tool category: repo, workflow, read org</title>
+
+      <!-- Scope: repo -->
+      <rect x="14" y="14" width="200" height="150" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="14" y="14" width="200" height="30" rx="12" fill="#059669"/>
+      <rect x="14" y="30" width="200" height="14" fill="#059669"/>
+      <text x="114" y="32" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" font-weight="700" fill="white">repo</text>
+      <text x="22" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">Scope: repo (full control)</text>
+      <line x1="22" y1="68" x2="202" y2="68" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="22" y="84" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ search_prs</text>
+      <text x="22" y="98" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ get_pr_diff</text>
+      <text x="22" y="112" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ list_pr_files</text>
+      <text x="22" y="126" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ get_file</text>
+      <text x="22" y="140" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ create_pr_comment</text>
+      <text x="22" y="156" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ search_issues</text>
+
+      <!-- Scope: repo + read:org -->
+      <rect x="240" y="14" width="200" height="150" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="240" y="14" width="200" height="30" rx="12" fill="#2563EB"/>
+      <rect x="240" y="30" width="200" height="14" fill="#2563EB"/>
+      <text x="340" y="32" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" font-weight="700" fill="white">repo + read:org</text>
+      <text x="248" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#1D4ED8">Scope: repo + read:org</text>
+      <line x1="248" y1="68" x2="428" y2="68" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="248" y="84" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ get_repository_info</text>
+      <text x="248" y="98" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ search_code</text>
+      <text x="248" y="112" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">read:org needed for org</text>
+      <text x="248" y="126" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">repositories and code</text>
+
+      <!-- Scope: workflow -->
+      <rect x="466" y="14" width="200" height="150" rx="12" fill="#FDF4FF" stroke="#9333EA" stroke-width="1.5"/>
+      <rect x="466" y="14" width="200" height="30" rx="12" fill="#7E22CE"/>
+      <rect x="466" y="30" width="200" height="14" fill="#7E22CE"/>
+      <text x="566" y="32" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="12" font-weight="700" fill="white">workflow</text>
+      <text x="474" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#6B21A8">Scope: workflow</text>
+      <line x1="474" y1="68" x2="654" y2="68" stroke="#E9D5FF" stroke-width="0.5"/>
+      <text x="474" y="84" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ list_workflows</text>
+      <text x="474" y="98" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">✓ trigger_workflow</text>
+      <text x="474" y="114" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Only needed if you use</text>
+      <text x="474" y="128" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">CI/CD trigger tools</text>
+      <rect x="474" y="136" width="174" height="16" rx="4" fill="#F3E8FF"/>
+      <text x="561" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B21A8">⚠ powerful — use carefully</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEP -->
+  <h2>Build Step</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 8.1 — Add 7 New Tools to github_tools.py</div>
+    <div class="step-title">Expand the GitHub tool module from 2 to 9 functions, all registered via register_github_tools()</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am expanding neuron-mcp-server's GitHub tools. Existing: github_search_prs, github_get_pr_diff. Tech stack: Python 3.11, FastMCP, pygithub, utils.py with slim_result() and format_error().<br><br>
+    Add these 7 new async tools to mcp_server/tools/github_tools.py, each with @mcp.tool() decorator, docstring, type hints, try/except with format_error(), slim_result() on lists:<br><br>
+    1. github_get_file(owner:str, repo:str, path:str, ref:str='main') → dict — gets file content, decodes base64 automatically, returns {path, content, sha, size}<br>
+    2. github_list_pr_files(owner:str, repo:str, pull_number:int) → dict — returns [{filename, status, additions, deletions, changes}]<br>
+    3. github_create_pr_comment(owner:str, repo:str, pull_number:int, body:str) → dict — posts comment, returns {comment_id, url, created_at}<br>
+    4. github_search_issues(query:str, repo:str='', state:str='open', labels:str='') → dict — searches issues, returns [{number, title, state, labels, assignees, url, body_preview}]<br>
+    5. github_get_repository_info(owner:str, repo:str) → dict — returns {name, description, language, stars, forks, default_branch, topics, open_issues_count}<br>
+    6. github_list_workflows(owner:str, repo:str) → dict — returns [{id, name, state, url}]<br>
+    7. github_trigger_workflow(owner:str, repo:str, workflow_id:str, ref:str='main', inputs:dict={}) → dict — triggers workflow, returns {run_id, url, status:'queued'}<br><br>
+    Update register_github_tools(mcp) to register all 9 tools. Show the complete updated file."</em>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 8.2 — Update Token Scopes</div>
+    <div class="step-title">Regenerate your GitHub PAT with the additional scopes needed</div>
+    <div class="step-body">
+      <p style="margin:0">Go to <strong>github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</strong> → generate a new token with these scopes:</p>
+      <ul style="padding-left:20px;margin-top:12px;color:#4B5563;font-size:.93rem;line-height:2.2">
+        <li><code>repo</code> — full control of repositories</li>
+        <li><code>read:org</code> — read org data and code search</li>
+        <li><code>workflow</code> — trigger GitHub Actions (optional)</li>
+      </ul>
+      <p style="margin-top:12px">Update the token in your <code>.env</code> file and <code>docker-compose.yml</code>.</p>
+    </div>
+  </div>
+
+  <!-- VERIFY -->
+  <h2>Verify and Test</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Restart and verify tool count</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Restart to pick up new tools</span>
+<span style="color:#86EFAC">make restart</span>
+
+<span style="color:#6B7280"># Health check should now show 20 tools</span>
+<span style="color:#86EFAC">curl http://localhost:8001/health</span>
+<span style="color:#6B7280"># {"status":"ok","tools_registered":20}</span></pre></div>
+  </div>
+
+  <p>Test these prompts in the Neuron UI at <code>http://localhost:8501</code>:</p>
+
+  <table>
+    <thead><tr><th>Prompt</th><th>Tools called</th><th>What to verify</th></tr></thead>
+    <tbody>
+      <tr><td><em>"Search our codebase for any function named authenticate"</em></td><td><code>github_search_code</code></td><td>Returns real code snippets with file paths</td></tr>
+      <tr><td><em>"What language is our main repo and how many open issues does it have?"</em></td><td><code>github_get_repository_info</code></td><td>Returns real repo metadata</td></tr>
+      <tr><td><em>"Find open PRs and read the diff for the most recent one, then list what files changed"</em></td><td><code>search_prs</code> + <code>get_pr_diff</code> + <code>list_pr_files</code></td><td>Three chained calls, correct file list</td></tr>
+      <tr><td><em>"What CI/CD workflows do we have? List them."</em></td><td><code>github_list_workflows</code></td><td>Returns real workflow names</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li><code>curl http://localhost:8001/health</code> shows <code>tools_registered: 20</code></li>
+      <li><code>github_search_code</code> returns real code snippets from your repos</li>
+      <li><code>github_get_repository_info</code> returns real language, stars, issue count</li>
+      <li>Three chained tool calls work in one prompt (search PRs → get diff → list files)</li>
+      <li>All 7 new tools have clear docstrings the AI can understand</li>
+      <li>All 7 new tools wrap their API call in try/except with format_error()</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">Code search unlocks understanding</div><div class="lc-body">With <code>github_search_code</code>, the AI gains genuine understanding of your codebase patterns — not just PR diffs. It can find all usages of a function across all files.</div></div>
+    <div class="learn-card"><div class="lc-title">Chaining tools = intelligence</div><div class="lc-body">A single prompt triggers 3–5 tool calls automatically. The AI sequences them logically without being told the order. This is the power of the think-act-observe loop.</div></div>
+    <div class="learn-card"><div class="lc-title">slim_result() is critical for search</div><div class="lc-body">Code search returns HTML-highlighted snippets that can be massive. slim_result() is not optional here — without it, one search overflows the context window.</div></div>
+    <div class="learn-card"><div class="lc-title">Minimal permissions principle</div><div class="lc-body">Don't add the <code>workflow</code> scope unless you use the trigger tool. Each additional permission increases risk. Match scopes to the tools you actually deploy.</div></div>
+    <div class="learn-card"><div class="lc-title">adding_tools is always the same</div><div class="lc-body">Async function + @mcp.tool() decorator + docstring + type hints + try/except + slim_result(). This pattern is identical for every tool you will ever add to Neuron.</div></div>
+    <div class="learn-card"><div class="lc-title">register_*_tools() stays clean</div><div class="lc-body">You added 7 tools without touching main.py. The register function handles all registration. main.py stays clean regardless of how many tools you add.</div></div>
+  </div>
+
+  <!-- NAV -->
+  <div class="ch-nav">
+    <a href="07-docker-compose.html"><span class="dir">← Previous</span>Chapter 7: Docker Compose</a>
+    <a href="09-jira-tools.html" class="next"><span class="dir">Next Chapter →</span>Chapter 9: Jira Tools</a>
+  </div>
+</div>
+</body>
+</html>

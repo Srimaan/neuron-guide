@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 — Docker Compose | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#0EA5E9);height:100%;border-radius:20px;width:26.9%}
+.hero{background:linear-gradient(135deg,#F0F9FF,#E0F2FE);border:1px solid #BAE6FD;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(14,165,233,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#0EA5E9}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#0EA5E9;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+.make-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.make-cmd{background:#1E1E2E;border-radius:10px;padding:14px 16px}
+.make-cmd .mk-name{font-family:'IBM Plex Mono',monospace;font-size:.88rem;font-weight:700;color:#86EFAC;margin-bottom:4px}
+.make-cmd .mk-desc{font-size:.8rem;color:#8A8A9C;line-height:1.4}
+@media(max-width:600px){.make-grid{grid-template-columns:1fr}}
+.phase-complete{background:linear-gradient(135deg,#F0FDF4,#EEEDFE);border:2px solid #6C63FF;border-radius:16px;padding:32px;margin:40px 0;text-align:center}
+.phase-complete h3{font-size:1.4rem;font-weight:800;color:#4B44CC;margin-bottom:10px}
+.phase-complete p{color:#374151;margin:0}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="05-agent-backend.html">Ch 5</a>
+    <a href="06-streamlit-ui.html">Ch 6</a>
+    <a href="07-docker-compose.html" class="active">Ch 7</a>
+    <a href="08-github-tools.html">Ch 8</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 7 — Docker Compose
+  </div>
+
+  <div class="progress-label">Chapter 7 of 26 — Phase 1</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 07 of 26</span>
+    </div>
+    <h1>Docker<br><span>Compose</span></h1>
+    <p>Replace 3 terminal windows with one command. Package every service into Docker containers, wire them together, and go from zero to fully running stack in under 60 seconds.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">🐳 Docker</span>
+      <span class="meta-tag">🏁 Phase 1 Complete</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Package all three Neuron services into Docker containers so the entire platform starts with <code>make up</code> and stops with <code>make down</code>. No more juggling three terminals.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> A <code>docker-compose.yml</code>, three <code>Dockerfiles</code>, a local DynamoDB container ($0 dev cost), and a <code>Makefile</code> with 12 handy commands.</div>
+  </div>
+
+  <!-- DIAGRAM 7.1 Before vs After -->
+  <h2>Before vs After</h2>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 7.1 — 3 Terminals vs 1 Command</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Before showing three separate terminals versus after showing one make up command</title>
+      <rect x="14" y="14" width="300" height="176" rx="12" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+      <rect x="14" y="14" width="300" height="32" rx="12" fill="#FCA5A5"/>
+      <rect x="14" y="34" width="300" height="12" fill="#FCA5A5"/>
+      <text x="164" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Before — 3 Terminals</text>
+      <rect x="24" y="54" width="280" height="30" rx="5" fill="#1E1E2E"/>
+      <text x="32" y="68" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">$ cd neuron-mcp-server</text>
+      <text x="32" y="80" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">$ uv run python -m mcp_server.main</text>
+      <rect x="24" y="92" width="280" height="30" rx="5" fill="#1E1E2E"/>
+      <text x="32" y="106" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">$ cd neuron-mcp-client</text>
+      <text x="32" y="118" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">$ uv run python -m mcp_client.main</text>
+      <rect x="24" y="130" width="280" height="30" rx="5" fill="#1E1E2E"/>
+      <text x="32" y="144" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">$ cd neuron-frontend</text>
+      <text x="32" y="156" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">$ uv run streamlit run frontend/app.py</text>
+      <rect x="24" y="168" width="280" height="14" rx="4" fill="#FECACA"/>
+      <text x="164" y="179" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#991B1B">3 windows · right order · right directory</text>
+
+      <circle cx="340" cy="100" r="18" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="340" y="106" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#374151">vs</text>
+
+      <rect x="366" y="14" width="300" height="176" rx="12" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <rect x="366" y="14" width="300" height="32" rx="12" fill="#34D399"/>
+      <rect x="366" y="34" width="300" height="12" fill="#34D399"/>
+      <text x="516" y="34" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">After — One Command</text>
+      <rect x="376" y="54" width="280" height="50" rx="5" fill="#1E1E2E"/>
+      <text x="384" y="72" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#FCD34D">$ cd neuron-platform</text>
+      <text x="384" y="90" font-family="'IBM Plex Mono',monospace" font-size="13" font-weight="700" fill="#86EFAC">$ make up</text>
+      <rect x="376" y="112" width="280" height="68" rx="5" fill="#fff" stroke="#BBF7D0"/>
+      <text x="386" y="130" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">✅  Correct start order guaranteed</text>
+      <text x="386" y="148" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">✅  Health checks before dependents</text>
+      <text x="386" y="164" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">✅  Local DynamoDB — $0 cost</text>
+      <text x="386" y="180" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">✅  Same containers go to EKS Ch 14</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 7.2 Four containers -->
+  <h2>Four-Container Architecture</h2>
+  <p>We run <em>four</em> containers — one for each service plus a local DynamoDB. The local DynamoDB replaces the real AWS service during development, keeping costs at $0.</p>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 7.2 — Docker Compose Four-Container Network</div>
+    <svg width="100%" viewBox="0 0 680 270" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Four containers in neuron-network: dynamodb-local, mcp-server, mcp-client, frontend with dependency arrows</title>
+      <defs>
+        <marker id="ca" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- Network boundary -->
+      <rect x="14" y="28" width="652" height="212" rx="14" fill="#F8F9FF" stroke="#C7D2FE" stroke-width="1.5" stroke-dasharray="8 4"/>
+      <text x="340" y="46" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#6C63FF">neuron-network — containers talk by service name</text>
+
+      <!-- DynamoDB local -->
+      <rect x="28" y="58" width="140" height="164" rx="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <rect x="28" y="58" width="140" height="30" rx="12" fill="#D97706"/>
+      <rect x="28" y="74" width="140" height="14" fill="#D97706"/>
+      <text x="98" y="75" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">dynamodb-local</text>
+      <text x="98" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🗄️</text>
+      <text x="98" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Free DynamoDB</text>
+      <text x="98" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">amazon/dynamodb-local</text>
+      <text x="98" y="166" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">Port 8002 (host)</text>
+      <rect x="38" y="200" width="120" height="16" rx="4" fill="#FDE68A"/>
+      <text x="98" y="212" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">$0 · works offline</text>
+
+      <line x1="168" y1="150" x2="188" y2="150" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#ca)"/>
+
+      <!-- MCP Server -->
+      <rect x="190" y="58" width="140" height="164" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="190" y="58" width="140" height="30" rx="12" fill="#059669"/>
+      <rect x="190" y="74" width="140" height="14" fill="#059669"/>
+      <text x="260" y="75" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">neuron-mcp-server</text>
+      <text x="260" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🤲</text>
+      <text x="260" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">The Hands</text>
+      <text x="260" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">FastMCP · 5 tools</text>
+      <text x="260" y="166" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">GitHub · Jira · Slack</text>
+      <rect x="200" y="200" width="120" height="16" rx="4" fill="#BBF7D0"/>
+      <text x="260" y="212" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" font-weight="700" fill="#065F46">:8001</text>
+
+      <line x1="330" y1="140" x2="350" y2="140" stroke="#10B981" stroke-width="1.5" marker-end="url(#ca)"/>
+      <text x="340" y="131" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#10B981">MCP</text>
+
+      <!-- MCP Client -->
+      <rect x="352" y="58" width="140" height="164" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="352" y="58" width="140" height="30" rx="12" fill="#2563EB"/>
+      <rect x="352" y="74" width="140" height="14" fill="#2563EB"/>
+      <text x="422" y="75" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">neuron-mcp-client</text>
+      <text x="422" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🧠</text>
+      <text x="422" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">The Brain</text>
+      <text x="422" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">FastAPI + Strands</text>
+      <text x="422" y="166" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">Bedrock + DynamoDB</text>
+      <rect x="362" y="200" width="120" height="16" rx="4" fill="#BFDBFE"/>
+      <text x="422" y="212" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" font-weight="700" fill="#1E40AF">:8000</text>
+
+      <line x1="492" y1="140" x2="512" y2="140" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#ca)"/>
+      <text x="502" y="131" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#3B82F6">HTTP</text>
+
+      <!-- Frontend -->
+      <rect x="514" y="58" width="134" height="164" rx="12" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <rect x="514" y="58" width="134" height="30" rx="12" fill="#6C63FF"/>
+      <rect x="514" y="74" width="134" height="14" fill="#6C63FF"/>
+      <text x="581" y="75" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">neuron-frontend</text>
+      <text x="581" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🖥️</text>
+      <text x="581" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">The Face</text>
+      <text x="581" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">Streamlit UI</text>
+      <text x="581" y="166" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">Chat interface</text>
+      <rect x="524" y="200" width="114" height="16" rx="4" fill="#C7D2FE"/>
+      <text x="581" y="212" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" font-weight="700" fill="#26215C">:8501 ← browser</text>
+
+      <!-- Start order -->
+      <text x="340" y="250" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Start order: dynamodb-local → mcp-server → mcp-client → frontend (health checks enforced)</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 7.3 Layer caching -->
+  <h2>The Most Important Optimisation: Layer Caching</h2>
+  <p>Docker builds in layers. Copy dependency files <em>before</em> source code so packages are cached and only your code rebuilds on changes.</p>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 7.3 — Dockerfile Layer Caching: Correct vs Wrong Order</div>
+    <svg width="100%" viewBox="0 0 680 270" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Two Dockerfiles side by side showing correct and wrong layer order for caching</title>
+
+      <!-- Correct order -->
+      <text x="170" y="16" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#065F46">Correct Order — Fast Rebuilds</text>
+
+      <rect x="14" y="28" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#34D399" stroke-width="1.2"/>
+      <text x="22" y="38" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">FROM python:3.11-slim</text>
+      <text x="318" y="42" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#34D399">CACHED ✅</text>
+      <text x="22" y="56" font-family="'Sora',sans-serif" font-size="7.5" fill="#6B7280">Base image — never changes</text>
+
+      <rect x="14" y="62" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#34D399" stroke-width="1.2"/>
+      <text x="22" y="72" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">COPY pyproject.toml uv.lock ./</text>
+      <text x="318" y="76" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#34D399">CACHED ✅</text>
+      <text x="22" y="90" font-family="'Sora',sans-serif" font-size="7.5" fill="#6B7280">Dependencies — only changes when adding packages</text>
+
+      <rect x="14" y="96" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#34D399" stroke-width="1.2"/>
+      <text x="22" y="106" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">RUN uv sync --frozen --no-dev</text>
+      <text x="318" y="110" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#34D399">CACHED ✅</text>
+      <text x="22" y="124" font-family="'Sora',sans-serif" font-size="7.5" fill="#6B7280">Package install — reuses previous layer cache</text>
+
+      <rect x="14" y="130" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#FCD34D" stroke-width="2"/>
+      <text x="22" y="140" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">COPY . .</text>
+      <text x="318" y="144" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#FCD34D">REBUILDS 🔄</text>
+      <text x="22" y="158" font-family="'Sora',sans-serif" font-size="7.5" fill="#FCD34D">Code — rebuilds when you edit files (fast — only code)</text>
+
+      <rect x="14" y="190" width="312" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="170" y="205" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">After first build: ~5 second rebuilds</text>
+
+      <!-- Wrong order -->
+      <text x="510" y="16" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="#DC2626">Wrong Order — Slow Rebuilds</text>
+
+      <rect x="354" y="28" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#34D399" stroke-width="1.2"/>
+      <text x="362" y="42" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">FROM python:3.11-slim</text>
+      <text x="658" y="42" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#34D399">CACHED ✅</text>
+
+      <rect x="354" y="62" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#EF4444" stroke-width="1.5"/>
+      <text x="362" y="76" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCA5A5">COPY . .   ← too early!</text>
+      <text x="658" y="76" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#EF4444">REBUILDS 🔄</text>
+
+      <rect x="354" y="96" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#EF4444" stroke-width="1.5"/>
+      <text x="362" y="110" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCA5A5">RUN uv sync --frozen</text>
+      <text x="658" y="110" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#EF4444">REBUILDS 🔄</text>
+      <text x="362" y="124" font-family="'Sora',sans-serif" font-size="7.5" fill="#EF4444">Re-downloads ALL packages on every code change!</text>
+
+      <rect x="354" y="130" width="312" height="28" rx="5" fill="#1E1E2E" stroke="#EF4444" stroke-width="1.5"/>
+      <text x="362" y="144" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCA5A5">CMD [...]</text>
+      <text x="658" y="144" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#EF4444">REBUILDS 🔄</text>
+
+      <rect x="354" y="190" width="312" height="22" rx="5" fill="#FEF2F2" stroke="#FECACA"/>
+      <text x="510" y="205" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#DC2626">Every rebuild: 3–5 min (all packages re-download)</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 7.1 — Dockerfile for MCP Server</div>
+    <div class="step-title">python:3.11-slim + uv + non-root security + health check</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong> <em>"Generate a production Dockerfile for neuron-mcp-server. Python 3.11-slim, install uv, WORKDIR /app, copy pyproject.toml + uv.lock first, run uv sync --frozen --no-dev, then COPY . ., create non-root user appuser UID 1000, expose 8001, ENV TRANSPORT=sse, HEALTHCHECK curl -f http://localhost:8001/health interval 30s, CMD uv run python -m mcp_server.main. Add comments."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 7.2 — Dockerfile for Agent Backend</div>
+    <div class="step-title">Same pattern — port 8000, no credentials baked in</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong> <em>"Generate Dockerfile for neuron-mcp-client. Same pattern as mcp-server but port 8000, CMD: uv run python -m mcp_client.main, HEALTHCHECK on /health, non-root user UID 1000. No AWS credentials in image — all via environment variables."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 7.3 — Dockerfile for Frontend</div>
+    <div class="step-title">Streamlit needs headless mode and port 8501</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong> <em>"Generate Dockerfile for neuron-frontend (Streamlit). Same base pattern but: port 8501, copy .streamlit/config.toml, CMD: uv run streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true, HEALTHCHECK: curl -f http://localhost:8501/_stcore/health, non-root user UID 1000."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 7.4 — docker-compose.yml</div>
+    <div class="step-title">Wire all four containers with health-check ordering</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong> <em>"Generate docker-compose.yml for Neuron with: (1) dynamodb-local image amazon/dynamodb-local:latest port 8002:8000, (2) neuron-mcp-server build ./neuron-mcp-server port 8001 env_file .env healthcheck, (3) neuron-mcp-client build ./neuron-mcp-client port 8000 env vars MCP_SERVER_URL=http://neuron-mcp-server:8001/mcp and DYNAMODB_ENDPOINT_URL=http://dynamodb-local:8000 depends_on both with condition service_healthy, (4) neuron-frontend build ./neuron-frontend port 8501 BACKEND_URL=http://neuron-mcp-client:8000 depends_on client. All on neuron-network bridge. Volume dynamodb-data for persistence."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 7.5 — Makefile</div>
+    <div class="step-title">12 commands that make daily development smooth</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong> <em>"Generate a Makefile for neuron-platform root with: up (docker-compose up -d --build), down, logs, logs-mcp, logs-backend, logs-frontend, health (curl all 3 health endpoints print tick/cross), restart, rebuild (no-cache), shell-mcp (bash in container), shell-backend, clean (stop remove volumes images), ps, init-db (create neuron-sessions table in local DynamoDB using AWS CLI). Add .PHONY and help target."</em></div>
+  </div>
+
+  <!-- START AND VERIFY -->
+  <h2>Start and Verify</h2>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">First-time startup sequence</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Build images and start all 4 containers</span>
+<span style="color:#86EFAC">make up</span>
+
+<span style="color:#6B7280"># Wait ~30s then check health</span>
+<span style="color:#86EFAC">make health</span>
+<span style="color:#6B7280"># ✅  neuron-mcp-server  :8001  healthy</span>
+<span style="color:#6B7280"># ✅  neuron-mcp-client  :8000  healthy</span>
+<span style="color:#6B7280"># ✅  neuron-frontend    :8501  healthy</span>
+
+<span style="color:#6B7280"># Create the DynamoDB table in local container (first time only)</span>
+<span style="color:#86EFAC">make init-db</span>
+<span style="color:#6B7280"># ✅  Table neuron-sessions created with TTL</span>
+
+<span style="color:#6B7280"># Open the UI</span>
+<span style="color:#FCD34D">open http://localhost:8501</span></pre></div>
+  </div>
+
+  <!-- Daily commands -->
+  <h2>Your Daily Make Commands</h2>
+  <div class="make-grid">
+    <div class="make-cmd"><div class="mk-name">make up</div><div class="mk-desc">Build images and start all containers in correct order. Use every morning.</div></div>
+    <div class="make-cmd"><div class="mk-name">make down</div><div class="mk-desc">Stop all containers. Data preserved in volumes.</div></div>
+    <div class="make-cmd"><div class="mk-name">make health</div><div class="mk-desc">Curl all 3 health endpoints. Shows tick or cross for each.</div></div>
+    <div class="make-cmd"><div class="mk-name">make logs</div><div class="mk-desc">Follow logs from all containers in one stream.</div></div>
+    <div class="make-cmd"><div class="mk-name">make logs-backend</div><div class="mk-desc">Only agent backend logs. Use when debugging AI issues.</div></div>
+    <div class="make-cmd"><div class="mk-name">make rebuild</div><div class="mk-desc">Force full no-cache rebuild. Use after adding packages.</div></div>
+    <div class="make-cmd"><div class="mk-name">make shell-mcp</div><div class="mk-desc">Bash shell inside running MCP server. Debug tools.</div></div>
+    <div class="make-cmd"><div class="mk-name">make clean</div><div class="mk-desc">Stop everything, delete volumes and images. Full reset.</div></div>
+  </div>
+
+  <!-- Diagram 7.4 Health chain -->
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 7.4 — Health Check Dependency Chain (Guaranteed Start Order)</div>
+    <svg width="100%" viewBox="0 0 680 110" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Four step start order showing each service waiting for previous to pass health check</title>
+      <defs>
+        <marker id="cb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect x="14" y="20" width="132" height="52" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="80" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">① dynamodb-local</text>
+      <text x="80" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">no dependencies</text>
+
+      <line x1="146" y1="46" x2="170" y2="46" stroke="#10B981" stroke-width="2" marker-end="url(#cb)"/>
+      <text x="158" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#059669">healthy</text>
+
+      <rect x="172" y="20" width="132" height="52" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="238" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">② mcp-server</text>
+      <text x="238" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">passes /health</text>
+
+      <line x1="304" y1="46" x2="328" y2="46" stroke="#3B82F6" stroke-width="2" marker-end="url(#cb)"/>
+      <text x="316" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#2563EB">healthy</text>
+
+      <rect x="330" y="20" width="132" height="52" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="396" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">③ mcp-client</text>
+      <text x="396" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">passes /health</text>
+
+      <line x1="462" y1="46" x2="486" y2="46" stroke="#6C63FF" stroke-width="2" marker-end="url(#cb)"/>
+      <text x="474" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#4B44CC">healthy</text>
+
+      <rect x="488" y="20" width="132" height="52" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="554" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">④ frontend</text>
+      <text x="554" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">UI ready</text>
+
+      <text x="340" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Total from make up to fully healthy: ~30–45 seconds</text>
+    </svg>
+  </div>
+
+  <!-- PHASE 1 COMPLETE -->
+  <div class="phase-complete">
+    <h3>🎉 Phase 1 Complete!</h3>
+    <p>You have built and containerised a fully working agentic AI platform. Three services, four containers, one command. Real GitHub, Jira, and Slack. Session memory. Streaming responses. Production-pattern code running locally.</p>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true before Phase 2:</h3>
+    <ol>
+      <li><code>make up</code> starts all 4 containers without errors</li>
+      <li><code>make health</code> shows ✅ for all 3 services</li>
+      <li>UI at <code>http://localhost:8501</code> works end-to-end</li>
+      <li><code>make restart</code> — session history survives the restart</li>
+      <li>You understand why <code>COPY pyproject.toml uv.lock</code> comes before <code>COPY . .</code></li>
+      <li><code>make down</code> stops everything cleanly</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">Layer caching = free speed</div><div class="lc-body">Copy dependency files before source code. Once packages are cached, rebuilds take seconds. Order matters in every Dockerfile you write.</div></div>
+    <div class="learn-card"><div class="lc-title">depends_on + healthcheck</div><div class="lc-body"><code>depends_on</code> alone only waits for start, not readiness. Add <code>condition: service_healthy</code> to wait for health checks before starting dependents.</div></div>
+    <div class="learn-card"><div class="lc-title">Service names as DNS</div><div class="lc-body">Inside Docker Compose, containers talk by service name. <code>http://neuron-mcp-server:8001</code> works from any container in the same network.</div></div>
+    <div class="learn-card"><div class="lc-title">Never run as root</div><div class="lc-body">Always create a non-root user (UID 1000). If a container is compromised, a non-root process has limited blast radius.</div></div>
+    <div class="learn-card"><div class="lc-title">Local DynamoDB = free dev</div><div class="lc-body">The local DynamoDB image is a full API replacement. Identical behaviour, zero cost, works offline. Always use it locally.</div></div>
+    <div class="learn-card"><div class="lc-title">Same containers → EKS</div><div class="lc-body">The Dockerfiles you wrote today deploy to Kubernetes in Chapter 14. You are building the production foundation right now.</div></div>
+  </div>
+
+  <!-- NAV -->
+  <div class="ch-nav">
+    <a href="06-streamlit-ui.html"><span class="dir">← Previous</span>Chapter 6: Streamlit UI</a>
+    <a href="08-github-tools.html" class="next"><span class="dir">Next Chapter →</span>Chapter 8: GitHub Tools</a>
+  </div>
+</div>
+</body>
+</html>

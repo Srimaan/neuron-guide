@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 — Jira Tools | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#F59E0B);height:100%;border-radius:20px;width:34.6%}
+.hero{background:linear-gradient(135deg,#FFFBEB,#FEF9C3);border:1px solid #FDE68A;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(245,158,11,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#D97706}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#D97706;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="07-docker-compose.html">Ch 7</a>
+    <a href="08-github-tools.html">Ch 8</a>
+    <a href="09-jira-tools.html" class="active">Ch 9</a>
+    <a href="10-slack-tools.html">Ch 10</a>
+  </div>
+</nav>
+<div class="page-wrap">
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 9 — Jira Tools
+  </div>
+  <div class="progress-label">Chapter 9 of 26 — Phase 1 (Integrations)</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 09 of 26</span>
+    </div>
+    <h1>Jira <span>Tools</span></h1>
+    <p>Expand from 2 basic Jira tools to 10. The AI gains sprint intelligence — it can bulk-create tickets, analyse sprint health, link issues, and give you a full project summary. The kind of work that eats an hour of your morning, done in 10 seconds.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">🎫 Jira API</span>
+      <span class="meta-tag">🔧 10 tools total</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Expand <code>jira_tools.py</code> from 2 to 10 tools. Add sprint management, bulk creation, project summary, and issue linking. The killer feature: create 10 tickets from a description in one request.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> 10 Jira tools registered. A single prompt — "Create these 5 bug tickets: [list]" — creates all 5 simultaneously using <code>jira_bulk_create_issues()</code>. Sprint health check shows done/in-progress/blocked counts in seconds.</div>
+  </div>
+
+  <!-- DIAGRAM 9.1: Tool inventory -->
+  <h2>From 2 to 10 — What We Are Adding</h2>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 9.1 — Jira Tool Inventory: Existing vs New</div>
+    <svg width="100%" viewBox="0 0 680 298" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Jira tools showing 2 existing tools and 5 new tools being added this chapter plus 3 from chapter 3</title>
+
+      <rect x="14" y="14" width="308" height="28" rx="8" fill="#F1F5F9" stroke="#E2E8F0"/>
+      <text x="168" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#6B7280">EXISTING (Chapter 3) — 2 tools</text>
+      <rect x="358" y="14" width="308" height="28" rx="8" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="512" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">NEW (This Chapter) — 5 tools</text>
+
+      <!-- Existing -->
+      <rect x="14" y="50" width="308" height="38" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="68" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">jira_search_issues</text>
+      <text x="30" y="82" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Search using JQL query language</text>
+      <rect x="14" y="96" width="308" height="38" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="114" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">jira_create_issue</text>
+      <text x="30" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Create a single issue</text>
+
+      <!-- Also added in Chapter 3 (shown for completeness) -->
+      <rect x="14" y="144" width="308" height="38" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="162" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">jira_get_issue</text>
+      <text x="30" y="176" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Get full details of one issue</text>
+      <rect x="14" y="190" width="308" height="38" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="208" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">jira_update_issue</text>
+      <text x="30" y="222" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Update status, summary, description</text>
+      <rect x="14" y="236" width="308" height="38" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="254" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">jira_add_comment</text>
+      <text x="30" y="268" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Add a comment to an issue</text>
+
+      <!-- New tools -->
+      <rect x="358" y="50" width="308" height="38" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="374" y="68" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#92400E">jira_bulk_create_issues</text>
+      <text x="374" y="82" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Create multiple tickets at once — the big one</text>
+      <rect x="358" y="96" width="308" height="38" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="374" y="114" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#92400E">jira_get_sprint</text>
+      <text x="374" y="128" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Get active/upcoming sprint details</text>
+      <rect x="358" y="142" width="308" height="38" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="374" y="160" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#92400E">jira_get_sprint_issues</text>
+      <text x="374" y="174" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Get all issues in a sprint with status</text>
+      <rect x="358" y="188" width="308" height="38" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="374" y="206" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#92400E">jira_get_project_summary</text>
+      <text x="374" y="220" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Counts by status, lead, open issues</text>
+      <rect x="358" y="234" width="308" height="38" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.2"/>
+      <text x="374" y="252" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#92400E">jira_link_issues</text>
+      <text x="374" y="266" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Link two issues: blocks, relates to, duplicates</text>
+
+      <rect x="14" y="282" width="652" height="14" rx="4" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="340" y="293" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Total after this chapter: 10 Jira tools  ·  MCP server tool count: 28</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 9.2: JQL power -->
+  <h2>Understanding JQL — The Query Language</h2>
+  <p>JQL (Jira Query Language) is the SQL of Jira. The AI uses it to construct precise queries. Understanding how JQL works helps you write better prompts and understand why the AI phrases its queries the way it does.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 9.2 — JQL Query Anatomy</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>JQL query anatomy showing field, operator, value, and connector components with examples</title>
+
+      <!-- Query string dissected -->
+      <rect x="14" y="14" width="652" height="48" rx="10" fill="#1E1E2E" stroke="#2A2A3C"/>
+      <text x="30" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#C4B5FD">project</text>
+      <text x="104" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#86EFAC">=</text>
+      <text x="124" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#F9A8D4">"ENG"</text>
+      <text x="196" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FCD34D">AND</text>
+      <text x="258" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#C4B5FD">status</text>
+      <text x="332" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#86EFAC">!=</text>
+      <text x="360" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#F9A8D4">"Done"</text>
+      <text x="456" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#FCD34D">AND</text>
+      <text x="516" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#C4B5FD">assignee</text>
+      <text x="618" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#86EFAC">=</text>
+      <text x="636" y="32" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#F9A8D4">...</text>
+
+      <!-- Labels underneath -->
+      <text x="62" y="56" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#C4B5FD">field</text>
+      <text x="114" y="56" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#86EFAC">operator</text>
+      <text x="174" y="56" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#F9A8D4">value</text>
+      <text x="234" y="56" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#FCD34D">connector</text>
+
+      <!-- Common fields table -->
+      <text x="14" y="82" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E1E2E">Common JQL Fields the AI Uses:</text>
+
+      <!-- Row headers -->
+      <rect x="14" y="90" width="652" height="22" rx="5" fill="#6C63FF"/>
+      <text x="22" y="105" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="white">Field</text>
+      <text x="200" y="105" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="white">Operators</text>
+      <text x="380" y="105" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="white">Example Value</text>
+      <text x="540" y="105" font-family="'Sora',sans-serif" font-size="9" font-weight="600" fill="white">Use Case</text>
+
+      <!-- Rows -->
+      <rect x="14" y="112" width="652" height="18" rx="0" fill="#F8F9FF"/>
+      <text x="22" y="125" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">project</text>
+      <text x="200" y="125" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">= !=</text>
+      <text x="380" y="125" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">"ENG"</text>
+      <text x="540" y="125" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Filter by project key</text>
+
+      <rect x="14" y="130" width="652" height="18" rx="0" fill="#fff"/>
+      <text x="22" y="143" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">status</text>
+      <text x="200" y="143" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">= != in</text>
+      <text x="380" y="143" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">"In Progress"</text>
+      <text x="540" y="143" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Filter by workflow status</text>
+
+      <rect x="14" y="148" width="652" height="18" rx="0" fill="#F8F9FF"/>
+      <text x="22" y="161" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">assignee</text>
+      <text x="200" y="161" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">= !=</text>
+      <text x="380" y="161" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">currentUser()</text>
+      <text x="540" y="161" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Filter by assignee</text>
+
+      <rect x="14" y="166" width="652" height="18" rx="0" fill="#fff"/>
+      <text x="22" y="179" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">sprint</text>
+      <text x="200" y="179" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">= in</text>
+      <text x="380" y="179" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">openSprints()</text>
+      <text x="540" y="179" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Filter by sprint</text>
+
+      <rect x="14" y="184" width="652" height="18" rx="0" fill="#F8F9FF"/>
+      <text x="22" y="197" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">labels</text>
+      <text x="200" y="197" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">= in</text>
+      <text x="380" y="197" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">"bug", "security"</text>
+      <text x="540" y="197" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Filter by labels</text>
+
+      <rect x="14" y="202" width="652" height="18" rx="0" fill="#fff"/>
+      <text x="22" y="215" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">priority</text>
+      <text x="200" y="215" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">= in</text>
+      <text x="380" y="215" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">"High", "Critical"</text>
+      <text x="540" y="215" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">Filter by priority</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 9.3: Bulk create vs single create -->
+  <h2>The Killer Feature: Bulk Create</h2>
+  <p>The single biggest time-saver in this chapter is <code>jira_bulk_create_issues()</code>. Instead of making one API call per ticket (slow), it uses Jira's bulk create endpoint to create all tickets in a single request.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 9.3 — Single Create vs Bulk Create: Time Comparison</div>
+    <svg width="100%" viewBox="0 0 680 230" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Comparison showing single create taking 5 separate API calls vs bulk create taking 1 API call to create 5 tickets</title>
+      <defs>
+        <marker id="ja" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Single create (slow) -->
+      <rect x="14" y="14" width="298" height="202" rx="12" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+      <rect x="14" y="14" width="298" height="30" rx="12" fill="#FCA5A5"/>
+      <rect x="14" y="32" width="298" height="12" fill="#FCA5A5"/>
+      <text x="163" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Single Create — 5 Tickets</text>
+
+      <!-- 5 sequential calls -->
+      <rect x="24" y="52" width="278" height="20" rx="4" fill="#1E1E2E"/>
+      <text x="34" y="66" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">jira_create_issue("Bug 1") → POST /issue</text>
+      <line x1="163" y1="72" x2="163" y2="80" stroke="#FECACA" stroke-width="1.5" marker-end="url(#ja)"/>
+      <rect x="24" y="80" width="278" height="20" rx="4" fill="#1E1E2E"/>
+      <text x="34" y="94" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">jira_create_issue("Bug 2") → POST /issue</text>
+      <line x1="163" y1="100" x2="163" y2="108" stroke="#FECACA" stroke-width="1.5" marker-end="url(#ja)"/>
+      <rect x="24" y="108" width="278" height="20" rx="4" fill="#1E1E2E"/>
+      <text x="34" y="122" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">jira_create_issue("Bug 3") → POST /issue</text>
+      <line x1="163" y1="128" x2="163" y2="136" stroke="#FECACA" stroke-width="1.5" marker-end="url(#ja)"/>
+      <rect x="24" y="136" width="278" height="20" rx="4" fill="#1E1E2E"/>
+      <text x="34" y="150" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">jira_create_issue("Bug 4") → POST /issue</text>
+      <line x1="163" y1="156" x2="163" y2="164" stroke="#FECACA" stroke-width="1.5" marker-end="url(#ja)"/>
+      <rect x="24" y="164" width="278" height="20" rx="4" fill="#1E1E2E"/>
+      <text x="34" y="178" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">jira_create_issue("Bug 5") → POST /issue</text>
+
+      <rect x="24" y="190" width="278" height="18" rx="4" fill="#FECACA"/>
+      <text x="163" y="202" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#991B1B">5 API calls · ~5 seconds · sequential</text>
+
+      <!-- VS -->
+      <circle cx="340" cy="115" r="18" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="340" y="121" text-anchor="middle" font-family="'Sora',sans-serif" font-size="13" font-weight="700" fill="#374151">vs</text>
+
+      <!-- Bulk create (fast) -->
+      <rect x="368" y="14" width="298" height="202" rx="12" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <rect x="368" y="14" width="298" height="30" rx="12" fill="#059669"/>
+      <rect x="368" y="32" width="298" height="12" fill="#059669"/>
+      <text x="517" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Bulk Create — 5 Tickets</text>
+
+      <rect x="378" y="52" width="278" height="90" rx="6" fill="#1E1E2E"/>
+      <text x="388" y="70" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">jira_bulk_create_issues(</text>
+      <text x="388" y="85" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">  project_key="ENG",</text>
+      <text x="388" y="100" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">  issues=[</text>
+      <text x="388" y="115" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#F9A8D4">    {summary:"Bug 1",...},</text>
+      <text x="388" y="130" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#F9A8D4">    {summary:"Bug 2",...}, ×5</text>
+      <text x="388" y="145" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">  ])</text>
+
+      <rect x="378" y="150" width="278" height="22" rx="4" fill="#1E1E2E"/>
+      <text x="388" y="165" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">→ POST /issue/bulk  ← ONE call</text>
+
+      <rect x="378" y="180" width="278" height="28" rx="4" fill="#DCFCE7"/>
+      <text x="517" y="193" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">1 API call · ~0.8 seconds</text>
+      <text x="517" y="207" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">6× faster — all or nothing atomicity</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 9.4: Sprint health check -->
+  <h2>Sprint Intelligence — The Health Check</h2>
+  <p>With <code>jira_get_sprint()</code> and <code>jira_get_sprint_issues()</code>, the AI can generate a complete sprint health report in one request. Here is what that looks like end-to-end.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 9.4 — Sprint Health Check: Tool Chain</div>
+    <svg width="100%" viewBox="0 0 680 266" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Sprint health check tool chain showing three tools chained to produce a sprint status report</title>
+      <defs>
+        <marker id="jb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- User prompt -->
+      <rect x="14" y="14" width="652" height="30" rx="8" fill="#EEEDFE" stroke="#AFA9EC"/>
+      <text x="340" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#26215C">You type: <em>"Give me a sprint health check for board ID 42. Are we on track?"</em></text>
+
+      <!-- Step 1 -->
+      <rect x="14" y="54" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="69" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">①</text>
+      <rect x="52" y="54" width="614" height="22" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="62" y="67" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#92400E">jira_get_sprint</text>
+      <text x="196" y="67" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(board_id=42, state="active") → sprint name, dates, goal, sprint_id</text>
+
+      <!-- Step 2 -->
+      <rect x="14" y="84" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="99" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">②</text>
+      <rect x="52" y="84" width="614" height="22" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="62" y="97" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#92400E">jira_get_sprint_issues</text>
+      <text x="236" y="97" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(sprint_id=from step 1) → all issues with status, assignee, story points</text>
+
+      <!-- Step 3 (optional) -->
+      <rect x="14" y="114" width="30" height="22" rx="4" fill="#6C63FF"/>
+      <text x="29" y="129" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">③</text>
+      <rect x="52" y="114" width="614" height="22" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="62" y="127" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#92400E">jira_search_issues</text>
+      <text x="196" y="127" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(jql="sprint=42 AND labels=blocked") → blocked tickets list</text>
+
+      <!-- AI reasoning -->
+      <rect x="14" y="146" width="652" height="34" rx="8" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="29" y="160" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">🧠 Claude calculates:</text>
+      <text x="29" y="174" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Total: 24 issues · Done: 11 (46%) · In Progress: 8 (33%) · Not Started: 5 (21%) · Blocked: 2 · Days left: 6</text>
+
+      <!-- Output -->
+      <rect x="14" y="190" width="652" height="62" rx="10" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <text x="29" y="210" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Claude responds:</text>
+      <text x="29" y="226" font-family="'Sora',sans-serif" font-size="9" fill="#059669">"Sprint 'Q3-Sprint-4' ends in 6 days. You're at 46% completion with 8 issues in progress. ⚠ 2 blocked tickets</text>
+      <text x="29" y="241" font-family="'Sora',sans-serif" font-size="9" fill="#059669">(ENG-234 blocked by API dependency, ENG-267 needs design review). At current pace you'll complete ~18/24 stories.</text>
+      <text x="29" y="256" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">3 tool calls · sprint insight in ~4 seconds</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 9.1 — Add 5 New Tools to jira_tools.py</div>
+    <div class="step-title">Expand from 2 to 10 tools — sprint management, bulk create, project summary, linking</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am expanding neuron-mcp-server's Jira tools. Existing: jira_search_issues, jira_create_issue, jira_get_issue, jira_update_issue, jira_add_comment. Tech stack: Python 3.11, FastMCP, jira library, utils.py with slim_result() and format_error().<br><br>
+    Add these 5 tools, each async with @mcp.tool(), docstring, type hints, try/except with format_error(), slim_result() on lists:<br><br>
+    1. jira_get_sprint(board_id:int, state:str='active') → dict — uses jira.sprints(board_id), filters by state (active/future/closed), returns {sprint_id, name, state, start_date, end_date, goal, issues_count}<br>
+    2. jira_get_sprint_issues(sprint_id:int) → dict — gets all issues in sprint, returns [{key, summary, status, assignee, story_points, priority, type, url}], slim_result max 100<br>
+    3. jira_bulk_create_issues(project_key:str, issues:list[dict]) → dict — each issue dict has {summary, description='', issue_type='Task', priority='Medium'}, uses jira.create_issues() for bulk creation, returns {created:[{key,url}], failed:[{summary,error}]}<br>
+    4. jira_get_project_summary(project_key:str) → dict — returns {name, key, lead, open_issues_count, in_progress_count, done_this_week_count, issue_types, statuses}<br>
+    5. jira_link_issues(from_key:str, to_key:str, link_type:str='relates to') → dict — common link types: 'relates to', 'blocks', 'is blocked by', 'duplicates', returns {success:true, from_key, to_key, link_type}<br><br>
+    Update register_jira_tools(mcp) to register all 10 tools."</em>
+    </div>
+  </div>
+
+  <!-- Power test prompts -->
+  <h2>Test — The Killer Prompts</h2>
+  <p>These are the prompts that demonstrate real value. Test each one and verify the result in Jira.</p>
+
+  <table>
+    <thead><tr><th>Prompt</th><th>Tools called</th><th>Verify in Jira</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><em>"Create Jira tickets for these 5 bugs: login 500 on empty password / dark mode resets / search duplicates / PNG upload fails / EU emails not sending — all High priority in project ENG"</em></td>
+        <td><code>jira_bulk_create_issues</code></td>
+        <td>5 real tickets appear simultaneously</td>
+      </tr>
+      <tr>
+        <td><em>"Sprint health check for board 42 — how many done, in progress, not started? Are we on track?"</em></td>
+        <td><code>jira_get_sprint</code> + <code>jira_get_sprint_issues</code></td>
+        <td>Accurate counts + on-track assessment</td>
+      </tr>
+      <tr>
+        <td><em>"Show me a project summary for ENG — open issues, statuses, lead"</em></td>
+        <td><code>jira_get_project_summary</code></td>
+        <td>Matches Jira project dashboard</td>
+      </tr>
+      <tr>
+        <td><em>"Link ENG-234 as blocking ENG-267"</em></td>
+        <td><code>jira_link_issues</code></td>
+        <td>Blocking link visible in both tickets</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li><code>make restart</code> then health check shows <code>tools_registered: 28</code></li>
+      <li>Bulk create prompt creates all 5 tickets simultaneously in Jira</li>
+      <li>Sprint health check returns accurate done/in-progress/not-started counts</li>
+      <li><code>jira_link_issues</code> creates a real blocking link visible in Jira</li>
+      <li>All 5 new tools have docstrings clearly explaining when to use them</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">Bulk operations = real time savings</div><div class="lc-body">One bulk create call vs 5 sequential calls. This is where AI saves the most time — not one ticket, but 20 tickets from a description in seconds.</div></div>
+    <div class="learn-card"><div class="lc-title">JQL is the AI's query language</div><div class="lc-body">The AI learns JQL patterns from your prompts and reuses them. The more specific your prompts ("all High priority bugs in ENG assigned to me"), the better the JQL it constructs.</div></div>
+    <div class="learn-card"><div class="lc-title">Sprint intelligence reduces meetings</div><div class="lc-body">A sprint health check that used to require opening Jira, reading the board, and counting manually now takes one sentence. The AI does the counting and gives you the assessment.</div></div>
+    <div class="learn-card"><div class="lc-title">Issue linking = dependency tracking</div><div class="lc-body">The AI can now model dependencies between work items. "ENG-234 blocks ENG-267" is something the team knows but often forgets to record. The AI records it automatically.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="08-github-tools.html"><span class="dir">← Previous</span>Chapter 8: GitHub Tools</a>
+    <a href="10-slack-tools.html" class="next"><span class="dir">Next Chapter →</span>Chapter 10: Slack Tools</a>
+  </div>
+</div>
+</body>
+</html>
