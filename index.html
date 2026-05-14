@@ -150,8 +150,6 @@ tbody tr:hover td{background:#F0F2F8}
 code{font-family:'IBM Plex Mono',monospace;background:#F3F4F6;color:#6C63FF;padding:2px 8px;border-radius:4px;font-size:.85em}
 pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;margin:20px 0}
 pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.6}
-
-#main[aria-busy="true"]{opacity:.65;transition:opacity .15s}
 </style>
 </head>
 <body>
@@ -258,7 +256,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
   </a>
 
        <a class="nav-link" data-id="ch15" href="15-github-actions.html">
-    <span class="ch-num">15</span>GitHub Actions
+    <span class="ch-num">15</span>Githubh Actions
   </a>
 
        <a class="nav-link" data-id="ch16" href="16-helm-values.html">
@@ -286,7 +284,7 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
   </a>
 
          <a class="nav-link" data-id="ch19" href="19-knowledge-base.html">
-    <span class="ch-num">19</span>Knowledge Base
+    <span class="ch-num">19</span>Knowledge BAse
   </a>
 
          <a class="nav-link" data-id="ch20" href="20-playwright.html">
@@ -1131,261 +1129,53 @@ pre code{background:none;padding:0;color:#4B44CC;font-size:.88rem;line-height:1.
  
 <script>
 // ── ROUTER ────────────────────────────────
-let current = 'home';
-
-const order = [
-  'home','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','ch13',
-  'ch14','ch15','ch16','ch17','ch18','ch19','ch20','ch21','ch22','ch23','ch24','ch25','ch26'
-];
-
-const chapterFiles = {
-  ch1: '01-mental-model.html',
-  ch2: '02-aws-setup.html',
-  ch3: '03-first-mcp-server.html',
-  ch4: '04-claude-desktop.html',
-  ch5: '05-agent-backend.html',
-  ch6: '06-streamlit-ui.html',
-  ch7: '07-docker-compose.html',
-  ch8: '08-github-tools.html',
-  ch9: '09-jira-tools.html',
-  ch10: '10-slack-tools.html',
-  ch11: '11-dispatcher-pattern.html',
-  ch12: '12-response-limiting.html',
-  ch13: '13-session-memory.html',
-  ch14: '14-deploy-eks.html',
-  ch15: '15-github-actions.html',
-  ch16: '16-helm-values.html',
-  ch17: '17-autoscaling.html',
-  ch18: '18-multi-agent.html',
-  ch19: '19-knowledge-base.html',
-  ch20: '20-playwright.html'
-};
-
-const loadedChapters = new Set();
-
-/**
- * Use index.html as the permanent shell.
- * Sidebar/topbar stay visible; chapter .html files are fetched and injected into #main.
- */
-async function navigate(id, pushHistory = true) {
-  if (!order.includes(id)) id = 'home';
-
-  closeMobileSidebar();
-  setActiveNav(id);
-
-  if (id === 'home') {
-    showLocalPage('home');
-    current = id;
-    if (pushHistory) history.pushState({ id }, '', '#home');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  const file = chapterFiles[id];
-
-  if (file) {
-    await loadExternalChapter(id, file, pushHistory);
-    return;
-  }
-
-  // For chapters that are not external files yet, keep the old in-page behavior.
-  showLocalPage(id);
-  current = id;
-  if (pushHistory) history.pushState({ id }, '', '#' + id);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+let current='home';
+const order=['home','ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','ch9','ch10','ch11','ch12','ch13','ch14','ch15','ch16','ch17','ch18','ch19','ch20','ch21','ch22','ch23','ch24','ch25','ch26'];
+ 
+function navigate(id){
+  // hide current
+  const prev=document.getElementById('page-'+current);
+  if(prev)prev.classList.remove('active');
+  const prevLink=document.querySelector('.nav-link[data-id="'+current+'"]');
+  if(prevLink)prevLink.classList.remove('active');
+  // show new
+  current=id;
+  const next=document.getElementById('page-'+id);
+  if(next){next.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  const nextLink=document.querySelector(id==='home'?'.home-link':'.nav-link[data-id="'+id+'"]');
+  if(nextLink)nextLink.classList.add('active');
+  // hash
+  history.pushState(null,'','#'+id);
+  // close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
 }
-
-async function loadExternalChapter(id, url, pushHistory = true) {
-  const main = document.getElementById('main');
-
-  // Reuse previously-loaded content when navigating back to the same chapter.
-  const existing = document.getElementById('page-' + id);
-  if (existing && loadedChapters.has(id)) {
-    showLocalPage(id);
-    current = id;
-    if (pushHistory) history.pushState({ id }, '', '#' + id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  main.setAttribute('aria-busy', 'true');
-
-  try {
-    const response = await fetch(url, { cache: 'no-cache' });
-
-    if (!response.ok) {
-      throw new Error(`${url} returned ${response.status}`);
-    }
-
-    const html = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-
-    // Most chapter pages have their article content inside <main>.
-    // If not, fall back to body content.
-    const sourceMain = doc.querySelector('main');
-    let content = sourceMain ? sourceMain.innerHTML : doc.body.innerHTML;
-
-    // Remove duplicated site chrome if a chapter page has its own standalone layout.
-    content = stripStandaloneChrome(content);
-
-    let page = document.getElementById('page-' + id);
-    if (!page) {
-      page = document.createElement('div');
-      page.id = 'page-' + id;
-      page.className = 'chapter';
-      main.appendChild(page);
-    }
-
-    page.innerHTML = content;
-    loadedChapters.add(id);
-
-    showLocalPage(id);
-    current = id;
-
-    if (pushHistory) {
-      history.pushState({ id }, '', '#' + id);
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } catch (error) {
-    const fallback = document.getElementById('page-' + id);
-
-    if (fallback) {
-      showLocalPage(id);
-    } else {
-      main.innerHTML = `
-        <div class="chapter active" id="page-${id}">
-          <div class="coming-soon">
-            <div class="big">⚠️</div>
-            <h3>Chapter could not be loaded</h3>
-            <p>Could not fetch <code>${escapeHtml(url)}</code>. ${escapeHtml(error.message)}</p>
-          </div>
-        </div>
-      `;
-    }
-
-    current = id;
-    if (pushHistory) {
-      history.pushState({ id }, '', '#' + id);
-    }
-  } finally {
-    main.removeAttribute('aria-busy');
-    updateProgress();
-  }
-}
-
-function stripStandaloneChrome(content) {
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = content;
-
-  // Avoid injecting a second site chrome from standalone chapter files.
-  // Keep article-level nav/breadcrumbs inside the chapter content.
-  wrapper.querySelectorAll('#topbar, #sidebar, #overlay, #progress, .topbar, .sidebar').forEach(el => el.remove());
-
-  // If the external content already has .chapter markup, keep it.
-  // Otherwise wrap whatever is left in the chapter container styling.
-  const chapter = wrapper.querySelector('.chapter');
-  if (chapter) {
-    chapter.classList.add('active');
-    return chapter.outerHTML;
-  }
-
-  return wrapper.innerHTML;
-}
-
-function showLocalPage(id) {
-  document.querySelectorAll('#main > .chapter').forEach(page => {
-    page.classList.remove('active');
-  });
-
-  const page = document.getElementById('page-' + id);
-
-  if (page) {
-    page.classList.add('active');
-  } else {
-    const main = document.getElementById('main');
-    const placeholder = document.createElement('div');
-    placeholder.className = 'chapter active';
-    placeholder.id = 'page-' + id;
-    placeholder.innerHTML = `
-      <div class="coming-soon">
-        <div class="big">🚧</div>
-        <h3>Coming soon</h3>
-        <p>This chapter is being built.</p>
-      </div>
-    `;
-    main.appendChild(placeholder);
-  }
-}
-
-function setActiveNav(id) {
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.classList.remove('active');
-  });
-
-  const link = document.querySelector(id === 'home' ? '.home-link' : `.nav-link[data-id="${id}"]`);
-
-  if (link) {
-    link.classList.add('active');
-  }
-}
-
-function closeMobileSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-
-  if (sidebar) sidebar.classList.remove('open');
-  if (overlay) overlay.classList.remove('show');
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-// Intercept sidebar links so the browser does not leave index.html.
-document.addEventListener('click', event => {
-  const sidebarLink = event.target.closest('a.nav-link[data-id]');
-  if (!sidebarLink) return;
-
-  event.preventDefault();
-  navigate(sidebarLink.dataset.id);
+ 
+// Handle hash on load
+window.addEventListener('load',()=>{
+  const h=location.hash.replace('#','');
+  if(h&&order.includes(h))navigate(h);
 });
-
-// Handle hash on load and browser back/forward.
-window.addEventListener('load', () => {
-  const h = location.hash.replace('#', '');
-  navigate(h || 'home', false);
+window.addEventListener('popstate',()=>{
+  const h=location.hash.replace('#','');
+  if(h&&order.includes(h))navigate(h);
 });
-
-window.addEventListener('popstate', () => {
-  const h = location.hash.replace('#', '');
-  navigate(h || 'home', false);
-});
-
+ 
 // ── SIDEBAR TOGGLE (mobile) ───────────────
-function toggleSidebar() {
+function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('show');
 }
-
+ 
 // ── READING PROGRESS ──────────────────────
-function updateProgress() {
-  const el = document.getElementById('main');
-  const denominator = Math.max(el.scrollHeight - window.innerHeight, 1);
-  const pct = window.scrollY / denominator * 100;
-  document.getElementById('progress').style.width = Math.min(Math.max(pct, 0), 100) + '%';
-}
-
-window.addEventListener('scroll', updateProgress);
-
+window.addEventListener('scroll',()=>{
+  const el=document.getElementById('main');
+  const pct=window.scrollY/(el.scrollHeight-window.innerHeight)*100;
+  document.getElementById('progress').style.width=Math.min(pct,100)+'%';
+});
+ 
 // ── SEARCH ────────────────────────────────
-const searchMap = {
+const searchMap={
   home:['home','introduction','welcome','what is neuron','overview'],
   ch1:['mental model','concepts','architecture','brain hands','request journey','3 repo'],
   ch2:['aws','bedrock','iam','dynamodb','s3','setup','credentials','boto3'],
@@ -1403,41 +1193,26 @@ const searchMap = {
   ch14:['eks','kubernetes','terraform','irsa','ecr','k8s','deploy'],
   ch15:['github actions','cicd','ci','cd','pipeline','auto deploy'],
   ch16:['helm','chart','values','packaging'],
-  ch17:['auto scaling','autoscaling','scaling','hpa','keda','cluster autoscaler'],
-  ch18:['multi agent','supervisor','specialist','routing','a2a'],
-  ch19:['knowledge base','rag','bedrock kb','opensearch','vector','documents'],
-  ch20:['playwright','browser','screenshot','navigate','click'],
+  ch17:['slack bot','socket mode','bolt','slash command'],
+  ch18:['playwright','browser','screenshot','navigate','click'],
+  ch19:['multi agent','supervisor','specialist','routing','a2a'],
+  ch20:['knowledge base','rag','bedrock kb','opensearch','vector','documents'],
   ch21:['litellm','model routing','haiku','sonnet','opus','cost'],
   ch22:['redis','token vault','credentials','fernet','encrypt'],
   ch23:['skills','plugin','hot reload','dynamic'],
   ch24:['reflex','react','websocket','production ui'],
   ch25:['okta','sso','oauth','jwt','authentication','pkce'],
-  ch26:['cloudwatch','metrics','dashboard','alerts','observability','cost']
+  ch26:['cloudwatch','metrics','dashboard','alerts','observability','cost'],
 };
-
-function search(q) {
-  if (!q.trim()) {
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.style.display = '';
-    });
-    document.querySelectorAll('.nav-phase').forEach(phase => {
-      phase.style.display = '';
-    });
-    return;
-  }
-
-  const term = q.toLowerCase();
-
-  Object.entries(searchMap).forEach(([id, keys]) => {
-    const match = keys.some(key => key.includes(term));
-    const link = document.querySelector(id === 'home' ? '.home-link' : `.nav-link[data-id="${id}"]`);
-
-    if (link) {
-      link.style.display = match ? '' : 'none';
-    }
+function search(q){
+  if(!q.trim()){document.querySelectorAll('.nav-link').forEach(l=>l.style.display='');return;}
+  const term=q.toLowerCase();
+  Object.entries(searchMap).forEach(([id,keys])=>{
+    const match=keys.some(k=>k.includes(term));
+    const link=document.querySelector(id==='home'?'.home-link':'.nav-link[data-id="'+id+'"]');
+    if(link)link.style.display=match?'':'none';
   });
 }
-
 </script>
 </body>
 </html>
