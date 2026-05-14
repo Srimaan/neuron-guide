@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 — Playwright Browser Automation | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#8B5CF6);height:100%;border-radius:20px;width:76.9%}
+.hero{background:linear-gradient(135deg,#F8FAFF,#EEF2FF);border:1px solid #C7D2FE;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'🌐';position:absolute;right:48px;top:32px;font-size:72px;opacity:.08}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#EDE9FE;color:#5B21B6;border:1px solid #DDD6FE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#4F46E5}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#4F46E5;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.tool-row{display:flex;align-items:flex-start;gap:14px;padding:13px 16px;border-radius:10px;margin:6px 0;background:#F8F9FF;border:1px solid #E0E7FF;transition:all .15s}
+.tool-row:hover{border-color:#4F46E5;background:#F5F3FF}
+.tr-name{font-family:'IBM Plex Mono',monospace;font-size:.88rem;font-weight:700;color:#4F46E5;min-width:200px;flex-shrink:0}
+.tr-desc{font-size:.88rem;color:#4B5563;line-height:1.5}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="19-knowledge-base.html">Ch 19</a>
+    <a href="20-playwright.html" class="active">Ch 20</a>
+    <a href="21-slack-bot.html">Ch 21</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 3 — Advanced AI</a><span>›</span>
+    Chapter 20 — Playwright Browser Automation
+  </div>
+  <div class="progress-label">Chapter 20 of 26 — Phase 3</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 3 — Advanced AI</span>
+      <span class="chapter-tag">Chapter 20 of 26</span>
+    </div>
+    <h1>Playwright<br><span>Browser Agent</span></h1>
+    <p>Give the AI eyes and hands on the web. Navigate URLs, take screenshots, click elements, fill forms, extract page content, and monitor live dashboards — all triggered by plain-English requests. The Browser Agent from Chapter 18 gets its tools here.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 3–4 hours</span>
+      <span class="meta-tag">🎭 Playwright</span>
+      <span class="meta-tag">📸 Screenshots</span>
+      <span class="meta-tag">🔐 Domain allowlist</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Add a containerised Playwright browser to the stack and expose 8 browser tools through the MCP server. The AI can navigate, screenshot, click, extract text, and monitor web pages — with a strict domain allowlist for safety.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> "Screenshot our staging dashboard and check if the health page shows any errors" works end-to-end. The AI navigates to the URL, takes a screenshot, reads the DOM, and reports back — all in under 10 seconds.</div>
+  </div>
+
+  <!-- DIAGRAM 20.1: What the browser agent can do -->
+  <h2>What the Browser Agent Can Do</h2>
+  <p>The AI gets a headless Chrome browser. It can see pages (screenshots + DOM text), interact with them (click, fill, submit), and extract structured data — all tools that were previously only possible with manual human steps.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 20.1 — Browser Agent Capabilities and Use Cases</div>
+    <svg width="100%" viewBox="0 0 680 280" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Six browser agent capability areas with examples: navigation, screenshots, interaction, extraction, monitoring, testing</title>
+
+      <!-- Row 1: 3 cards -->
+      <!-- Navigate -->
+      <rect x="14" y="14" width="200" height="114" rx="10" fill="#F0F5FF" stroke="#4F46E5" stroke-width="1.5"/>
+      <text x="114" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">🧭</text>
+      <text x="114" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#312E81">Navigate</text>
+      <text x="22" y="82" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Open any URL on the allowlist</text>
+      <text x="22" y="97" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Wait for full page load</text>
+      <text x="22" y="112" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280" font-style="italic">"Go to staging.myapp.com/health"</text>
+
+      <!-- Screenshot -->
+      <rect x="240" y="14" width="200" height="114" rx="10" fill="#F0F5FF" stroke="#4F46E5" stroke-width="1.5"/>
+      <text x="340" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">📸</text>
+      <text x="340" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#312E81">Screenshot</text>
+      <text x="248" y="82" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Full page or element crop</text>
+      <text x="248" y="97" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Returns base64 PNG</text>
+      <text x="248" y="112" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280" font-style="italic">"Screenshot the error dashboard"</text>
+
+      <!-- Extract text -->
+      <rect x="466" y="14" width="200" height="114" rx="10" fill="#F0F5FF" stroke="#4F46E5" stroke-width="1.5"/>
+      <text x="566" y="42" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">📄</text>
+      <text x="566" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#312E81">Extract Content</text>
+      <text x="474" y="82" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Get page text (no HTML noise)</text>
+      <text x="474" y="97" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Query specific CSS selectors</text>
+      <text x="474" y="112" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280" font-style="italic">"Extract the table rows from /reports"</text>
+
+      <!-- Row 2: 3 cards -->
+      <!-- Click -->
+      <rect x="14" y="152" width="200" height="114" rx="10" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+      <text x="114" y="178" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">👆</text>
+      <text x="114" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9A3412">Interact</text>
+      <text x="22" y="218" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Click buttons, links, checkboxes</text>
+      <text x="22" y="233" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Fill text inputs, dropdowns</text>
+      <text x="22" y="248" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280" font-style="italic">"Click 'Approve' on the deploy button"</text>
+
+      <!-- Wait / monitor -->
+      <rect x="240" y="152" width="200" height="114" rx="10" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+      <text x="340" y="178" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">⏳</text>
+      <text x="340" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9A3412">Wait &amp; Monitor</text>
+      <text x="248" y="218" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Wait for element / text to appear</text>
+      <text x="248" y="233" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Poll page until condition met</text>
+      <text x="248" y="248" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280" font-style="italic">"Wait until deploy shows 'Success'"</text>
+
+      <!-- Smoke test -->
+      <rect x="466" y="152" width="200" height="114" rx="10" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+      <text x="566" y="178" text-anchor="middle" font-family="'Sora',sans-serif" font-size="22">🧪</text>
+      <text x="566" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#9A3412">Smoke Test</text>
+      <text x="474" y="218" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Navigate + screenshot + check</text>
+      <text x="474" y="233" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Assert text/element present</text>
+      <text x="474" y="248" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280" font-style="italic">"Check staging login still works"</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 20.2: Architecture -->
+  <h2>Architecture — Containerised Browser</h2>
+  <p>The browser runs in its own Docker container, isolated from the other services. The MCP server connects to it over a REST API. This isolation means a broken page can't crash the MCP server.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 20.2 — Playwright Container Architecture and Tool Flow</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Playwright browser container receiving commands from MCP server browser tools and returning screenshots and DOM data</title>
+      <defs>
+        <marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- AI Agent -->
+      <rect x="14" y="60" width="120" height="100" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="74" y="88" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🧠</text>
+      <text x="74" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">Browser Agent</text>
+      <text x="74" y="122" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">(Ch 18 sub-agent)</text>
+      <text x="74" y="136" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">calls browser tools</text>
+      <text x="74" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">via MCP dispatcher</text>
+
+      <line x1="134" y1="110" x2="162" y2="110" stroke="#7F77DD" stroke-width="1.5" marker-end="url(#pa)"/>
+
+      <!-- MCP Server browser tools -->
+      <rect x="164" y="40" width="160" height="140" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="164" y="40" width="160" height="28" rx="10" fill="#059669"/>
+      <rect x="164" y="56" width="160" height="12" fill="#059669"/>
+      <text x="244" y="57" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">MCP browser_tools.py</text>
+      <text x="172" y="82"  font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_navigate()</text>
+      <text x="172" y="96"  font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_screenshot()</text>
+      <text x="172" y="110" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_get_text()</text>
+      <text x="172" y="124" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_click()</text>
+      <text x="172" y="138" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_fill()</text>
+      <text x="172" y="152" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_wait_for()</text>
+      <text x="172" y="166" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#065F46">browser_evaluate()</text>
+
+      <line x1="324" y1="110" x2="352" y2="110" stroke="#10B981" stroke-width="1.5" marker-end="url(#pa)"/>
+      <text x="338" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#059669">REST API</text>
+      <text x="338" y="122" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#059669">http://playwright:3000</text>
+
+      <!-- Playwright service -->
+      <rect x="354" y="40" width="160" height="140" rx="10" fill="#F0F5FF" stroke="#4F46E5" stroke-width="1.5"/>
+      <rect x="354" y="40" width="160" height="28" rx="10" fill="#4F46E5"/>
+      <rect x="354" y="56" width="160" height="12" fill="#4F46E5"/>
+      <text x="434" y="57" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">neuron-playwright</text>
+      <text x="434" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#312E81">FastAPI + Playwright</text>
+      <text x="434" y="96" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#4F46E5">Headless Chromium</text>
+      <line x1="364" y1="108" x2="502" y2="108" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="434" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#374151">Port 3000 (internal)</text>
+      <text x="434" y="140" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#374151">Allowlist enforced here</text>
+      <text x="434" y="156" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">Isolated container</text>
+      <text x="434" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">neuron-network only</text>
+
+      <line x1="514" y1="110" x2="542" y2="110" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#pa)"/>
+      <text x="528" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#4F46E5">HTTPS</text>
+
+      <!-- Real web -->
+      <rect x="544" y="60" width="122" height="100" rx="10" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="605" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🌐</text>
+      <text x="605" y="112" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#374151">Real Websites</text>
+      <text x="605" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">staging.myapp.com</text>
+      <text x="605" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">internal dashboards</text>
+      <text x="605" y="156" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">(allowlisted only)</text>
+
+      <!-- Security note -->
+      <rect x="14" y="188" width="652" height="24" rx="6" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="340" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#92400E">🔒 Security: allowlisted domains only · no credentials stored in browser · screenshots stored in /tmp (auto-deleted)</text>
+      <text x="340" y="210" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#D97706">Container has no access to neuron-network internal services — can only reach internet + allowlisted hosts</text>
+    </svg>
+  </div>
+
+  <!-- The 8 tools -->
+  <h2>The 8 Browser Tools</h2>
+
+  <div class="tool-row"><span class="tr-name">browser_navigate</span><span class="tr-desc">Navigate to a URL and wait for DOM content loaded. Returns page title and current URL. Enforces domain allowlist.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_screenshot</span><span class="tr-desc">Take a full-page or viewport screenshot. Returns base64 PNG. The AI uses Claude's vision to describe what it sees.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_get_text</span><span class="tr-desc">Extract all visible text from the page (no HTML tags). Optionally scope to a CSS selector. Returns clean text, slim_result at 8000 chars.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_get_html</span><span class="tr-desc">Get raw HTML of a selector. For extracting structured data (tables, lists) the AI can parse. slim_result at 5000 chars.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_click</span><span class="tr-desc">Click an element by CSS selector, text content, or aria-label. Waits for the element to be visible before clicking.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_fill</span><span class="tr-desc">Type text into an input field by CSS selector. Clears existing content first. Supports text inputs, textareas, search boxes.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_wait_for</span><span class="tr-desc">Wait up to N seconds for a CSS selector to appear or text to be visible on the page. Returns true/false. Use for polling deploys.</span></div>
+  <div class="tool-row"><span class="tr-name">browser_evaluate</span><span class="tr-desc">Execute JavaScript in the page context and return the result. For extracting data that isn't visible in the DOM.</span></div>
+
+  <!-- DIAGRAM 20.3: Security model -->
+  <h2>Security — The Domain Allowlist</h2>
+  <p>Giving an AI access to a browser is powerful and risky. We use a strict domain allowlist — the browser will not navigate to any URL not on the list. This prevents prompt injection attacks from external pages redirecting the AI to malicious sites.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 20.3 — Domain Allowlist Security Model</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Domain allowlist showing allowed internal and staging URLs versus blocked external domains</title>
+      <defs>
+        <marker id="pb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- browser_navigate call -->
+      <rect x="14" y="70" width="160" height="60" rx="10" fill="#1E1E2E" stroke="#2A2A3C"/>
+      <text x="94" y="92" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">browser_navigate(</text>
+      <text x="94" y="106" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#F9A8D4">  url="https://evil.io"</text>
+      <text x="94" y="120" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">)</text>
+
+      <line x1="174" y1="100" x2="202" y2="100" stroke="#6C63FF" stroke-width="1.5" marker-end="url(#pb)"/>
+
+      <!-- Allowlist checker -->
+      <rect x="204" y="50" width="160" height="100" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="284" y="76" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Allowlist Check</text>
+      <text x="284" y="92" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#D97706">ALLOWED_DOMAINS</text>
+      <text x="284" y="106" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">*.mycompany.com</text>
+      <text x="284" y="119" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">staging.myapp.com</text>
+      <text x="284" y="132" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#374151">internal.myapp.com</text>
+      <text x="284" y="145" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">from BROWSER_ALLOWED_DOMAINS env</text>
+
+      <!-- Blocked arrow -->
+      <line x1="364" y1="80" x2="420" y2="50" stroke="#EF4444" stroke-width="2" marker-end="url(#pb)"/>
+      <rect x="422" y="14" width="244" height="60" rx="8" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+      <text x="544" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#DC2626">❌ BLOCKED</text>
+      <text x="544" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">evil.io not on allowlist</text>
+      <text x="544" y="68" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#EF4444">returns format_error("Domain not allowed")</text>
+
+      <!-- Allowed arrow -->
+      <line x1="364" y1="120" x2="420" y2="140" stroke="#10B981" stroke-width="2" marker-end="url(#pb)"/>
+      <rect x="422" y="116" width="244" height="70" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <text x="544" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">✅ ALLOWED</text>
+      <text x="544" y="154" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">staging.myapp.com matches *.myapp.com</text>
+      <text x="544" y="170" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#059669">Playwright navigates, returns page data</text>
+      <text x="544" y="183" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#9CA3AF">wildcard subdomain matching supported</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 20.4: Power scenario -->
+  <h2>Power Scenario — Post-Deploy Smoke Test</h2>
+  <p>The Browser Agent's killer use case: automatically verify a deployment succeeded by visiting the staging site, checking critical pages, and reporting back — or opening a Jira ticket if something looks wrong.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 20.4 — Browser + Jira: Automated Post-Deploy Smoke Test</div>
+    <svg width="100%" viewBox="0 0 680 250" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Multi-agent smoke test sequence using browser agent to check staging then jira agent to file bug tickets</title>
+      <defs>
+        <marker id="pc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- User prompt -->
+      <rect x="14" y="14" width="652" height="28" rx="8" fill="#EEEDFE" stroke="#AFA9EC"/>
+      <text x="340" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#26215C">You type: <em>"Check our staging site — navigate to login, home, and /health, screenshot each page, and open Jira tickets for any errors you find"</em></text>
+
+      <!-- Steps -->
+      <rect x="14" y="52" width="28" height="20" rx="4" fill="#4F46E5"/>
+      <text x="28" y="66" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="white">①</text>
+      <rect x="50" y="52" width="616" height="20" rx="4" fill="#F0F5FF" stroke="#C7D2FE"/>
+      <text x="60" y="66" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#4F46E5">browser_navigate</text>
+      <text x="198" y="66" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">(url="https://staging.myapp.com/login") → title, URL confirmed</text>
+
+      <rect x="14" y="78" width="28" height="20" rx="4" fill="#4F46E5"/>
+      <text x="28" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="white">②</text>
+      <rect x="50" y="78" width="616" height="20" rx="4" fill="#F0F5FF" stroke="#C7D2FE"/>
+      <text x="60" y="92" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#4F46E5">browser_screenshot</text>
+      <text x="218" y="92" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">() → base64 PNG — AI vision sees "Login form looks correct ✅"</text>
+
+      <rect x="14" y="104" width="28" height="20" rx="4" fill="#4F46E5"/>
+      <text x="28" y="118" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="white">③</text>
+      <rect x="50" y="104" width="616" height="20" rx="4" fill="#F0F5FF" stroke="#C7D2FE"/>
+      <text x="60" y="118" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#4F46E5">browser_navigate</text>
+      <text x="198" y="118" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">(url=".../health") → navigates health endpoint</text>
+
+      <rect x="14" y="130" width="28" height="20" rx="4" fill="#4F46E5"/>
+      <text x="28" y="144" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="white">④</text>
+      <rect x="50" y="130" width="616" height="20" rx="4" fill="#F0F5FF" stroke="#C7D2FE"/>
+      <text x="60" y="144" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#4F46E5">browser_get_text</text>
+      <text x="200" y="144" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">() → "database: ❌ FAIL — connection timeout" found in text</text>
+
+      <!-- AI reasoning -->
+      <rect x="14" y="158" width="652" height="28" rx="8" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="28" y="172" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#92400E">🧠 AI reasons:</text>
+      <text x="28" y="185" font-family="'Sora',sans-serif" font-size="8.5" fill="#D97706">"Health page shows database connection failure — I should create a Jira incident ticket for this"</text>
+
+      <rect x="14" y="192" width="28" height="20" rx="4" fill="#F59E0B"/>
+      <text x="28" y="206" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="white">⑤</text>
+      <rect x="50" y="192" width="616" height="20" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="60" y="206" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#92400E">jira_tool(op="create_issue"</text>
+      <text x="272" y="206" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">, summary="STAGING: DB connection failure on health endpoint", priority=High)</text>
+
+      <!-- Result -->
+      <rect x="14" y="222" width="652" height="24" rx="6" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <text x="340" y="234" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#065F46">Jira incident created automatically · Screenshot attached to ticket · No human intervention needed</text>
+      <text x="340" y="244" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">5 tool calls across Browser + Jira agents · ~12 seconds total</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 20.1 — Create the Playwright Service</div>
+    <div class="step-title">FastAPI microservice wrapping Playwright — runs in its own container</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Create neuron-playwright/ as a new Python service. Tech stack: Python 3.11, FastAPI, playwright (async API), uv.<br><br>
+    Create main.py with a FastAPI app and a persistent browser context (single Chromium instance reused across requests for speed). Endpoints:<br>
+    POST /navigate: {url: str} → {title, url, status_code} — checks allowlist first<br>
+    POST /screenshot: {full_page: bool=True} → {image_base64: str, width, height}<br>
+    POST /get_text: {selector: str=''} → {text: str} — if selector empty get all visible text<br>
+    POST /get_html: {selector: str} → {html: str}<br>
+    POST /click: {selector: str} → {success: bool, element_found: bool}<br>
+    POST /fill: {selector: str, value: str} → {success: bool}<br>
+    POST /wait_for: {selector: str='', text: str='', timeout_ms: int=5000} → {found: bool, elapsed_ms: int}<br>
+    POST /evaluate: {script: str} → {result: any}<br>
+    GET /health → {status: ok, browser: running}<br><br>
+    Allowlist: read BROWSER_ALLOWED_DOMAINS env var (comma-separated). Check domain before any navigate call. Wildcard subdomain support (*.myapp.com matches staging.myapp.com). Return 403 with {error: 'Domain not allowed'} if blocked.<br><br>
+    Browser options: headless=True, --no-sandbox, --disable-gpu, viewport 1280×800. Use async_playwright context manager stored in app.state."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 20.2 — Add Dockerfile for Playwright Service</div>
+    <div class="step-title">Playwright needs Chromium system deps — use the official image</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">dockerfile</span><span class="code-desc">neuron-playwright/Dockerfile</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Use Microsoft's Playwright base image — has all Chromium deps</span>
+<span style="color:#86EFAC">FROM mcr.microsoft.com/playwright/python:v1.48.0-jammy</span>
+
+<span style="color:#FCD34D">WORKDIR</span> /app
+
+<span style="color:#6B7280"># Install uv</span>
+<span style="color:#FCD34D">RUN</span> pip install uv --break-system-packages
+
+<span style="color:#6B7280"># Layer cache: deps before code</span>
+<span style="color:#FCD34D">COPY</span> pyproject.toml uv.lock ./
+<span style="color:#FCD34D">RUN</span> uv sync --frozen --no-dev
+
+<span style="color:#FCD34D">COPY</span> . .
+
+<span style="color:#6B7280"># Non-root user</span>
+<span style="color:#FCD34D">RUN</span> useradd -m -u 1000 appuser && chown -R appuser /app
+<span style="color:#FCD34D">USER</span> appuser
+
+<span style="color:#FCD34D">EXPOSE</span> 3000
+<span style="color:#FCD34D">HEALTHCHECK</span> CMD curl -f http://localhost:3000/health
+<span style="color:#FCD34D">CMD</span> ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]</pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 20.3 — Add to Docker Compose</div>
+    <div class="step-title">Wire the Playwright service into the stack</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">yaml</span><span class="code-desc">Add to docker-compose.yml</span></div>
+    <div class="code-body"><pre><span style="color:#86EFAC">neuron-playwright:</span>
+  <span style="color:#C4B5FD">build:</span> <span style="color:#F9A8D4">./neuron-playwright</span>
+  <span style="color:#C4B5FD">ports:</span>
+    <span style="color:#F9A8D4">- "3000:3000"</span>     <span style="color:#6B7280"># internal only — not exposed to internet</span>
+  <span style="color:#C4B5FD">environment:</span>
+    <span style="color:#F9A8D4">BROWSER_ALLOWED_DOMAINS: "*.mycompany.com,staging.myapp.com,localhost"</span>
+  <span style="color:#C4B5FD">networks:</span>
+    <span style="color:#F9A8D4">- neuron-network</span>
+  <span style="color:#C4B5FD">restart:</span> <span style="color:#F9A8D4">unless-stopped</span>
+  <span style="color:#C4B5FD">shm_size:</span> <span style="color:#F9A8D4">'256m'</span>   <span style="color:#6B7280"># Chromium needs shared memory</span></pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 20.4 — Add Browser Tools to MCP Server</div>
+    <div class="step-title">8 tools in browser_tools.py — proxy calls to the Playwright service</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Create mcp_server/tools/browser_tools.py for neuron-mcp-server. Settings: PLAYWRIGHT_URL (str, 'http://neuron-playwright:3000'). Uses httpx to call the Playwright service.<br><br>
+    Create 8 @mcp.tool() async functions, each proxying to the matching Playwright service endpoint. Each tool: validates args, calls httpx.AsyncClient().post(f'{PLAYWRIGHT_URL}/{endpoint}', json=payload, timeout=30), slim_result on responses, format_error on exceptions.<br><br>
+    Special handling for browser_screenshot: response contains image_base64 field. Return {image_base64, width, height, note: 'Pass this to Claude vision to describe what is visible'}.<br><br>
+    Special handling for browser_get_text: slim_result truncate at 8000 chars with _truncated flag.<br><br>
+    Register via register_browser_tools(mcp). Include list_browser_ops() and browser_tool() dispatcher following Chapter 11 pattern."</em></div>
+  </div>
+
+  <!-- Allowlist config -->
+  <h2>Configuring the Domain Allowlist</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Set allowed domains in .env</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># neuron-mcp-server/.env — add these lines</span>
+PLAYWRIGHT_URL=<span style="color:#F9A8D4">http://neuron-playwright:3000</span>
+
+<span style="color:#6B7280"># neuron-playwright container environment (in docker-compose.yml)</span>
+<span style="color:#6B7280"># Comma-separated. Wildcards: *.domain.com matches all subdomains</span>
+BROWSER_ALLOWED_DOMAINS=<span style="color:#F9A8D4">*.mycompany.com,staging.myapp.com,localhost:*</span>
+
+<span style="color:#6B7280"># Examples of what gets blocked (not on list):</span>
+<span style="color:#6B7280"># google.com, github.com, any external site</span>
+<span style="color:#6B7280"># This prevents prompt injection via external pages</span></pre></div>
+  </div>
+
+  <!-- Use cases table -->
+  <h2>Practical Use Cases</h2>
+  <table>
+    <thead><tr><th>Prompt</th><th>Tools sequence</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>"Screenshot our staging dashboard and describe what you see"</td><td>navigate → screenshot</td><td>Visual status check without logging in yourself</td></tr>
+      <tr><td>"Check if the /health endpoint shows any service failures"</td><td>navigate → get_text</td><td>Automated health monitoring</td></tr>
+      <tr><td>"Verify the login page loads and the form has email + password fields"</td><td>navigate → get_html → screenshot</td><td>Post-deploy smoke test</td></tr>
+      <tr><td>"Wait up to 60 seconds for the deploy page to show 'Success'"</td><td>navigate → wait_for (polling)</td><td>Block CI until deploy confirms</td></tr>
+      <tr><td>"Extract the error log table from the admin dashboard"</td><td>navigate → get_html (selector=table)</td><td>Pull structured data without an API</td></tr>
+      <tr><td>"Screenshot staging, find any visual regressions, open Jira tickets"</td><td>navigate → screenshot → jira_create</td><td>Multi-agent automated QA</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li><code>make up</code> starts the Playwright container — health check passes at <code>http://localhost:3000/health</code></li>
+      <li>"Navigate to [allowlisted URL] and take a screenshot" returns a base64 PNG</li>
+      <li>Navigating to a blocked domain returns <code>"Domain not allowed"</code> error</li>
+      <li>The Browser Agent (multi-agent mode) routes browser requests to browser tools</li>
+      <li>"Check our staging site health page" produces a readable text summary</li>
+      <li>Post-deploy smoke test prompt creates a Jira ticket when health check fails</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">Browser as a tool, not a product</div><div class="lc-body">The AI doesn't "use a browser" — it calls discrete tools (navigate, screenshot, click). Each tool has clear inputs and outputs. The AI sequences them like any other tools.</div></div>
+    <div class="learn-card"><div class="lc-title">Vision + browser = understanding</div><div class="lc-body">A screenshot returned as base64 can be passed to Claude's vision capability. The AI can describe what it sees — errors, layouts, form states — without any DOM parsing.</div></div>
+    <div class="learn-card"><div class="lc-title">Isolation prevents blast radius</div><div class="lc-body">The Playwright container is isolated — it can't reach internal services. If the AI is tricked into navigating to a malicious page, that page can't access your database or APIs.</div></div>
+    <div class="learn-card"><div class="lc-title">Domain allowlist is non-negotiable</div><div class="lc-body">Without an allowlist, prompt injection via external pages could direct the AI to hostile sites. The allowlist must be the first check in every navigate call — before Playwright ever opens a tab.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="19-knowledge-base.html"><span class="dir">← Previous</span>Chapter 19: Knowledge Base</a>
+    <a href="21-slack-bot.html" class="next"><span class="dir">Next Chapter →</span>Chapter 21: Slack Bot</a>
+  </div>
+</div>
+</body>
+</html>

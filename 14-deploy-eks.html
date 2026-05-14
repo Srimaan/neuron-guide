@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 — Deploy to EKS | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#F97316);height:100%;border-radius:20px;width:53.8%}
+.hero{background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid #FED7AA;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(249,115,22,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#EA580C}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#EA580C;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+.phase-banner{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid #F59E0B;border-radius:14px;padding:24px 28px;margin:0 0 36px;display:flex;align-items:center;gap:16px}
+.phase-banner .pb-icon{font-size:2rem;flex-shrink:0}
+.phase-banner h3{font-size:1.1rem;font-weight:800;color:#92400E;margin-bottom:4px}
+.phase-banner p{font-size:.9rem;color:#D97706;margin:0}
+.cost-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-radius:8px;margin:6px 0;background:#F8F9FC;border:1px solid #E2E8F0;font-size:.9rem}
+.cost-row .cr-name{font-weight:600;color:#1E1E2E}
+.cost-row .cr-cost{font-family:'IBM Plex Mono',monospace;font-weight:700;color:#EA580C}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="13-session-memory.html">Ch 13</a>
+    <a href="14-deploy-eks.html" class="active">Ch 14</a>
+    <a href="15-github-actions.html">Ch 15</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 2 — Cloud & CI/CD</a><span>›</span>
+    Chapter 14 — Deploy to EKS
+  </div>
+  <div class="progress-label">Chapter 14 of 26 — Phase 2 starts here</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- PHASE 2 BANNER -->
+  <div class="phase-banner">
+    <div class="pb-icon">☸️</div>
+    <div>
+      <h3>Phase 2 — Cloud &amp; CI/CD begins</h3>
+      <p>Chapters 14–17 move Neuron from your laptop to AWS. EKS cluster, Helm charts, GitHub Actions CI/CD, and IRSA for credential-free deployments. Cost: ~$80/month.</p>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 2 — Cloud &amp; CI/CD</span>
+      <span class="chapter-tag">Chapter 14 of 26</span>
+    </div>
+    <h1>Deploy to<br><span>EKS</span></h1>
+    <p>Take the Docker containers you built in Chapter 7 and run them on Amazon EKS — AWS's managed Kubernetes service. No credential files in containers, auto-scaling, and health checks that restart failed pods automatically.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 4–6 hours</span>
+      <span class="meta-tag">💰 ~$80/month</span>
+      <span class="meta-tag">☸️ Kubernetes</span>
+      <span class="meta-tag">🔐 IRSA</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Create an EKS cluster, push Docker images to ECR, deploy all three Neuron services with Helm, and configure IRSA so pods can call Bedrock and DynamoDB with no credentials stored anywhere.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> Neuron running on EKS accessible via a public Load Balancer URL. <code>kubectl get pods</code> shows all pods Running. IRSA configured — zero AWS credentials in any container image or environment variable.</div>
+  </div>
+
+  <!-- DIAGRAM 14.1: Phase 1 vs Phase 2 architecture -->
+  <h2>What Changes in Phase 2</h2>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 14.1 — Phase 1 (Laptop) vs Phase 2 (AWS EKS)</div>
+    <svg width="100%" viewBox="0 0 680 230" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Comparison of Phase 1 running on laptop versus Phase 2 running on AWS EKS with real AWS services</title>
+      <defs>
+        <marker id="ea" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Phase 1 box -->
+      <rect x="14" y="14" width="300" height="206" rx="12" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <rect x="14" y="14" width="300" height="30" rx="12" fill="#64748B"/>
+      <rect x="14" y="32" width="300" height="12" fill="#64748B"/>
+      <text x="164" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Phase 1 — Your Laptop</text>
+
+      <text x="26" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• Docker Compose · 4 containers</text>
+      <text x="26" y="76" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• Local DynamoDB · $0</text>
+      <text x="26" y="92" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• AWS creds in .env file</text>
+      <text x="26" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• Accessible: localhost only</text>
+      <text x="26" y="124" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• Scaling: manual (edit replicas)</text>
+      <text x="26" y="140" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• Restarts: manual</text>
+      <text x="26" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• CI/CD: make up manually</text>
+      <text x="26" y="172" font-family="'Sora',sans-serif" font-size="9" fill="#475569">• Monitoring: docker logs</text>
+      <rect x="24" y="184" width="282" height="28" rx="6" fill="#F1F5F9" stroke="#CBD5E1"/>
+      <text x="165" y="197" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#64748B">Good for: development, demos, cost $0</text>
+      <text x="165" y="209" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#64748B">Bad for: team use, reliability, production</text>
+
+      <!-- VS -->
+      <circle cx="340" cy="117" r="18" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="340" y="123" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="#374151">→</text>
+
+      <!-- Phase 2 box -->
+      <rect x="366" y="14" width="300" height="206" rx="12" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+      <rect x="366" y="14" width="300" height="30" rx="12" fill="#EA580C"/>
+      <rect x="366" y="32" width="300" height="12" fill="#EA580C"/>
+      <text x="516" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Phase 2 — AWS EKS</text>
+
+      <text x="378" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• Kubernetes · Helm charts</text>
+      <text x="378" y="76" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• Real DynamoDB · ~$0.25/mo</text>
+      <text x="378" y="92" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• IRSA — zero stored credentials</text>
+      <text x="378" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• Accessible: public Load Balancer URL</text>
+      <text x="378" y="124" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• Scaling: HPA auto-scales on CPU</text>
+      <text x="378" y="140" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• Restarts: K8s restarts failed pods</text>
+      <text x="378" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• CI/CD: GitHub Actions (Ch 15)</text>
+      <text x="378" y="172" font-family="'Sora',sans-serif" font-size="9" fill="#9A3412">• Monitoring: CloudWatch (Ch 26)</text>
+      <rect x="376" y="184" width="282" height="28" rx="6" fill="#FFEDD5" stroke="#FED7AA"/>
+      <text x="517" y="197" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#EA580C">Good for: team use, reliability, production</text>
+      <text x="517" y="209" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#EA580C">Cost: ~$80/month (2× t3.medium nodes)</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 14.2: EKS Architecture -->
+  <h2>EKS Architecture Overview</h2>
+  <p>EKS manages the Kubernetes control plane for you. You create worker nodes (EC2 instances) and deploy your containers as Pods. A Load Balancer exposes the frontend to the internet. IRSA gives pods AWS permissions without any credentials.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 14.2 — EKS Cluster Architecture</div>
+    <svg width="100%" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>EKS cluster architecture showing VPC, public subnet with ALB, private subnet with nodes and pods, and AWS services</title>
+      <defs>
+        <marker id="eb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- VPC outer boundary -->
+      <rect x="14" y="14" width="652" height="240" rx="14" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5" stroke-dasharray="8 4"/>
+      <text x="340" y="30" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">VPC — neuron-vpc (10.0.0.0/16)</text>
+
+      <!-- Public subnet (ALB) -->
+      <rect x="28" y="38" width="160" height="198" rx="10" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+      <text x="108" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1D4ED8">Public Subnet</text>
+      <rect x="38" y="60" width="140" height="50" rx="8" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.2"/>
+      <text x="108" y="80" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10">🌐</text>
+      <text x="108" y="96" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1E40AF">ALB (Load Balancer)</text>
+      <text x="108" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#3B82F6">neuron.yourdomain.com</text>
+      <!-- IGW -->
+      <rect x="38" y="120" width="140" height="36" rx="6" fill="#F0F9FF" stroke="#BAE6FD"/>
+      <text x="108" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#0369A1">Internet Gateway</text>
+      <text x="108" y="150" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#0EA5E9">Routes internet traffic</text>
+      <!-- NAT -->
+      <rect x="38" y="164" width="140" height="36" rx="6" fill="#F0F9FF" stroke="#BAE6FD"/>
+      <text x="108" y="181" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#0369A1">NAT Gateway</text>
+      <text x="108" y="193" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#0EA5E9">Pods → internet egress</text>
+
+      <!-- Arrow ALB to nodes -->
+      <line x1="188" y1="85" x2="212" y2="85" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#eb)"/>
+
+      <!-- Private subnet (Nodes + Pods) -->
+      <rect x="214" y="38" width="330" height="198" rx="10" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+      <text x="379" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">Private Subnet — EKS Worker Nodes</text>
+
+      <!-- Node 1 -->
+      <rect x="224" y="62" width="148" height="164" rx="8" fill="#DCFCE7" stroke="#10B981" stroke-width="1.2"/>
+      <text x="298" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">Node 1 — t3.medium</text>
+      <rect x="232" y="84" width="132" height="30" rx="5" fill="#1E1E2E"/>
+      <text x="298" y="97" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#86EFAC">neuron-mcp-server</text>
+      <text x="298" y="109" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#6B7280">1 replica · 256Mi RAM</text>
+      <rect x="232" y="120" width="132" height="30" rx="5" fill="#1E1E2E"/>
+      <text x="298" y="133" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#86EFAC">neuron-mcp-client</text>
+      <text x="298" y="145" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#6B7280">1 replica · 512Mi RAM</text>
+      <rect x="232" y="156" width="132" height="30" rx="5" fill="#1E1E2E"/>
+      <text x="298" y="169" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#86EFAC">neuron-frontend</text>
+      <text x="298" y="181" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#6B7280">1 replica · 256Mi RAM</text>
+      <rect x="232" y="194" width="132" height="24" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="298" y="210" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#92400E">🔐 IRSA — no .env creds</text>
+
+      <!-- Node 2 (scale out) -->
+      <rect x="384" y="62" width="150" height="80" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1" stroke-dasharray="5 3"/>
+      <text x="459" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#059669">Node 2 — t3.medium</text>
+      <text x="459" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">Auto-added by</text>
+      <text x="459" y="114" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">Cluster Autoscaler</text>
+      <text x="459" y="128" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B7280">when CPU &gt; 70%</text>
+
+      <!-- K8s label -->
+      <rect x="384" y="152" width="150" height="82" rx="8" fill="#EEF0FF" stroke="#C7D2FE"/>
+      <text x="459" y="170" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#4B44CC">K8s Control Plane</text>
+      <text x="459" y="186" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6C63FF">(managed by AWS)</text>
+      <text x="459" y="202" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">Scheduler · etcd · API server</text>
+      <text x="459" y="216" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">Zero cost to you — AWS manages</text>
+      <text x="459" y="228" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#6C63FF">~$0.10/hr EKS cluster fee</text>
+
+      <!-- AWS services on right -->
+      <rect x="558" y="38" width="100" height="198" rx="10" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
+      <text x="608" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">AWS Services</text>
+      <rect x="566" y="60" width="84" height="24" rx="5" fill="#FEF9C3" stroke="#FDE68A"/>
+      <text x="608" y="76" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">Bedrock</text>
+      <rect x="566" y="90" width="84" height="24" rx="5" fill="#FEF9C3" stroke="#FDE68A"/>
+      <text x="608" y="106" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">DynamoDB</text>
+      <rect x="566" y="120" width="84" height="24" rx="5" fill="#FEF9C3" stroke="#FDE68A"/>
+      <text x="608" y="136" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">ECR</text>
+      <text x="608" y="148" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#D97706">Image registry</text>
+      <rect x="566" y="154" width="84" height="24" rx="5" fill="#FEF9C3" stroke="#FDE68A"/>
+      <text x="608" y="170" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">S3</text>
+      <rect x="566" y="184" width="84" height="24" rx="5" fill="#DCFCE7" stroke="#86EFAC"/>
+      <text x="608" y="196" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">IRSA</text>
+      <text x="608" y="208" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#059669">Pod IAM roles</text>
+
+      <line x1="546" y1="117" x2="558" y2="117" stroke="#FDE68A" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#eb)"/>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 14.3: IRSA -->
+  <h2>IRSA — No Credentials in Pods</h2>
+  <p>IRSA (IAM Roles for Service Accounts) lets Kubernetes pods assume an AWS IAM role automatically — no <code>AWS_ACCESS_KEY_ID</code>, no <code>.env</code> files, no secrets to rotate. The pod gets temporary credentials that auto-expire every hour.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 14.3 — How IRSA Works: Pod → IAM Role → AWS API</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>IRSA flow showing pod service account linked to IAM role granting access to Bedrock and DynamoDB</title>
+      <defs>
+        <marker id="ec" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Pod -->
+      <rect x="14" y="50" width="130" height="100" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="79" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Pod</text>
+      <text x="79" y="88" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🏃</text>
+      <text x="79" y="112" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#059669">ServiceAccount:</text>
+      <text x="79" y="126" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#059669">neuron-agent-sa</text>
+      <text x="79" y="142" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">No credentials stored</text>
+
+      <!-- Arrow 1 -->
+      <line x1="144" y1="100" x2="178" y2="100" stroke="#10B981" stroke-width="1.5" marker-end="url(#ec)"/>
+      <text x="161" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#059669">OIDC token</text>
+      <text x="161" y="113" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#059669">auto-mounted</text>
+
+      <!-- IAM OIDC -->
+      <rect x="180" y="50" width="160" height="100" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <text x="260" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">IAM OIDC</text>
+      <text x="260" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">Provider</text>
+      <text x="260" y="106" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">Verifies the</text>
+      <text x="260" y="120" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">pod's token matches</text>
+      <text x="260" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#534AB7">the EKS cluster</text>
+
+      <!-- Arrow 2 -->
+      <line x1="340" y1="100" x2="374" y2="100" stroke="#6C63FF" stroke-width="1.5" marker-end="url(#ec)"/>
+      <text x="357" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#6C63FF">assume</text>
+      <text x="357" y="113" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#6C63FF">role</text>
+
+      <!-- IAM Role -->
+      <rect x="376" y="50" width="150" height="100" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="451" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">IAM Role</text>
+      <text x="451" y="86" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#D97706">neuron-agent-role</text>
+      <text x="451" y="104" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">Policies attached:</text>
+      <text x="451" y="118" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#D97706">BedrockFullAccess</text>
+      <text x="451" y="132" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#D97706">DynamoDBFullAccess</text>
+
+      <!-- Arrow 3 -->
+      <line x1="526" y1="100" x2="560" y2="100" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#ec)"/>
+      <text x="543" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#D97706">temp creds</text>
+      <text x="543" y="113" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#D97706">1hr TTL</text>
+
+      <!-- AWS Services -->
+      <rect x="562" y="50" width="104" height="100" rx="10" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5"/>
+      <text x="614" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">AWS APIs</text>
+      <text x="614" y="92" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9">🤖</text>
+      <text x="614" y="108" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">Bedrock</text>
+      <text x="614" y="122" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9">🗄️</text>
+      <text x="614" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">DynamoDB</text>
+
+      <!-- Security label -->
+      <rect x="14" y="160" width="652" height="32" rx="8" fill="#F0FDF4" stroke="#86EFAC"/>
+      <text x="340" y="173" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">🔐 Zero credentials stored anywhere — no .env, no Secrets, no access keys in pods</text>
+      <text x="340" y="186" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#059669">Temporary creds expire every hour · If a pod is compromised, creds expire automatically</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 14.4: Helm chart structure -->
+  <h2>Helm Charts — Packaging the Deployment</h2>
+  <p>Helm is the package manager for Kubernetes. Instead of writing raw YAML for every resource, you write a Helm chart once and deploy it to any environment (dev, staging, prod) with different values.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 14.4 — Helm Chart Structure for Neuron</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Helm chart directory structure with chart yaml values yaml and templates folder</title>
+      <defs>
+        <marker id="ed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- File tree -->
+      <rect x="14" y="14" width="240" height="196" rx="12" fill="#1E1E2E" stroke="#2A2A3C"/>
+      <rect x="14" y="14" width="240" height="28" rx="12" fill="#2A2A3C"/>
+      <rect x="14" y="30" width="240" height="12" fill="#2A2A3C"/>
+      <text x="26" y="31" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#FCD34D">helm/neuron/</text>
+      <text x="26" y="56"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">├── Chart.yaml</text>
+      <text x="26" y="72"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#F9A8D4">├── values.yaml</text>
+      <text x="26" y="88"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#F9A8D4">├── values-prod.yaml</text>
+      <text x="26" y="104" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#93C5FD">└── templates/</text>
+      <text x="26" y="120" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    ├── namespace.yaml</text>
+      <text x="26" y="136" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    ├── serviceaccount.yaml</text>
+      <text x="26" y="152" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    ├── mcp-server.yaml</text>
+      <text x="26" y="168" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    ├── mcp-client.yaml</text>
+      <text x="26" y="184" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    ├── frontend.yaml</text>
+      <text x="26" y="200" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    └── ingress.yaml</text>
+
+      <!-- Annotations -->
+      <line x1="254" y1="56" x2="290" y2="56" stroke="#86EFAC" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ed)"/>
+      <rect x="292" y="44" width="374" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="302" y="58" font-family="'Sora',sans-serif" font-size="8.5" fill="#065F46">Chart name, version, app version</text>
+
+      <line x1="254" y1="72" x2="290" y2="72" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ed)"/>
+      <rect x="292" y="60" width="374" height="20" rx="4" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="302" y="74" font-family="'Sora',sans-serif" font-size="8.5" fill="#9D174D">Default config: image tags, replicas, resources</text>
+
+      <line x1="254" y1="88" x2="290" y2="88" stroke="#F9A8D4" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ed)"/>
+      <rect x="292" y="76" width="374" height="20" rx="4" fill="#FDF2F8" stroke="#FBCFE8"/>
+      <text x="302" y="90" font-family="'Sora',sans-serif" font-size="8.5" fill="#9D174D">Production overrides: more replicas, larger resources</text>
+
+      <line x1="254" y1="136" x2="290" y2="136" stroke="#C4B5FD" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ed)"/>
+      <rect x="292" y="124" width="374" height="20" rx="4" fill="#EEEDFE" stroke="#C7D2FE"/>
+      <text x="302" y="138" font-family="'Sora',sans-serif" font-size="8.5" fill="#26215C">K8s ServiceAccount with IRSA annotation</text>
+
+      <line x1="254" y1="152" x2="290" y2="152" stroke="#C4B5FD" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ed)"/>
+      <rect x="292" y="140" width="374" height="20" rx="4" fill="#EEEDFE" stroke="#C7D2FE"/>
+      <text x="302" y="154" font-family="'Sora',sans-serif" font-size="8.5" fill="#26215C">Deployment + Service for each pod</text>
+
+      <line x1="254" y1="184" x2="290" y2="184" stroke="#C4B5FD" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ed)"/>
+      <rect x="292" y="172" width="374" height="20" rx="4" fill="#EEEDFE" stroke="#C7D2FE"/>
+      <text x="302" y="186" font-family="'Sora',sans-serif" font-size="8.5" fill="#26215C">ALB Ingress → routes traffic to frontend</text>
+    </svg>
+  </div>
+
+  <!-- COST SECTION -->
+  <h2>Phase 2 Cost Breakdown</h2>
+  <p>Running a 2-node EKS cluster costs around $80/month. This is the minimum viable production setup. The main costs are EC2 worker nodes — all other services are pay-per-use.</p>
+
+  <div class="cost-row"><span class="cr-name">EKS cluster fee</span><span class="cr-cost">$0.10/hr → ~$73/mo</span></div>
+  <div class="cost-row"><span class="cr-name">2× t3.medium worker nodes (24×7)</span><span class="cr-cost">~$60/mo total</span></div>
+  <div class="cost-row"><span class="cr-name">ALB Load Balancer</span><span class="cr-cost">~$16/mo</span></div>
+  <div class="cost-row"><span class="cr-name">ECR image storage (3 images)</span><span class="cr-cost">~$1/mo</span></div>
+  <div class="cost-row"><span class="cr-name">DynamoDB (real AWS, low traffic)</span><span class="cr-cost">~$0.25/mo</span></div>
+  <div class="cost-row"><span class="cr-name">Bedrock Claude Sonnet 4</span><span class="cr-cost">Pay per token used</span></div>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Save money:</strong> Use <em>Spot Instances</em> for worker nodes (up to 70% cheaper). Add a cluster autoscaler that scales to 0 nodes at night. Schedule node groups to shutdown on weekends. A well-optimised dev cluster can run for ~$25/month.</div>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 14.1 — Install Required Tools</div>
+    <div class="step-title">eksctl, kubectl, helm, and AWS CLI — all needed before creating the cluster</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Install CLI tools (macOS)</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># eksctl — creates and manages EKS clusters</span>
+<span style="color:#86EFAC">brew tap weaveworks/tap && brew install weaveworks/tap/eksctl</span>
+
+<span style="color:#6B7280"># kubectl — manages Kubernetes resources</span>
+<span style="color:#86EFAC">brew install kubectl</span>
+
+<span style="color:#6B7280"># helm — deploys Helm charts</span>
+<span style="color:#86EFAC">brew install helm</span>
+
+<span style="color:#6B7280"># Verify all installed</span>
+<span style="color:#86EFAC">eksctl version && kubectl version --client && helm version</span></pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 14.2 — Create the EKS Cluster</div>
+    <div class="step-title">eksctl creates the cluster, VPC, node group, and IAM roles automatically</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate an eksctl cluster config file cluster.yaml for Neuron. Requirements: cluster name 'neuron-cluster', region us-east-1, Kubernetes version 1.29, managed node group 'neuron-nodes' with instance type t3.medium, min 1 max 3 desired 2 nodes, enable cluster autoscaler, enable OIDC provider (needed for IRSA), use private subnets for nodes, public subnet for ALB, enable logging: api/audit/controllerManager/scheduler, tags: Project=neuron. Also generate the eksctl create cluster command."</em></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Create cluster — takes 15–20 minutes</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Create the cluster (go get a coffee — this takes ~18 min)</span>
+<span style="color:#86EFAC">eksctl create cluster -f cluster.yaml</span>
+
+<span style="color:#6B7280"># Verify cluster is up</span>
+<span style="color:#86EFAC">kubectl get nodes</span>
+<span style="color:#6B7280"># NAME                          STATUS   ROLES    AGE   VERSION</span>
+<span style="color:#6B7280"># ip-10-0-1-xx.ec2.internal     Ready    &lt;none&gt;   2m    v1.29.x</span>
+<span style="color:#6B7280"># ip-10-0-2-xx.ec2.internal     Ready    &lt;none&gt;   2m    v1.29.x</span></pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 14.3 — Push Images to ECR</div>
+    <div class="step-title">Tag and push the Docker images built in Chapter 7 to AWS ECR</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate a Makefile push-ecr target and bash script that: (1) creates three ECR repositories if they don't exist: neuron-mcp-server, neuron-mcp-client, neuron-frontend, (2) builds Docker images for each service, (3) tags them with the ECR registry URL using the git commit SHA as the tag, (4) logs in to ECR with aws ecr get-login-password, (5) pushes all three images. Use AWS_ACCOUNT_ID and AWS_REGION env vars. Also generate a push-latest target that tags and pushes with the 'latest' tag."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 14.4 — Configure IRSA</div>
+    <div class="step-title">Create the IAM role and service account that give pods AWS access</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate the IRSA setup for Neuron EKS cluster. Cluster name: neuron-cluster, region: us-east-1, namespace: neuron, service account name: neuron-agent-sa.<br><br>
+    Generate:<br>
+    1. eksctl command to create IAM service account with policies: AmazonBedrockFullAccess, AmazonDynamoDBFullAccess, AmazonS3FullAccess<br>
+    2. Kubernetes ServiceAccount YAML with annotation: eks.amazonaws.com/role-arn<br>
+    3. How to verify IRSA is working: kubectl describe sa neuron-agent-sa -n neuron, then a test pod that calls aws sts get-caller-identity"</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 14.5 — Write and Deploy Helm Charts</div>
+    <div class="step-title">Package Neuron as a Helm chart and deploy to the cluster</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate a complete Helm chart for Neuron at helm/neuron/. Include:<br>
+    Chart.yaml: name neuron, version 0.1.0, appVersion 1.0.0<br>
+    values.yaml: image registry (ECR URL), image tags (latest), replicaCount 1 for each service, resources: mcp-server 256Mi/250m, mcp-client 512Mi/500m, frontend 256Mi/250m, serviceAccount name neuron-agent-sa, namespace neuron, env vars for MCP_SERVER_URL (http://neuron-mcp-server:8001/mcp) and BACKEND_URL (http://neuron-mcp-client:8000)<br>
+    templates/: namespace.yaml, serviceaccount.yaml with IRSA annotation, deployment + service for each of the 3 services (ClusterIP for mcp-server and mcp-client, NodePort for frontend), ingress.yaml using ALB ingress controller annotations<br><br>
+    Also generate the Makefile targets: helm-deploy (helm upgrade --install neuron ./helm/neuron -n neuron --create-namespace -f values.yaml) and helm-status (helm status + kubectl get all -n neuron)"</em></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Deploy and verify</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Install ALB Ingress Controller (needed for Load Balancer)</span>
+<span style="color:#86EFAC">helm repo add eks https://aws.github.io/eks-charts</span>
+<span style="color:#86EFAC">helm install aws-load-balancer-controller eks/aws-load-balancer-controller \</span>
+  -n kube-system \
+  --set clusterName=neuron-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller
+
+<span style="color:#6B7280"># Deploy Neuron</span>
+<span style="color:#86EFAC">make helm-deploy</span>
+
+<span style="color:#6B7280"># Watch pods come up</span>
+<span style="color:#86EFAC">kubectl get pods -n neuron -w</span>
+<span style="color:#6B7280"># NAME                                READY   STATUS    RESTARTS</span>
+<span style="color:#6B7280"># neuron-mcp-server-xxx               1/1     Running   0</span>
+<span style="color:#6B7280"># neuron-mcp-client-xxx               1/1     Running   0</span>
+<span style="color:#6B7280"># neuron-frontend-xxx                 1/1     Running   0</span>
+
+<span style="color:#6B7280"># Get the Load Balancer URL</span>
+<span style="color:#86EFAC">kubectl get ingress -n neuron</span>
+<span style="color:#6B7280"># ADDRESS: xxx.us-east-1.elb.amazonaws.com  ← open this URL</span></pre></div>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li><code>kubectl get nodes</code> shows 2 nodes in Ready state</li>
+      <li><code>kubectl get pods -n neuron</code> shows all 3 pods Running, 0 restarts</li>
+      <li>The ALB URL opens Neuron's Streamlit UI in the browser</li>
+      <li>Sending a chat message works end-to-end (Bedrock is reachable via IRSA)</li>
+      <li><code>kubectl describe pod [mcp-client-pod] -n neuron</code> shows the IRSA service account annotation</li>
+      <li>No <code>AWS_ACCESS_KEY_ID</code> or <code>AWS_SECRET_ACCESS_KEY</code> in any pod env vars</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">EKS manages the control plane</div><div class="lc-body">You pay for and manage worker nodes. AWS manages the Kubernetes API server, etcd, scheduler, and controller manager. No Kubernetes expertise needed for the hard parts.</div></div>
+    <div class="learn-card"><div class="lc-title">IRSA eliminates credential management</div><div class="lc-body">No .env files, no Kubernetes Secrets for AWS creds, no rotation schedules. Pods get temporary credentials via OIDC federation. This is the production standard — use it from day one.</div></div>
+    <div class="learn-card"><div class="lc-title">Helm = reproducible deployments</div><div class="lc-body">One Helm chart deploys to dev, staging, and prod with different values files. Rollback is one command. Version history is automatic. Never apply raw YAML manually in production.</div></div>
+    <div class="learn-card"><div class="lc-title">The same Dockerfiles, upgraded</div><div class="lc-body">The Dockerfiles from Chapter 7 run unchanged on EKS. Docker Compose was the local dev version; Helm is the production version. Same images, different orchestrator.</div></div>
+    <div class="learn-card"><div class="lc-title">Kubernetes restarts failed pods</div><div class="lc-body">If a pod crashes, K8s restarts it automatically. If a node fails, K8s reschedules the pods on a healthy node. This is the self-healing behaviour that makes Kubernetes worth the complexity.</div></div>
+    <div class="learn-card"><div class="lc-title">Cost vs reliability trade-off</div><div class="lc-body">$80/month for always-on reliability vs $0 for your laptop. For a team of 5+ developers, $80/month is trivially worth it. For solo development, keep using Docker Compose locally.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="13-session-memory.html"><span class="dir">← Previous</span>Chapter 13: Session Memory</a>
+    <a href="15-github-actions.html" class="next"><span class="dir">Next Chapter →</span>Chapter 15: GitHub Actions</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19 — Knowledge Base & RAG | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#8B5CF6);height:100%;border-radius:20px;width:73.1%}
+.hero{background:linear-gradient(135deg,#ECFEFF,#E0F2FE);border:1px solid #A5F3FC;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(6,182,212,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#EDE9FE;color:#5B21B6;border:1px solid #DDD6FE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#0891B2}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#0891B2;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="18-multi-agent.html">Ch 18</a>
+    <a href="19-knowledge-base.html" class="active">Ch 19</a>
+    <a href="20-playwright.html">Ch 20</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 3 — Advanced AI</a><span>›</span>
+    Chapter 19 — Knowledge Base &amp; RAG
+  </div>
+  <div class="progress-label">Chapter 19 of 26 — Phase 3</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 3 — Advanced AI</span>
+      <span class="chapter-tag">Chapter 19 of 26</span>
+    </div>
+    <h1>Knowledge Base<br><span>&amp; RAG</span></h1>
+    <p>Give the AI access to your company's internal knowledge — runbooks, architecture docs, API specs, onboarding guides. Upload documents to S3, let Bedrock index them automatically, and ask the AI questions that get grounded, cited answers from real documents.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 3–4 hours</span>
+      <span class="meta-tag">📚 Bedrock Knowledge Base</span>
+      <span class="meta-tag">🔍 Semantic search</span>
+      <span class="meta-tag">📎 Cited answers</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Create an Amazon Bedrock Knowledge Base backed by the S3 bucket from Chapter 2. Upload internal docs, trigger an ingestion sync, and wire up two new MCP tools — <code>kb_search</code> and <code>kb_retrieve</code> — that return chunked, cited passages the AI can reference.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> Asking "How do we handle API rate limits?" returns an answer citing the exact document, page, and passage from your internal runbook. The Knowledge Base Agent in Chapter 18's multi-agent system is now fully functional.</div>
+  </div>
+
+  <!-- DIAGRAM 19.1: What RAG is -->
+  <h2>What RAG Is and Why It Matters</h2>
+  <p>RAG (Retrieval-Augmented Generation) is the pattern of fetching relevant document chunks <em>at query time</em> and including them in the AI's context. This grounds the AI's answer in real documents instead of its training data — eliminating hallucination on company-specific knowledge.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 19.1 — RAG vs Pure LLM: Why Documents Beat Training Data</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Comparison of pure LLM answering from training data versus RAG grounding answer in actual documents</title>
+      <defs>
+        <marker id="ra" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Pure LLM (left) -->
+      <rect x="14" y="14" width="302" height="196" rx="12" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+      <rect x="14" y="14" width="302" height="30" rx="12" fill="#EF4444"/>
+      <rect x="14" y="32" width="302" height="12" fill="#EF4444"/>
+      <text x="165" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">Pure LLM (no RAG)</text>
+
+      <text x="26" y="62" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Q: "How does our API handle rate limits?"</text>
+      <line x1="26" y1="70" x2="304" y2="70" stroke="#FECACA" stroke-width="0.5"/>
+      <text x="26" y="88" font-family="'Sora',sans-serif" font-size="9" fill="#374151">A: "APIs typically handle rate limits by returning</text>
+      <text x="26" y="103" font-family="'Sora',sans-serif" font-size="9" fill="#374151">HTTP 429 status codes and using headers like</text>
+      <text x="26" y="118" font-family="'Sora',sans-serif" font-size="9" fill="#374151">X-RateLimit-Remaining..."</text>
+      <line x1="26" y1="128" x2="304" y2="128" stroke="#FECACA" stroke-width="0.5"/>
+      <text x="26" y="144" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#DC2626">❌ Problems:</text>
+      <text x="26" y="160" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Generic answer about APIs in general</text>
+      <text x="26" y="176" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Doesn't know YOUR specific limits</text>
+      <text x="26" y="192" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• No source citation — is this correct?</text>
+
+      <!-- RAG (right) -->
+      <rect x="364" y="14" width="302" height="196" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="364" y="14" width="302" height="30" rx="12" fill="#059669"/>
+      <rect x="364" y="32" width="302" height="12" fill="#059669"/>
+      <text x="515" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">RAG (with Knowledge Base)</text>
+
+      <text x="376" y="62" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Q: "How does our API handle rate limits?"</text>
+      <line x1="376" y1="70" x2="654" y2="70" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="376" y="88" font-family="'Sora',sans-serif" font-size="9" fill="#374151">A: "According to your API runbook (runbook-v3.pdf,</text>
+      <text x="376" y="103" font-family="'Sora',sans-serif" font-size="9" fill="#374151">p.14): 'All endpoints are limited to 100 req/min</text>
+      <text x="376" y="118" font-family="'Sora',sans-serif" font-size="9" fill="#374151">per API key. Exceeding this returns HTTP 429</text>
+      <text x="376" y="133" font-family="'Sora',sans-serif" font-size="9" fill="#374151">with Retry-After header in seconds.'"</text>
+      <line x1="376" y1="143" x2="654" y2="143" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="376" y="159" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">✅ Better:</text>
+      <text x="376" y="175" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Answer from YOUR actual runbook</text>
+      <text x="376" y="191" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Exact document + page citation</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 19.2: Bedrock KB architecture -->
+  <h2>Bedrock Knowledge Base Architecture</h2>
+  <p>Amazon Bedrock Knowledge Base is a fully managed RAG pipeline. You upload documents to S3, Bedrock chunks them, embeds each chunk with Titan Embeddings V2, and stores the vectors in a managed OpenSearch cluster. At query time, Bedrock does the retrieval and returns ranked passages.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 19.2 — Bedrock Knowledge Base: Ingestion + Query Pipelines</div>
+    <svg width="100%" viewBox="0 0 680 270" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Two pipelines: ingestion showing documents uploaded to S3 chunked and embedded into vector store, and query showing semantic search returning ranked passages</title>
+      <defs>
+        <marker id="rb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- INGESTION pipeline -->
+      <rect x="14" y="14" width="652" height="14" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>
+      <text x="340" y="24" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#1D4ED8" letter-spacing="0.08em">INGESTION PIPELINE — runs when you sync the Knowledge Base</text>
+
+      <!-- S3 -->
+      <rect x="14" y="36" width="96" height="72" rx="10" fill="#FEF9C3" stroke="#FDE68A" stroke-width="1.5"/>
+      <text x="62" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="20">🪣</text>
+      <text x="62" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">S3 Bucket</text>
+      <text x="62" y="96" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">PDF/MD/TXT</text>
+      <line x1="110" y1="72" x2="136" y2="72" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- Chunker -->
+      <rect x="138" y="36" width="96" height="72" rx="10" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="186" y="62" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">✂️</text>
+      <text x="186" y="80" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Chunker</text>
+      <text x="186" y="94" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">~300 tokens</text>
+      <line x1="234" y1="72" x2="260" y2="72" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- Embedder -->
+      <rect x="262" y="36" width="106" height="72" rx="10" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="315" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">🔢</text>
+      <text x="315" y="76" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Titan V2</text>
+      <text x="315" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">1536-dim vector</text>
+      <line x1="368" y1="72" x2="394" y2="72" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- Vector Store -->
+      <rect x="396" y="36" width="130" height="72" rx="10" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+      <text x="461" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">🗃️</text>
+      <text x="461" y="76" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#5B21B6">Vector Store</text>
+      <text x="461" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#7C3AED">OpenSearch (managed)</text>
+
+      <!-- Metadata store -->
+      <rect x="542" y="36" width="124" height="72" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="604" y="58" text-anchor="middle" font-family="'Sora',sans-serif" font-size="18">📑</text>
+      <text x="604" y="76" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Metadata</text>
+      <text x="604" y="90" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">filename · page · chunk_id</text>
+      <line x1="526" y1="72" x2="540" y2="72" stroke="#10B981" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- QUERY pipeline -->
+      <rect x="14" y="124" width="652" height="14" rx="4" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="340" y="134" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#065F46" letter-spacing="0.08em">QUERY PIPELINE — runs on every kb_search() tool call</text>
+
+      <!-- Query text -->
+      <rect x="14" y="148" width="110" height="60" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="69" y="170" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">User Query</text>
+      <text x="69" y="185" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">"rate limits?"</text>
+      <text x="69" y="200" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">plain text</text>
+      <line x1="124" y1="178" x2="148" y2="178" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- Embed query -->
+      <rect x="150" y="148" width="106" height="60" rx="10" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="203" y="170" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Titan V2</text>
+      <text x="203" y="184" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#3B82F6">embed query</text>
+      <text x="203" y="198" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">same model</text>
+      <line x1="256" y1="178" x2="280" y2="178" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- ANN search -->
+      <rect x="282" y="148" width="116" height="60" rx="10" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+      <text x="340" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#5B21B6">ANN Search</text>
+      <text x="340" y="182" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#7C3AED">top-K closest</text>
+      <text x="340" y="196" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#7C3AED">vectors (K=5)</text>
+      <line x1="398" y1="178" x2="422" y2="178" stroke="#7C3AED" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- Retrieved chunks -->
+      <rect x="424" y="148" width="116" height="60" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="482" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Top 5 Chunks</text>
+      <text x="482" y="182" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">text + metadata</text>
+      <text x="482" y="196" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">score + source</text>
+      <line x1="540" y1="178" x2="564" y2="178" stroke="#10B981" stroke-width="1.5" marker-end="url(#rb)"/>
+
+      <!-- KB Agent -->
+      <rect x="566" y="148" width="100" height="60" rx="10" fill="#ECFEFF" stroke="#06B6D4" stroke-width="1.5"/>
+      <text x="616" y="168" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#0C4A6E">KB Agent</text>
+      <text x="616" y="182" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#0891B2">cites source</text>
+      <text x="616" y="196" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#0891B2">in response</text>
+
+      <!-- Timing -->
+      <text x="340" y="230" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Ingestion: run once per document upload (1–5 min) · Query: ~0.3s per search</text>
+      <text x="340" y="246" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">AWS manages vector store, embeddings, and reranking — zero infra to maintain</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 19.3: Document types and chunking -->
+  <h2>What Documents to Upload</h2>
+  <p>The Knowledge Base is most useful when it contains documents your team references repeatedly but that aren't in GitHub — runbooks, architecture decisions, API specs, onboarding guides, post-mortems.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 19.3 — Document Types, Chunking Strategy, and What the AI Can Answer</div>
+    <svg width="100%" viewBox="0 0 680 210" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Four document categories showing runbooks architecture docs API specs and onboarding guides with the questions each can answer</title>
+
+      <!-- Runbooks -->
+      <rect x="14" y="14" width="152" height="186" rx="10" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+      <rect x="14" y="14" width="152" height="28" rx="10" fill="#C2410C"/>
+      <rect x="14" y="30" width="152" height="12" fill="#C2410C"/>
+      <text x="90" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">📖 Runbooks</text>
+      <text x="22" y="56"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">on-call guides</text>
+      <text x="22" y="70"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">incident playbooks</text>
+      <text x="22" y="84"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">deployment steps</text>
+      <text x="22" y="98"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">error resolution</text>
+      <line x1="22" y1="108" x2="154" y2="108" stroke="#FED7AA" stroke-width="0.5"/>
+      <text x="22" y="122" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#C2410C">Answers:</text>
+      <text x="22" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"What do I do if</text>
+      <text x="22" y="150" font-family="'Sora',sans-serif" font-size="8" fill="#374151">the DB is slow?"</text>
+      <text x="22" y="164" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"Who do I page</text>
+      <text x="22" y="178" font-family="'Sora',sans-serif" font-size="8" fill="#374151">for auth outages?"</text>
+
+      <!-- Architecture docs -->
+      <rect x="180" y="14" width="152" height="186" rx="10" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.5"/>
+      <rect x="180" y="14" width="152" height="28" rx="10" fill="#1D4ED8"/>
+      <rect x="180" y="30" width="152" height="12" fill="#1D4ED8"/>
+      <text x="256" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">🏗️ Architecture</text>
+      <text x="188" y="56"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">ADRs (decisions)</text>
+      <text x="188" y="70"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">system diagrams</text>
+      <text x="188" y="84"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">tech stack docs</text>
+      <text x="188" y="98"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">post-mortems</text>
+      <line x1="188" y1="108" x2="320" y2="108" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="188" y="122" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1E40AF">Answers:</text>
+      <text x="188" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"Why do we use</text>
+      <text x="188" y="150" font-family="'Sora',sans-serif" font-size="8" fill="#374151">DynamoDB vs SQL?"</text>
+      <text x="188" y="164" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"What caused the</text>
+      <text x="188" y="178" font-family="'Sora',sans-serif" font-size="8" fill="#374151">Aug outage?"</text>
+
+      <!-- API Specs -->
+      <rect x="346" y="14" width="152" height="186" rx="10" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <rect x="346" y="14" width="152" height="28" rx="10" fill="#059669"/>
+      <rect x="346" y="30" width="152" height="12" fill="#059669"/>
+      <text x="422" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">⚙️ API Specs</text>
+      <text x="354" y="56"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">OpenAPI / Swagger</text>
+      <text x="354" y="70"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">rate limits / auth</text>
+      <text x="354" y="84"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">endpoint docs</text>
+      <text x="354" y="98"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">error codes</text>
+      <line x1="354" y1="108" x2="486" y2="108" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="354" y="122" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">Answers:</text>
+      <text x="354" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"What fields does</text>
+      <text x="354" y="150" font-family="'Sora',sans-serif" font-size="8" fill="#374151">POST /users return?"</text>
+      <text x="354" y="164" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"What's the rate</text>
+      <text x="354" y="178" font-family="'Sora',sans-serif" font-size="8" fill="#374151">limit per key?"</text>
+
+      <!-- Onboarding -->
+      <rect x="512" y="14" width="154" height="186" rx="10" fill="#EEEDFE" stroke="#C7D2FE" stroke-width="1.5"/>
+      <rect x="512" y="14" width="154" height="28" rx="10" fill="#4B44CC"/>
+      <rect x="512" y="30" width="154" height="12" fill="#4B44CC"/>
+      <text x="589" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">🎓 Onboarding</text>
+      <text x="520" y="56"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">dev setup guides</text>
+      <text x="520" y="70"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">coding standards</text>
+      <text x="520" y="84"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">review checklists</text>
+      <text x="520" y="98"  font-family="'Sora',sans-serif" font-size="8" fill="#374151">team conventions</text>
+      <line x1="520" y1="108" x2="654" y2="108" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="520" y="122" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#4B44CC">Answers:</text>
+      <text x="520" y="136" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"How do I run</text>
+      <text x="520" y="150" font-family="'Sora',sans-serif" font-size="8" fill="#374151">tests locally?"</text>
+      <text x="520" y="164" font-family="'Sora',sans-serif" font-size="8" fill="#374151">"What's our PR</text>
+      <text x="520" y="178" font-family="'Sora',sans-serif" font-size="8" fill="#374151">review process?"</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 19.4: KB tools in MCP -->
+  <h2>The Two Knowledge Base MCP Tools</h2>
+  <p>We add two tools to the MCP server. <code>kb_search</code> is the fast semantic search for discovery. <code>kb_retrieve</code> is the detailed retrieval for reading full passages with citations.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 19.4 — kb_search vs kb_retrieve: When to Use Each</div>
+    <svg width="100%" viewBox="0 0 680 170" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Two tools showing kb_search for discovery returning titles and scores versus kb_retrieve for full passage retrieval with citations</title>
+
+      <!-- kb_search -->
+      <rect x="14" y="14" width="310" height="146" rx="12" fill="#ECFEFF" stroke="#06B6D4" stroke-width="1.5"/>
+      <rect x="14" y="14" width="310" height="28" rx="12" fill="#0891B2"/>
+      <rect x="14" y="30" width="310" height="12" fill="#0891B2"/>
+      <text x="169" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">kb_search(query, max_results=5)</text>
+
+      <text x="26" y="56" font-family="'Sora',sans-serif" font-size="9" fill="#374151"><tspan font-weight="700">Use for:</tspan> Finding which documents exist on a topic</text>
+      <text x="26" y="72" font-family="'Sora',sans-serif" font-size="9" fill="#374151"><tspan font-weight="700">Returns:</tspan> list of {title, source_uri, score, snippet}</text>
+      <line x1="24" y1="80" x2="312" y2="80" stroke="#A5F3FC" stroke-width="0.5"/>
+
+      <rect x="24" y="88" width="292" height="64" rx="6" fill="#1E1E2E"/>
+      <text x="34" y="102" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">[</text>
+      <text x="34" y="116" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">  {"title":"API Runbook v3","score":0.94,</text>
+      <text x="34" y="130" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">   "snippet":"Rate limits are 100 req/min..."},</text>
+      <text x="34" y="144" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#6B7280">  {"title":"FAQ Q3",...}  ...]</text>
+
+      <!-- kb_retrieve -->
+      <rect x="356" y="14" width="310" height="146" rx="12" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+      <rect x="356" y="14" width="310" height="28" rx="12" fill="#5B21B6"/>
+      <rect x="356" y="30" width="310" height="12" fill="#5B21B6"/>
+      <text x="511" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">kb_retrieve(query, num_results=3)</text>
+
+      <text x="368" y="56" font-family="'Sora',sans-serif" font-size="9" fill="#374151"><tspan font-weight="700">Use for:</tspan> Getting full passage text with exact citation</text>
+      <text x="368" y="72" font-family="'Sora',sans-serif" font-size="9" fill="#374151"><tspan font-weight="700">Returns:</tspan> list of {content, source_uri, page, score}</text>
+      <line x1="366" y1="80" x2="654" y2="80" stroke="#DDD6FE" stroke-width="0.5"/>
+
+      <rect x="366" y="88" width="292" height="64" rx="6" fill="#1E1E2E"/>
+      <text x="376" y="102" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#FCD34D">[</text>
+      <text x="376" y="116" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">  {"content":"All endpoints are limited to</text>
+      <text x="376" y="130" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">   100 req/min per API key...",</text>
+      <text x="376" y="144" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">   "source_uri":"s3://...","page":14}]</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 19.1 — Create the Bedrock Knowledge Base</div>
+    <div class="step-title">One-time setup in the AWS Console — 10 minutes</div>
+    <div class="step-body">
+      <ol style="padding-left:20px;line-height:2.2;font-size:.93rem">
+        <li>Go to <strong>AWS Console → Amazon Bedrock → Knowledge Bases → Create</strong></li>
+        <li>Name: <code>neuron-knowledge-base</code></li>
+        <li>IAM role: create a new role (Bedrock will create it automatically)</li>
+        <li>Data source: <strong>Amazon S3</strong> → select your <code>neuron-platform-docs-{account_id}</code> bucket</li>
+        <li>Embeddings model: <strong>Titan Text Embeddings V2</strong></li>
+        <li>Vector database: <strong>Amazon OpenSearch Serverless</strong> (managed, no setup)</li>
+        <li>Click <strong>Create Knowledge Base</strong> — takes ~3 minutes</li>
+        <li>Note the <strong>Knowledge Base ID</strong> — you'll need it in the .env file</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 19.2 — Upload and Sync Documents</div>
+    <div class="step-title">Upload your internal docs to S3 and trigger the first ingestion</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Upload docs and sync</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Upload your internal documents to S3</span>
+<span style="color:#86EFAC">aws s3 cp docs/ s3://neuron-platform-docs-$ACCOUNT_ID/knowledge-base/ \</span>
+  --recursive \
+  --profile neuron-dev
+
+<span style="color:#6B7280"># Start the ingestion job</span>
+<span style="color:#86EFAC">aws bedrock-agent start-ingestion-job \</span>
+  --knowledge-base-id YOUR_KB_ID \
+  --data-source-id YOUR_DATA_SOURCE_ID \
+  --region us-east-1 \
+  --profile neuron-dev
+
+<span style="color:#6B7280"># Check ingestion status (~2-5 min for 10-20 docs)</span>
+<span style="color:#86EFAC">aws bedrock-agent get-ingestion-job \</span>
+  --knowledge-base-id YOUR_KB_ID \
+  --data-source-id YOUR_DATA_SOURCE_ID \
+  --ingestion-job-id YOUR_JOB_ID \
+  --query "ingestionJob.status"
+<span style="color:#6B7280"># Expected: "COMPLETE"</span></pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 19.3 — Add KB Tools to MCP Server</div>
+    <div class="step-title">New kb_tools.py with kb_search and kb_retrieve</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Create mcp_server/tools/kb_tools.py for neuron-mcp-server. Uses boto3 bedrock-agent-runtime client. Settings: KB_ID from settings.knowledge_base_id, AWS region from settings.<br><br>
+    1. @mcp.tool() async def kb_search(query: str, max_results: int = 5) → dict: calls bedrock_agent_runtime.retrieve(knowledgeBaseId=KB_ID, retrievalQuery={'text':query}, retrievalConfiguration={'vectorSearchConfiguration':{'numberOfResults':max_results}}). Returns slim_result of [{title: location.s3Location.uri split by '/' last part, source_uri, score, snippet: content[:500]}]. Docstring: 'Search the internal Knowledge Base for documents related to a topic. Returns top matching document titles and snippets. Use kb_retrieve for full content.'<br><br>
+    2. @mcp.tool() async def kb_retrieve(query: str, num_results: int = 3) → dict: same API call but returns full content [{content, source_uri, page: metadata.get('x-amz-bedrock-kb-chunk-page','unknown'), score}]. Docstring: 'Retrieve full passage content from the Knowledge Base with source citations. Use this after kb_search to get the actual text to cite in your answer.'<br><br>
+    Register both via register_kb_tools(mcp). Both tools: try/except format_error, slim_result."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 19.4 — Update Config and Dispatcher</div>
+    <div class="step-title">Add KB_ID to settings and register tools in the dispatcher</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Add to .env</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Add to neuron-mcp-server/.env</span>
+KNOWLEDGE_BASE_ID=<span style="color:#F9A8D4">XXXXXXXXXX</span>   <span style="color:#6B7280"># from AWS Console</span></pre></div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt (dispatcher update):</strong><br><br>
+    <em>"Update neuron-mcp-server to include Knowledge Base tools in the dispatcher. In mcp_server/main.py add import and call register_kb_tools(mcp). In mcp_server/tools/kb_tools.py, also provide two dispatcher-pattern functions: list_kb_ops() returning a static catalog of kb_search and kb_retrieve operations, and kb_tool(op, args) dispatcher — matching the same pattern used for GitHub, Jira, and Slack dispatchers in Chapter 11."</em></div>
+  </div>
+
+  <!-- VERIFY -->
+  <h2>Verify the Knowledge Base Works</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Test KB search via Neuron UI</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Restart to pick up new tools</span>
+<span style="color:#86EFAC">make restart</span>
+
+<span style="color:#6B7280"># Test 1: Knowledge base discovery</span>
+<span style="color:#6B7280"># In Neuron UI ask:</span>
+<span style="color:#6B7280"># "What documents do we have about incident response?"</span>
+<span style="color:#6B7280"># Expected: list of document titles + snippets with source URIs</span>
+
+<span style="color:#6B7280"># Test 2: Cited answer</span>
+<span style="color:#6B7280"># "How do we handle database failover according to our runbook?"</span>
+<span style="color:#6B7280"># Expected: AI cites "According to runbook-v3.pdf, p.22: ..."</span>
+
+<span style="color:#6B7280"># Test 3: KB Agent in multi-agent mode</span>
+<span style="color:#6B7280"># Enable multi_agent toggle, ask:</span>
+<span style="color:#6B7280"># "What does our architecture doc say about choosing databases?"</span>
+<span style="color:#6B7280"># Expected: KB Agent routes, retrieves, cites with document name</span></pre></div>
+  </div>
+
+  <!-- Useful doc formats table -->
+  <h2>Document Format Tips</h2>
+  <table>
+    <thead><tr><th>Format</th><th>Supported</th><th>Best practice</th></tr></thead>
+    <tbody>
+      <tr><td>PDF</td><td>✅ Best</td><td>Text-selectable PDFs. Scanned images require Textract first.</td></tr>
+      <tr><td>Markdown (.md)</td><td>✅ Great</td><td>Headings help chunking. Use H2/H3 to structure topics.</td></tr>
+      <tr><td>Plain text (.txt)</td><td>✅ Good</td><td>Simple and reliable. No formatting metadata.</td></tr>
+      <tr><td>Word (.docx)</td><td>✅ Good</td><td>Text extracted. Tables may lose structure.</td></tr>
+      <tr><td>HTML</td><td>✅ OK</td><td>Tags stripped. Clean HTML only — not SPA renders.</td></tr>
+      <tr><td>Images (.png, .jpg)</td><td>❌ No</td><td>Use Textract to extract text first, then upload the .txt</td></tr>
+      <tr><td>Code files (.py, .ts)</td><td>⚠️ Limited</td><td>Works but context is lost. Better to document in Markdown.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>Bedrock Knowledge Base status shows <strong>Active</strong> in AWS Console</li>
+      <li>Ingestion job shows <strong>COMPLETE</strong> — documents chunked and indexed</li>
+      <li><code>make restart</code> — health check shows 2 additional tools (kb_search, kb_retrieve)</li>
+      <li>Asking about an uploaded document returns an answer citing the source URI</li>
+      <li>The KB Agent in multi-agent mode correctly routes knowledge questions</li>
+      <li>Answers quote the document name and page (not "according to my training data")</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">RAG = grounded answers</div><div class="lc-body">Without RAG, the AI guesses about your company-specific knowledge. With RAG, it retrieves and cites your actual documents. Citations are the proof — if the AI can't cite it, it's hallucinating.</div></div>
+    <div class="learn-card"><div class="lc-title">Bedrock manages all the complexity</div><div class="lc-body">Chunking, embedding, vector store, ANN search, reranking — all managed by Bedrock. You upload documents to S3 and call one API. No vector database to maintain.</div></div>
+    <div class="learn-card"><div class="lc-title">Two tools for two jobs</div><div class="lc-body">kb_search for discovery (which docs exist?), kb_retrieve for reading (what does the doc say?). The AI learns to call search first, then retrieve the most relevant result for citation.</div></div>
+    <div class="learn-card"><div class="lc-title">S3 is the source of truth</div><div class="lc-body">Upload a new version of a doc to S3 and re-sync — the KB updates automatically. No rebuild, no redeployment. The KB reflects whatever is in S3 after each sync.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="18-multi-agent.html"><span class="dir">← Previous</span>Chapter 18: Multi-Agent</a>
+    <a href="20-playwright.html" class="next"><span class="dir">Next Chapter →</span>Chapter 20: Playwright</a>
+  </div>
+</div>
+</body>
+</html>

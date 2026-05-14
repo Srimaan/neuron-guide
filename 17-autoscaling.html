@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 — Autoscaling | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#F97316);height:100%;border-radius:20px;width:65.4%}
+.hero{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1px solid #86EFAC;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(16,185,129,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#059669}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#059669;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+.phase-end{background:linear-gradient(135deg,#F0FDF4,#EEEDFE);border:2px solid #6C63FF;border-radius:16px;padding:28px;margin:40px 0;text-align:center}
+.phase-end h3{font-size:1.2rem;font-weight:800;color:#4B44CC;margin-bottom:8px}
+.phase-end p{color:#374151;margin:0;font-size:.95rem}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="15-github-actions.html">Ch 15</a>
+    <a href="16-helm-values.html">Ch 16</a>
+    <a href="17-autoscaling.html" class="active">Ch 17</a>
+    <a href="18-multi-agent.html">Ch 18</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 2 — Cloud &amp; CI/CD</a><span>›</span>
+    Chapter 17 — Autoscaling
+  </div>
+  <div class="progress-label">Chapter 17 of 26 — Phase 2 Final</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 2 — Cloud &amp; CI/CD</span>
+      <span class="chapter-tag">Chapter 17 of 26</span>
+    </div>
+    <h1>Auto<span>scaling</span></h1>
+    <p>Handle any load without over-provisioning. HPA adds pods when CPU spikes. Cluster Autoscaler adds nodes when pods can't be scheduled. KEDA scales on custom metrics like queue depth. Together they make Neuron elastic and cost-efficient.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">☸️ HPA + CA + KEDA</span>
+      <span class="meta-tag">💰 Cost-optimised</span>
+      <span class="meta-tag">🏁 Phase 2 Complete</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Configure HPA for the agent backend (scale on CPU), Cluster Autoscaler for node scaling, and KEDA for custom metric scaling. Zero manual intervention when load spikes — and cost drops automatically when traffic quiets.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> Under a load test, <code>kubectl get hpa -n neuron-prod</code> shows replicas increasing. When load drops, replicas scale back down within 5 minutes. Cluster Autoscaler adds and removes EC2 nodes automatically.</div>
+  </div>
+
+  <!-- DIAGRAM 17.1: Three layers of scaling -->
+  <h2>Three Layers of Kubernetes Scaling</h2>
+  <p>Kubernetes scales at three levels. Each solves a different problem and operates independently. You need all three working together for a fully elastic system.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 17.1 — Three Scaling Layers: HPA, Cluster Autoscaler, KEDA</div>
+    <svg width="100%" viewBox="0 0 680 260" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Three scaling layers showing HPA scales pods, Cluster Autoscaler scales nodes, and KEDA scales on custom metrics</title>
+      <defs>
+        <marker id="aa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Layer 1: KEDA (custom metrics) -->
+      <rect x="14" y="14" width="200" height="232" rx="12" fill="#EEEDFE" stroke="#6C63FF" stroke-width="1.5"/>
+      <rect x="14" y="14" width="200" height="30" rx="12" fill="#6C63FF"/>
+      <rect x="14" y="32" width="200" height="12" fill="#6C63FF"/>
+      <text x="114" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">KEDA — Custom Metrics</text>
+      <text x="26" y="62"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">What it does:</text>
+      <text x="26" y="78"  font-family="'Sora',sans-serif" font-size="9" fill="#374151">Scales pods based on any</text>
+      <text x="26" y="93"  font-family="'Sora',sans-serif" font-size="9" fill="#374151">external metric — queue depth,</text>
+      <text x="26" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#374151">message lag, custom KPIs</text>
+      <line x1="24" y1="118" x2="202" y2="118" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="26" y="134" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">Trigger for Neuron:</text>
+      <text x="26" y="150" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">SSE stream queue depth</text>
+      <text x="26" y="164" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#4B44CC">active sessions count</text>
+      <line x1="24" y1="174" x2="202" y2="174" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="26" y="190" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">Scale range:</text>
+      <text x="26" y="206" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">0 → N replicas</text>
+      <text x="26" y="220" font-family="'Sora',sans-serif" font-size="8.5" fill="#9CA3AF">(can scale to zero)</text>
+      <rect x="24" y="228" width="182" height="12" rx="3" fill="#DDD6FE"/>
+      <text x="115" y="238" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" font-weight="700" fill="#4B44CC">Phase 3+ — optional now</text>
+
+      <!-- Layer 2: HPA (CPU/memory) -->
+      <rect x="240" y="14" width="200" height="232" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2"/>
+      <rect x="240" y="14" width="200" height="30" rx="12" fill="#D97706"/>
+      <rect x="240" y="32" width="200" height="12" fill="#D97706"/>
+      <text x="340" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">HPA — Pod Scaling ← Start here</text>
+      <text x="252" y="62"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">What it does:</text>
+      <text x="252" y="78"  font-family="'Sora',sans-serif" font-size="9" fill="#374151">Watches CPU/memory of pods.</text>
+      <text x="252" y="93"  font-family="'Sora',sans-serif" font-size="9" fill="#374151">Adds replicas when utilisation</text>
+      <text x="252" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#374151">exceeds target. Removes when</text>
+      <text x="252" y="122" font-family="'Sora',sans-serif" font-size="9" fill="#374151">utilisation drops.</text>
+      <line x1="250" y1="132" x2="428" y2="132" stroke="#FDE68A" stroke-width="0.5"/>
+      <text x="252" y="148" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Trigger for Neuron:</text>
+      <text x="252" y="164" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#D97706">mcp-client CPU > 70%</text>
+      <text x="252" y="178" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#D97706">mcp-server CPU > 60%</text>
+      <line x1="250" y1="188" x2="428" y2="188" stroke="#FDE68A" stroke-width="0.5"/>
+      <text x="252" y="204" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Scale range:</text>
+      <text x="252" y="220" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">3 → 10 replicas</text>
+      <rect x="250" y="228" width="182" height="12" rx="3" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="341" y="238" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" font-weight="700" fill="#92400E">✅ Configure this chapter</text>
+
+      <!-- Layer 3: Cluster Autoscaler -->
+      <rect x="466" y="14" width="200" height="232" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="2"/>
+      <rect x="466" y="14" width="200" height="30" rx="12" fill="#059669"/>
+      <rect x="466" y="32" width="200" height="12" fill="#059669"/>
+      <text x="566" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Cluster Autoscaler — Nodes</text>
+      <text x="478" y="62"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">What it does:</text>
+      <text x="478" y="78"  font-family="'Sora',sans-serif" font-size="9" fill="#374151">Watches for unschedulable pods.</text>
+      <text x="478" y="93"  font-family="'Sora',sans-serif" font-size="9" fill="#374151">Adds EC2 nodes when pods are</text>
+      <text x="478" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Pending. Removes idle nodes</text>
+      <text x="478" y="122" font-family="'Sora',sans-serif" font-size="9" fill="#374151">to cut costs.</text>
+      <line x1="476" y1="132" x2="654" y2="132" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="478" y="148" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Trigger:</text>
+      <text x="478" y="164" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">Pod status = Pending</text>
+      <text x="478" y="178" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">(not enough node CPU)</text>
+      <line x1="476" y1="188" x2="654" y2="188" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="478" y="204" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Scale range:</text>
+      <text x="478" y="220" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">1 → 10 EC2 nodes</text>
+      <rect x="476" y="228" width="182" height="12" rx="3" fill="#DCFCE7" stroke="#86EFAC"/>
+      <text x="567" y="238" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" font-weight="700" fill="#065F46">✅ Configure this chapter</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 17.2: HPA response cycle -->
+  <h2>How HPA Works — The Control Loop</h2>
+  <p>HPA runs a control loop every 15 seconds. It reads CPU metrics from the Metrics Server, compares to the target, and adjusts the replica count. Scale-up is fast (30s). Scale-down is slow (5 min) to avoid flapping.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 17.2 — HPA Control Loop Under Load</div>
+    <svg width="100%" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>HPA control loop showing CPU spike triggering scale up then load dropping causing scale down after stabilisation window</title>
+      <defs>
+        <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Time axis -->
+      <line x1="40" y1="200" x2="660" y2="200" stroke="#E2E8F0" stroke-width="1.5"/>
+      <text x="30" y="204" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">0</text>
+      <text x="660" y="215" text-anchor="end" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">time →</text>
+
+      <!-- CPU utilisation line -->
+      <!-- Baseline: CPU ~30% -->
+      <polyline points="40,170 140,170 150,80 250,80 260,170 400,170 410,60 480,60 490,170 650,170"
+        fill="none" stroke="#F59E0B" stroke-width="2.5"/>
+
+      <!-- Target CPU line (70%) -->
+      <line x1="40" y1="137" x2="660" y2="137" stroke="#10B981" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="44" y="132" font-family="'Sora',sans-serif" font-size="8" fill="#059669">target: 70% CPU</text>
+
+      <!-- Replica count -->
+      <polyline points="40,188 148,188 155,175 255,175 262,188 408,188 415,163 488,163 495,188 650,188"
+        fill="none" stroke="#6C63FF" stroke-width="2" stroke-dasharray="5 2"/>
+
+      <!-- Labels for CPU line -->
+      <text x="85"  y="162" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#D97706">CPU 30%</text>
+      <text x="200" y="72"  text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#DC2626">CPU 95%</text>
+      <text x="330" y="162" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#D97706">CPU 30%</text>
+      <text x="445" y="52"  text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#DC2626">CPU 98%</text>
+      <text x="575" y="162" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#D97706">CPU 30%</text>
+
+      <!-- Replica labels -->
+      <text x="85"  y="197" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#6C63FF">3 pods</text>
+      <text x="205" y="170" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#6C63FF">6 pods</text>
+      <text x="330" y="197" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#6C63FF">3 pods</text>
+      <text x="450" y="155" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#6C63FF">8 pods</text>
+      <text x="580" y="197" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#6C63FF">3 pods</text>
+
+      <!-- Annotations -->
+      <!-- Scale up event 1 -->
+      <line x1="150" y1="80" x2="150" y2="215" stroke="#EF4444" stroke-width="1" stroke-dasharray="3 2"/>
+      <rect x="108" y="217" width="84" height="22" rx="4" fill="#FEF2F2" stroke="#FECACA"/>
+      <text x="150" y="227" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#DC2626">⬆ scale-up</text>
+      <text x="150" y="237" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#9CA3AF">~30 seconds</text>
+
+      <!-- Scale down event 1 (with stabilisation window) -->
+      <line x1="262" y1="170" x2="262" y2="215" stroke="#6B7280" stroke-width="1" stroke-dasharray="3 2"/>
+      <rect x="218" y="217" width="90" height="22" rx="4" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="263" y="227" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#374151">⬇ scale-down</text>
+      <text x="263" y="237" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#9CA3AF">5 min window</text>
+
+      <!-- Scale up event 2 -->
+      <line x1="410" y1="60" x2="410" y2="215" stroke="#EF4444" stroke-width="1" stroke-dasharray="3 2"/>
+      <rect x="368" y="217" width="84" height="22" rx="4" fill="#FEF2F2" stroke="#FECACA"/>
+      <text x="410" y="227" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#DC2626">⬆ scale-up</text>
+      <text x="410" y="237" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#9CA3AF">~30 seconds</text>
+
+      <!-- Legend -->
+      <line x1="40" y1="270" x2="80" y2="270" stroke="#F59E0B" stroke-width="2.5"/>
+      <text x="86" y="274" font-family="'Sora',sans-serif" font-size="9" fill="#374151">CPU utilisation</text>
+      <line x1="200" y1="270" x2="240" y2="270" stroke="#6C63FF" stroke-width="2" stroke-dasharray="5 2"/>
+      <text x="246" y="274" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Replica count</text>
+      <line x1="360" y1="270" x2="400" y2="270" stroke="#10B981" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="406" y="274" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Target CPU (70%)</text>
+
+      <text x="340" y="292" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#9CA3AF">Scale-up: 30s · Scale-down: 5 min stabilisation window prevents flapping</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 17.3: Cluster Autoscaler -->
+  <h2>Cluster Autoscaler — Node-Level Scaling</h2>
+  <p>When HPA adds so many pods that no node has capacity, pods go <code>Pending</code>. The Cluster Autoscaler detects this and provisions a new EC2 node. When nodes are underutilised for 10 minutes, it terminates them to save cost.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 17.3 — Cluster Autoscaler: Scale-Out and Scale-In Flow</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Cluster autoscaler scale out showing pending pod triggering new node and scale in showing idle node being terminated</title>
+      <defs>
+        <marker id="ac" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Scale OUT (left side) -->
+      <text x="160" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#DC2626">Scale-Out (adds node)</text>
+
+      <!-- Pending pod -->
+      <rect x="14" y="30" width="100" height="52" rx="8" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+      <text x="64" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#991B1B">Pod</text>
+      <text x="64" y="67" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#DC2626">Pending</text>
+      <text x="64" y="80" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">no node has space</text>
+
+      <line x1="114" y1="56" x2="138" y2="56" stroke="#EF4444" stroke-width="1.5" marker-end="url(#ac)"/>
+      <text x="126" y="48" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#DC2626">detects</text>
+
+      <!-- CA detects -->
+      <rect x="140" y="30" width="110" height="52" rx="8" fill="#EEEDFE" stroke="#6C63FF" stroke-width="1.5"/>
+      <text x="195" y="52" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">Cluster</text>
+      <text x="195" y="66" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#26215C">Autoscaler</text>
+      <text x="195" y="80" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">~60s response</text>
+
+      <line x1="250" y1="56" x2="274" y2="56" stroke="#10B981" stroke-width="1.5" marker-end="url(#ac)"/>
+      <text x="262" y="48" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#10B981">launch</text>
+
+      <!-- New node -->
+      <rect x="276" y="14" width="108" height="84" rx="8" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="330" y="38" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">New EC2 Node</text>
+      <text x="330" y="54" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#059669">t3.medium</text>
+      <text x="330" y="68" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">~3 min boot</text>
+      <rect x="286" y="76" width="88" height="16" rx="4" fill="#DCFCE7"/>
+      <text x="330" y="88" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">pod scheduled ✅</text>
+
+      <!-- Scale IN (right side) -->
+      <text x="530" y="18" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#059669">Scale-In (removes node)</text>
+
+      <!-- Idle node -->
+      <rect x="408" y="30" width="108" height="84" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5"/>
+      <text x="462" y="50" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Idle Node</text>
+      <text x="462" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">CPU util &lt; 50%</text>
+      <text x="462" y="80" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">for 10+ minutes</text>
+      <rect x="418" y="90" width="88" height="16" rx="4" fill="#FEF3C7"/>
+      <text x="462" y="102" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#92400E">drains pods first</text>
+
+      <line x1="516" y1="72" x2="540" y2="72" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#ac)"/>
+
+      <!-- CA decides -->
+      <rect x="542" y="30" width="110" height="52" rx="8" fill="#EEEDFE" stroke="#6C63FF" stroke-width="1.5"/>
+      <text x="597" y="50" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#26215C">Cluster</text>
+      <text x="597" y="64" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#26215C">Autoscaler</text>
+      <text x="597" y="78" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">terminates node</text>
+
+      <!-- Result -->
+      <rect x="14" y="122" width="652" height="52" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="340" y="144" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Node Group: min=1  max=10  desired=auto</text>
+      <text x="340" y="160" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Quiet overnight: 1 node running · Morning traffic spike: auto-grows to 4 nodes · Cost scales with usage</text>
+
+      <!-- Timing note -->
+      <rect x="14" y="182" width="652" height="32" rx="8" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="340" y="196" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#92400E">⏱ Scale-out: ~3–4 minutes (EC2 boot) · Scale-in: 10 min idle before termination</text>
+      <text x="340" y="210" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#D97706">Always set min=1 to keep at least one warm node — prevents cold-start latency</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 17.4: Resource requests are critical -->
+  <h2>Resource Requests — Why They Matter for Autoscaling</h2>
+  <p>HPA and Cluster Autoscaler both depend on resource requests being set correctly. A pod with no requests is invisible to the autoscaler. An over-requested pod wastes node capacity.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 17.4 — Resource Requests vs Limits: Correct Configuration</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Resource requests versus limits showing correct ratio and what happens when they are wrong</title>
+
+      <!-- Good config -->
+      <rect x="14" y="14" width="300" height="176" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="14" y="14" width="300" height="28" rx="12" fill="#059669"/>
+      <rect x="14" y="30" width="300" height="12" fill="#059669"/>
+      <text x="164" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">✅ Correct — mcp-client pod</text>
+
+      <rect x="24" y="50" width="280" height="128" rx="6" fill="#1E1E2E"/>
+      <text x="34" y="68"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">resources:</text>
+      <text x="34" y="82"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  requests:</text>
+      <text x="34" y="96"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">    memory: 512Mi</text>
+      <text x="34" y="110" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">    cpu: 500m</text>
+      <text x="34" y="128" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">  limits:</text>
+      <text x="34" y="142" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    memory: 1Gi</text>
+      <text x="34" y="156" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#C4B5FD">    cpu: 1000m</text>
+      <text x="164" y="174" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#059669">requests = guaranteed · limits = max burst</text>
+
+      <!-- Bad configs -->
+      <rect x="366" y="14" width="300" height="176" rx="12" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+      <rect x="366" y="14" width="300" height="28" rx="12" fill="#DC2626"/>
+      <rect x="366" y="30" width="300" height="12" fill="#DC2626"/>
+      <text x="516" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">❌ Problems to avoid</text>
+
+      <text x="378" y="58" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#991B1B">No requests set:</text>
+      <text x="378" y="73" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Scheduler packs too many pods per node.</text>
+      <text x="378" y="87" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">HPA can't calculate utilisation %. CA can't</text>
+      <text x="378" y="101" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">tell if node is full. Always set requests.</text>
+      <line x1="378" y1="110" x2="654" y2="110" stroke="#FECACA" stroke-width="0.5"/>
+      <text x="378" y="125" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#991B1B">Requests > Limits:</text>
+      <text x="378" y="140" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Pod can never actually use its guaranteed</text>
+      <text x="378" y="155" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">resources — will be throttled immediately.</text>
+      <text x="378" y="175" font-family="'Sora',sans-serif" font-size="8.5" fill="#9CA3AF">Rule: limits should be 2× requests</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 17.1 — Install Metrics Server</div>
+    <div class="step-title">HPA requires the Kubernetes Metrics Server to read pod CPU — it's not installed by default</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Install Metrics Server on EKS</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Install Metrics Server</span>
+<span style="color:#86EFAC">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml</span>
+
+<span style="color:#6B7280"># Verify it's running (~60s after install)</span>
+<span style="color:#86EFAC">kubectl top nodes</span>
+<span style="color:#6B7280"># NAME              CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%</span>
+<span style="color:#6B7280"># ip-10-0-1-xx...   145m         7%     1234Mi          40%</span>
+
+<span style="color:#86EFAC">kubectl top pods -n neuron-prod</span>
+<span style="color:#6B7280"># Shows live CPU/memory per pod — needed by HPA</span></pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 17.2 — Configure HPA for Agent Backend</div>
+    <div class="step-title">Scale mcp-client from 3 to 10 replicas based on CPU utilisation</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate Kubernetes HPA manifests for Neuron. Add to helm/neuron/templates/hpa.yaml. Create two HPAs in namespace {{ .Values.namespace }}:<br><br>
+    1. neuron-mcp-client HPA: minReplicas 3, maxReplicas 10, scaleTargetRef neuron-mcp-client Deployment, metrics CPU averageUtilization 70, scaleDown stabilizationWindowSeconds 300 (5 min), scaleUp stabilizationWindowSeconds 30<br>
+    2. neuron-mcp-server HPA: minReplicas 2, maxReplicas 8, CPU 60%, same stabilization windows<br><br>
+    Wrap in {{- if .Values.autoscaling.enabled }} so HPA can be disabled in dev. Show the full hpa.yaml template and the values.yaml additions: autoscaling.enabled: true."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 17.3 — Configure Cluster Autoscaler</div>
+    <div class="step-title">Install and configure the Cluster Autoscaler with the correct IAM permissions</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate the Cluster Autoscaler setup for EKS cluster 'neuron-cluster' in us-east-1. Include:<br>
+    1. IAM policy JSON for Cluster Autoscaler with required autoscaling and ec2 permissions<br>
+    2. eksctl command to create the service account with IRSA for the cluster-autoscaler namespace<br>
+    3. Helm values to deploy cluster-autoscaler chart from autoscaler/cluster-autoscaler: clusterName=neuron-cluster, awsRegion=us-east-1, autoDiscovery.clusterName=neuron-cluster, rbac.serviceAccount.create=false, extraArgs: scale-down-delay-after-add=2m scale-down-unneeded-time=10m balance-similar-node-groups=true skip-nodes-with-system-pods=false<br>
+    4. Tag to add to EKS node group for autodiscovery: k8s.io/cluster-autoscaler/enabled=true and k8s.io/cluster-autoscaler/neuron-cluster=owned"</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 17.4 — Add Pod Disruption Budgets</div>
+    <div class="step-title">Prevent the Cluster Autoscaler from terminating too many pods at once</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate helm/neuron/templates/pdb.yaml with PodDisruptionBudgets for neuron-prod. mcp-client: minAvailable 2 (so scaling down always leaves at least 2 pods handling requests). mcp-server: minAvailable 1. frontend: minAvailable 1. Wrap each in {{- if eq .Values.environment 'prod' }} so PDBs only apply in production. Explain in comments why PDBs are essential for zero-downtime Cluster Autoscaler scale-in."</em></div>
+  </div>
+
+  <!-- VERIFY -->
+  <h2>Verify Autoscaling Works</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Load test and watch HPA respond</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Watch HPA in real time (open in separate terminal)</span>
+<span style="color:#86EFAC">kubectl get hpa -n neuron-prod -w</span>
+<span style="color:#6B7280"># NAME                  REFERENCE              TARGETS    MINPODS  MAXPODS  REPLICAS</span>
+<span style="color:#6B7280"># neuron-mcp-client     Deployment/...         23%/70%    3        10       3</span>
+
+<span style="color:#6B7280"># Generate load (replace URL with your ALB address)</span>
+<span style="color:#86EFAC">for i in {1..50}; do</span>
+  curl -s -X POST https://your-alb-url.elb.amazonaws.com/chat \
+    -H "Content-Type: application/json" \
+    -d '{"prompt":"Analyse all open PRs","session_id":"load-test-'$i'"}' &
+<span style="color:#86EFAC">done</span>
+
+<span style="color:#6B7280"># Within ~2 minutes, HPA should show replicas increasing:</span>
+<span style="color:#6B7280"># neuron-mcp-client  ...  82%/70%  3  10  6  ← scaled up!</span>
+
+<span style="color:#6B7280"># After stopping load — scale down happens after 5 min window</span>
+<span style="color:#86EFAC">kubectl describe hpa neuron-mcp-client -n neuron-prod</span>
+<span style="color:#6B7280"># Events: ScaledUp ... ScaledDown ...</span></pre></div>
+  </div>
+
+  <!-- Cost impact table -->
+  <h2>Cost Impact of Autoscaling</h2>
+  <table>
+    <thead><tr><th>Scenario</th><th>Without Autoscaling</th><th>With Autoscaling</th><th>Saving</th></tr></thead>
+    <tbody>
+      <tr><td>Night-time (00:00–08:00)</td><td>3 nodes always on</td><td>1 node (min)</td><td>~$5/day</td></tr>
+      <tr><td>Morning spike (09:00–11:00)</td><td>3 nodes — may be overloaded</td><td>Auto-grows to 5 nodes</td><td>Better reliability</td></tr>
+      <tr><td>Weekend</td><td>Full capacity billed</td><td>Scales to 1–2 nodes</td><td>~$35/weekend</td></tr>
+      <tr><td>Monthly estimate</td><td>~$150/mo (fixed 3 nodes)</td><td>~$80/mo (elastic)</td><td><strong>~$70/mo</strong></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Phase 2 complete -->
+  <div class="phase-end">
+    <h3>🎉 Phase 2 Complete!</h3>
+    <p>Neuron is now running on EKS with automated deployments via GitHub Actions, multi-environment configuration, and elastic autoscaling. The platform scales to handle real team load and costs ~$80/month at baseline. Phase 3 starts with Chapter 18 — Multi-Agent Architecture.</p>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li><code>kubectl top pods -n neuron-prod</code> shows live CPU and memory metrics</li>
+      <li><code>kubectl get hpa -n neuron-prod</code> shows both HPAs with TARGETS showing real CPU %</li>
+      <li>Under load, <code>REPLICAS</code> increases beyond the minimum within 2 minutes</li>
+      <li>After load stops, replicas scale back down within 7 minutes</li>
+      <li>Cluster Autoscaler pod is Running in <code>kube-system</code> namespace</li>
+      <li>PodDisruptionBudgets are applied in prod: <code>kubectl get pdb -n neuron-prod</code></li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">HPA + CA work together</div><div class="lc-body">HPA adds pods until nodes are full. CA adds nodes when pods go Pending. They operate independently but compose automatically — you configure each once.</div></div>
+    <div class="learn-card"><div class="lc-title">Scale-down is slower than scale-up</div><div class="lc-body">The 5-minute stabilisation window prevents thrashing — scaling down then up immediately. Scale up fast to handle load, scale down slowly to avoid yo-yo behaviour.</div></div>
+    <div class="learn-card"><div class="lc-title">Resource requests are the foundation</div><div class="lc-body">Without correct resource requests, neither HPA nor Cluster Autoscaler works properly. Set requests conservatively (what you normally need) and limits at 2× requests.</div></div>
+    <div class="learn-card"><div class="lc-title">PDBs protect during scale-in</div><div class="lc-body">Without PDBs, Cluster Autoscaler might drain a node that takes all replicas of a service offline. minAvailable:2 means at least 2 copies are always running during any disruption.</div></div>
+    <div class="learn-card"><div class="lc-title">Autoscaling halves costs</div><div class="lc-body">Fixed 3-node cluster: ~$150/month. Elastic cluster (min 1, scales as needed): ~$80/month. The savings compound — every environment you autoscale reduces cost.</div></div>
+    <div class="learn-card"><div class="lc-title">min=1 prevents cold starts</div><div class="lc-body">Always keep at least one node warm. Scaling from 0 nodes means waiting 3–4 minutes for EC2 boot on every first request — unacceptable for a team tool.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="16-helm-values.html"><span class="dir">← Previous</span>Chapter 16: Helm Values</a>
+    <a href="18-multi-agent.html" class="next"><span class="dir">Next Chapter →</span>Chapter 18: Multi-Agent</a>
+  </div>
+</div>
+</body>
+</html>

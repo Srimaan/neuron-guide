@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enhancement — LightLLM Model Router | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.hero{background:linear-gradient(135deg,#0F0F1A,#1A1230);border:1.5px solid #4B44CC;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'⚡';position:absolute;right:40px;top:30px;font-size:80px;opacity:.08}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.enh-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#6C63FF,#8B5CF6);color:#fff;border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.enh-badge::before{content:'✦';font-size:.7rem}
+.applies-badge{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#C4B5FD;background:rgba(108,99,255,.2);border:1px solid #4B44CC;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.4rem;font-weight:800;line-height:1.1;color:#fff;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#8B5CF6}
+.hero p{font-size:1rem;color:#A5B4FC;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#C4B5FD;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-dark{background:#0F0F1A;border:1px solid #4B44CC}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body.light{color:#C4B5FD}
+.callout-body strong{color:#1E1E2E}
+.callout-body.light strong{color:#fff}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#8B5CF6;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.model-card{border:1.5px solid #E2E8F0;border-radius:12px;padding:18px;margin:8px 0;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.model-card:hover{border-color:#8B5CF6;background:#FAFAFF}
+.mc-icon{font-size:1.6rem}
+.mc-name{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.95rem;color:#1E1E2E;margin-bottom:3px}
+.mc-desc{font-size:.83rem;color:#6B7280}
+.mc-cost{text-align:right}
+.mc-cost .price{font-family:'IBM Plex Mono',monospace;font-size:.95rem;font-weight:700;color:#059669}
+.mc-cost .unit{font-size:.75rem;color:#9CA3AF}
+.applies-to{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px 20px;margin:32px 0}
+.applies-to h4{font-size:.8rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.applies-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#EEF0FF;color:#4B44CC;font-size:.8rem;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #C7D2FE}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="19-knowledge-base.html">Ch 19</a>
+    <a href="enhancement-lightllm.html" class="active">✦ LightLLM</a>
+    <a href="20-playwright.html">Ch 20</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Enhancements</a><span>›</span>
+    LightLLM Model Router
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="enh-badge">Enhancement</span>
+      <span class="applies-badge">Apply after Chapter 18 or later</span>
+    </div>
+    <h1>LightLLM<br><span>Model Router</span></h1>
+    <p style="color:#A5B4FC">Add a self-hosted open-weight model alongside Bedrock. Route cheap utility tasks (summarisation, classification, code review) to your own GPU endpoint. Keep Claude Sonnet 4 for everything that needs it. Cut utility token costs by up to 95%.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">💰 Up to 95% cheaper for utility tasks</span>
+      <span class="meta-tag">🔀 Hot-swap between models</span>
+      <span class="meta-tag">🏗 Non-breaking change</span>
+      <span class="meta-tag">GPU EC2 or EKS node</span>
+    </div>
+  </div>
+
+  <div class="applies-to">
+    <h4>Applies to chapters</h4>
+    <div class="applies-chips">
+      <span class="chip">Ch 5 — Agent Backend</span>
+      <span class="chip">Ch 13 — Session Memory (summarisation)</span>
+      <span class="chip">Ch 18 — Multi-Agent (routing model)</span>
+      <span class="chip">All future chapters using AI calls</span>
+    </div>
+  </div>
+
+  <div class="callout callout-dark">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body light"><strong>Goal:</strong> Add a <code>ModelRouter</code> class that selects between Bedrock and LightLLM based on task type. Every AI call in Neuron goes through the router. Model switching requires one config change — zero code changes.</div>
+  </div>
+
+  <!-- DIAGRAM 1: Which tasks go where -->
+  <h2>Task Routing — What Goes Where</h2>
+  <p>Not every AI call needs Claude Sonnet 4. The expensive model earns its cost on complex reasoning and user-facing responses. Utility tasks — summarisation, classification, batch processing — can run on a self-hosted 70B model at a fraction of the cost.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure L1 — Task Routing: Bedrock vs LightLLM</div>
+    <svg width="100%" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Model router sending complex reasoning tasks to Bedrock Claude and utility tasks to self-hosted LightLLM</title>
+      <defs>
+        <marker id="la" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Model Router central box -->
+      <rect x="240" y="120" width="200" height="60" rx="12" fill="#1E1E2E" stroke="#6C63FF" stroke-width="2"/>
+      <text x="340" y="145" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="800" fill="#C4B5FD">Model Router</text>
+      <text x="340" y="162" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#8A8A9C">task_type → provider selection</text>
+
+      <!-- Incoming tasks (left) -->
+      <text x="24" y="18" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#9CA3AF" letter-spacing="0.06em">INCOMING TASKS</text>
+
+      <rect x="14" y="26" width="190" height="22" rx="5" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="24" y="41" font-family="'Sora',sans-serif" font-size="8.5" fill="#92400E">💬 User chat response</text>
+      <line x1="204" y1="37" x2="238" y2="140" stroke="#F59E0B" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <rect x="14" y="54" width="190" height="22" rx="5" fill="#FEF3C7" stroke="#FDE68A"/>
+      <text x="24" y="69" font-family="'Sora',sans-serif" font-size="8.5" fill="#92400E">🧠 Multi-step tool reasoning</text>
+      <line x1="204" y1="65" x2="238" y2="145" stroke="#F59E0B" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <rect x="14" y="82" width="190" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="24" y="97" font-family="'Sora',sans-serif" font-size="8.5" fill="#065F46">📝 Session summarisation</text>
+      <line x1="204" y1="93" x2="238" y2="150" stroke="#10B981" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <rect x="14" y="110" width="190" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="24" y="125" font-family="'Sora',sans-serif" font-size="8.5" fill="#065F46">🏷 Intent classification</text>
+      <line x1="204" y1="121" x2="238" y2="155" stroke="#10B981" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <rect x="14" y="138" width="190" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="24" y="153" font-family="'Sora',sans-serif" font-size="8.5" fill="#065F46">🔍 Code review / diff analysis</text>
+      <line x1="204" y1="149" x2="238" y2="160" stroke="#10B981" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <rect x="14" y="166" width="190" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="24" y="181" font-family="'Sora',sans-serif" font-size="8.5" fill="#065F46">📊 Batch report generation</text>
+      <line x1="204" y1="177" x2="238" y2="165" stroke="#10B981" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <rect x="14" y="194" width="190" height="22" rx="5" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="24" y="209" font-family="'Sora',sans-serif" font-size="8.5" fill="#065F46">🌐 Web page summarise</text>
+      <line x1="204" y1="205" x2="238" y2="170" stroke="#10B981" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <!-- Output: Bedrock (top right) -->
+      <line x1="440" y1="138" x2="472" y2="110" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#la)"/>
+      <rect x="474" y="26" width="192" height="116" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <rect x="474" y="26" width="192" height="28" rx="12" fill="#D97706"/>
+      <rect x="474" y="42" width="192" height="12" fill="#D97706"/>
+      <text x="570" y="44" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">AWS Bedrock</text>
+      <text x="570" y="70" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#92400E">Claude Sonnet 4</text>
+      <text x="570" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">Complex reasoning</text>
+      <text x="570" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#D97706">User-facing quality</text>
+      <rect x="484" y="110" width="172" height="26" rx="5" fill="#FEF3C7"/>
+      <text x="570" y="122" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#92400E">$3.00 / 1M input tokens</text>
+      <text x="570" y="132" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">Always available · zero infra</text>
+
+      <!-- Output: LightLLM (bottom right) -->
+      <line x1="440" y1="162" x2="472" y2="190" stroke="#10B981" stroke-width="1.5" marker-end="url(#la)"/>
+      <rect x="474" y="158" width="192" height="132" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="474" y="158" width="192" height="28" rx="12" fill="#059669"/>
+      <rect x="474" y="174" width="192" height="12" fill="#059669"/>
+      <text x="570" y="176" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">LightLLM (self-hosted)</text>
+      <text x="570" y="202" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Qwen 2.5-72B / LLaMA 3.1-70B</text>
+      <text x="570" y="218" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">Utility tasks at scale</text>
+      <text x="570" y="234" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">OpenAI-compat API</text>
+      <rect x="484" y="242" width="172" height="26" rx="5" fill="#DCFCE7"/>
+      <text x="570" y="254" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#065F46">~$0.15/hr EC2 g4dn.2xl</text>
+      <text x="570" y="265" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">amortised ~95% cheaper at volume</text>
+
+      <!-- Fallback arrow -->
+      <path d="M570 290 Q 570 298 340 298 Q 310 298 310 290" fill="none" stroke="#6C63FF" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#la)"/>
+      <text x="450" y="296" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6C63FF">fallback to Bedrock if LightLLM is down</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 2: Architecture stack -->
+  <h2>What Gets Added to the Stack</h2>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure L2 — New Services and Classes Added by This Enhancement</div>
+    <svg width="100%" viewBox="0 0 680 220" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>New LightLLM service and ModelRouter class added alongside existing services</title>
+      <defs>
+        <marker id="lb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Existing: mcp-client -->
+      <rect x="14" y="14" width="200" height="192" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="14" y="14" width="200" height="28" rx="12" fill="#2563EB"/>
+      <rect x="14" y="30" width="200" height="12" fill="#2563EB"/>
+      <text x="114" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">neuron-mcp-client</text>
+      <text x="26" y="58"  font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">services/agent.py (existing)</text>
+      <text x="26" y="74"  font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">services/supervisor.py (Ch18)</text>
+      <text x="26" y="90"  font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">services/session.py (existing)</text>
+      <line x1="24" y1="98" x2="202" y2="98" stroke="#BFDBFE" stroke-width="0.5"/>
+      <rect x="24" y="106" width="182" height="22" rx="5" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1.5"/>
+      <text x="115" y="121" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#065F46">+ model_router.py ← NEW</text>
+      <rect x="24" y="134" width="182" height="22" rx="5" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1.5"/>
+      <text x="115" y="149" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" font-weight="700" fill="#065F46">+ lightllm_client.py ← NEW</text>
+      <line x1="24" y1="164" x2="202" y2="164" stroke="#BFDBFE" stroke-width="0.5"/>
+      <text x="26" y="180" font-family="'Sora',sans-serif" font-size="8.5" fill="#1D4ED8">config.py: +4 new fields</text>
+      <text x="26" y="196" font-family="'Sora',sans-serif" font-size="8.5" fill="#1D4ED8">All agents use router.get_client()</text>
+
+      <!-- Arrow -->
+      <line x1="214" y1="110" x2="246" y2="110" stroke="#10B981" stroke-width="1.5" marker-end="url(#lb)"/>
+
+      <!-- New: LightLLM service -->
+      <rect x="248" y="14" width="200" height="192" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="2"/>
+      <rect x="248" y="14" width="200" height="28" rx="12" fill="#059669"/>
+      <rect x="248" y="30" width="200" height="12" fill="#059669"/>
+      <text x="348" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">LightLLM Container ← NEW</text>
+      <text x="258" y="58" font-family="'Sora',sans-serif" font-size="9" fill="#374151">vllm/vllm-openai Docker image</text>
+      <text x="258" y="74" font-family="'Sora',sans-serif" font-size="9" fill="#374151">Qwen 2.5-72B or LLaMA 3.1-70B</text>
+      <text x="258" y="90" font-family="'Sora',sans-serif" font-size="9" fill="#374151">OpenAI-compatible: POST /v1/chat</text>
+      <line x1="258" y1="98" x2="436" y2="98" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="258" y="114" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">Port: 8080</text>
+      <text x="258" y="130" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CA3AF">Local: CPU mode (Ollama)</text>
+      <text x="258" y="146" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CA3AF">Staging: g4dn.xlarge (1 GPU)</text>
+      <text x="258" y="162" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CA3AF">Prod: g5.2xlarge (A10G GPU)</text>
+      <rect x="258" y="174" width="182" height="26" rx="5" fill="#DCFCE7"/>
+      <text x="349" y="187" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#065F46">Same Docker network as other services</text>
+      <text x="349" y="199" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">http://lightllm:8080 from other pods</text>
+
+      <!-- Config -->
+      <rect x="482" y="14" width="184" height="192" rx="12" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+      <rect x="482" y="14" width="184" height="28" rx="12" fill="#4B44CC"/>
+      <rect x="482" y="30" width="184" height="12" fill="#4B44CC"/>
+      <text x="574" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Config (.env)</text>
+      <text x="492" y="58"  font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">MODEL_PROVIDER=</text>
+      <text x="492" y="72"  font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">  bedrock|lightllm|auto</text>
+      <text x="492" y="92"  font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">LIGHTLLM_URL=</text>
+      <text x="492" y="106" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">  http://lightllm:8080</text>
+      <text x="492" y="126" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">LIGHTLLM_MODEL=</text>
+      <text x="492" y="140" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">  qwen2.5-72b-instruct</text>
+      <text x="492" y="160" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#C4B5FD">UTILITY_TASKS=</text>
+      <text x="492" y="174" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">  summarise,classify,</text>
+      <text x="492" y="188" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#86EFAC">  code_review,batch</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 3: Cost savings -->
+  <h2>Cost Savings at Scale</h2>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure L3 — Monthly Cost Comparison: Bedrock-Only vs Hybrid Router</div>
+    <svg width="100%" viewBox="0 0 680 180" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Cost comparison at 100K requests per month showing bedrock only versus hybrid router savings</title>
+
+      <!-- Headers -->
+      <rect x="14" y="14" width="200" height="156" rx="10" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="114" y="36" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#374151">Task type</text>
+      <text x="114" y="54" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">  User responses (20%)</text>
+      <text x="114" y="72" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">  Session summaries (15%)</text>
+      <text x="114" y="90" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">  Intent classification (30%)</text>
+      <text x="114" y="108" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">  Code/PR analysis (20%)</text>
+      <text x="114" y="126" font-family="'Sora',sans-serif" font-size="8.5" fill="#6B7280">  Batch reporting (15%)</text>
+      <line x1="24" y1="136" x2="202" y2="136" stroke="#E2E8F0" stroke-width="0.5"/>
+      <text x="114" y="154" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#374151">  TOTAL (100K req/mo)</text>
+
+      <!-- Bedrock only -->
+      <rect x="228" y="14" width="200" height="156" rx="10" fill="#FEF2F2" stroke="#FECACA"/>
+      <text x="328" y="36" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#DC2626">Bedrock Only</text>
+      <text x="328" y="54" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">$6.00</text>
+      <text x="328" y="72" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">$4.50</text>
+      <text x="328" y="90" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">$0.75 (Haiku)</text>
+      <text x="328" y="108" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">$6.00</text>
+      <text x="328" y="126" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">$4.50</text>
+      <line x1="238" y1="136" x2="416" y2="136" stroke="#FECACA" stroke-width="0.5"/>
+      <text x="328" y="154" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#DC2626">~$21.75/mo</text>
+
+      <!-- Hybrid router -->
+      <rect x="442" y="14" width="224" height="156" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+      <text x="554" y="36" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Hybrid Router</text>
+      <text x="554" y="54" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">$6.00 (Bedrock)</text>
+      <text x="554" y="72" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">$0.22 (LightLLM)</text>
+      <text x="554" y="90" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">$0.15 (LightLLM)</text>
+      <text x="554" y="108" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">$0.30 (LightLLM)</text>
+      <text x="554" y="126" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#059669">$0.22 (LightLLM)</text>
+      <line x1="452" y1="136" x2="654" y2="136" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="554" y="150" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#065F46">~$6.89/mo</text>
+      <text x="554" y="164" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#059669">+ ~$5/mo EC2 GPU = $12/mo total</text>
+    </svg>
+  </div>
+
+  <!-- Supported models -->
+  <h2>Recommended Models</h2>
+
+  <div class="model-card">
+    <div class="mc-icon">🦙</div>
+    <div>
+      <div class="mc-name">Llama 3.1 70B Instruct</div>
+      <div class="mc-desc">Meta's best open model. Excellent at instruction following, summarisation, code. Best all-rounder for utility tasks. Fits on 1× A10G GPU.</div>
+    </div>
+    <div class="mc-cost"><div class="price">~$0.05</div><div class="unit">/1M tokens (self-hosted)</div></div>
+  </div>
+
+  <div class="model-card">
+    <div class="mc-icon">🌐</div>
+    <div>
+      <div class="mc-name">Qwen 2.5 72B Instruct</div>
+      <div class="mc-desc">Alibaba's flagship. Exceptionally strong on code analysis, multilingual, and structured outputs. Often beats LLaMA 3.1 on dev tasks.</div>
+    </div>
+    <div class="mc-cost"><div class="price">~$0.05</div><div class="unit">/1M tokens (self-hosted)</div></div>
+  </div>
+
+  <div class="model-card">
+    <div class="mc-icon">🔬</div>
+    <div>
+      <div class="mc-name">DeepSeek Coder V2</div>
+      <div class="mc-desc">Specialised for code understanding, review, and generation. Best choice if most of your utility tasks involve code analysis.</div>
+    </div>
+    <div class="mc-cost"><div class="price">~$0.05</div><div class="unit">/1M tokens (self-hosted)</div></div>
+  </div>
+
+  <div class="model-card">
+    <div class="mc-icon">🏃</div>
+    <div>
+      <div class="mc-name">Llama 3.2 8B (dev/low-cost)</div>
+      <div class="mc-desc">Tiny but fast. For simple classification and routing only. Runs on CPU (no GPU needed) — perfect for local dev. Not suitable for complex tasks.</div>
+    </div>
+    <div class="mc-cost"><div class="price">~$0.00</div><div class="unit">CPU only — free locally</div></div>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step L1 — Add LightLLM to Docker Compose (Local Dev)</div>
+    <div class="step-title">Use Ollama for CPU-based local testing — no GPU required</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">yaml</span><span class="code-desc">Add to docker-compose.yml</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># docker-compose.yml addition</span>
+<span style="color:#FCD34D">services:</span>
+  <span style="color:#86EFAC">lightllm:</span>
+    <span style="color:#C4B5FD">image:</span> <span style="color:#F9A8D4">ollama/ollama:latest</span>   <span style="color:#6B7280"># CPU mode for local dev</span>
+    <span style="color:#C4B5FD">ports:</span>
+      <span style="color:#F9A8D4">- "8080:11434"</span>
+    <span style="color:#C4B5FD">volumes:</span>
+      <span style="color:#F9A8D4">- ollama-models:/root/.ollama</span>  <span style="color:#6B7280"># cache downloaded models</span>
+    <span style="color:#C4B5FD">networks:</span>
+      <span style="color:#F9A8D4">- neuron-network</span>
+    <span style="color:#C4B5FD">healthcheck:</span>
+      <span style="color:#F9A8D4">test: ["CMD", "curl", "-f", "http://localhost:11434"]</span>
+      <span style="color:#F9A8D4">interval: 30s</span>
+
+<span style="color:#FCD34D">volumes:</span>
+  <span style="color:#86EFAC">ollama-models:</span>   <span style="color:#6B7280"># persist model weights across restarts</span></pre></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Pull the model once (run after make up)</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Pull Llama 3.2 8B for local testing (3.8GB download)</span>
+<span style="color:#86EFAC">docker exec -it neuron-lightllm ollama pull llama3.2:8b</span>
+
+<span style="color:#6B7280"># Or pull Qwen 2.5 7B — better quality, similar size</span>
+<span style="color:#86EFAC">docker exec -it neuron-lightllm ollama pull qwen2.5:7b</span>
+
+<span style="color:#6B7280"># Verify the OpenAI-compat endpoint works</span>
+<span style="color:#86EFAC">curl http://localhost:8080/api/chat \</span>
+  -d '{"model":"qwen2.5:7b","messages":[{"role":"user","content":"hello"}]}'</pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step L2 — Create model_router.py</div>
+    <div class="step-title">The routing brain — picks provider based on task type and config</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Create mcp_client/services/model_router.py for Neuron. This class selects between Bedrock and LightLLM based on task type.<br><br>
+    Config (from Settings): MODEL_PROVIDER (str, 'auto' | 'bedrock' | 'lightllm'), LIGHTLLM_URL (str, 'http://lightllm:8080'), LIGHTLLM_MODEL (str, 'qwen2.5:7b'), UTILITY_TASKS (list[str], ['summarise','classify','code_review','batch']).<br><br>
+    class ModelRouter:<br>
+    - UTILITY_TASKS: set of task types that can use LightLLM<br>
+    - get_bedrock_client(model_id: str) → BedrockClient: returns configured boto3 bedrock-runtime client<br>
+    - get_lightllm_client() → OpenAI: returns openai.OpenAI(base_url=settings.lightllm_url+'/v1', api_key='ollama') using the openai SDK pointing at local endpoint<br>
+    - async get_client(task_type: str) → tuple[client, model_id]: if MODEL_PROVIDER=='bedrock' always returns Bedrock. If 'lightllm' always returns LightLLM. If 'auto': UTILITY_TASKS tasks get LightLLM, others get Bedrock. If LightLLM health check fails, fall back to Bedrock and log warning.<br>
+    - async health_check_lightllm() → bool: GET {lightllm_url}/api/tags timeout 2s.<br><br>
+    Singleton pattern: cache the router in app.state.model_router. Full type hints."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step L3 — Update Session Summarisation to Use LightLLM</div>
+    <div class="step-title">The highest-volume utility task — session rotation summaries now use the cheap model</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Update mcp_client/services/session.py _generate_summary() method to use the ModelRouter instead of calling Bedrock Haiku directly.<br><br>
+    Change: client, model_id = await router.get_client(task_type='summarise'). If client is an OpenAI client (LightLLM), call client.chat.completions.create(model=model_id, messages=[{role:'system', content: summary_prompt}, {role:'user', content: messages_text}]). If client is boto3 bedrock-runtime, use the existing bedrock invoke logic. Both paths return the summary string. Log which provider was used and the duration."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step L4 — Update Intent Classification to Use LightLLM</div>
+    <div class="step-title">SupervisorAgent's Haiku classification call goes through the router</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Update mcp_client/services/supervisor.py _classify_intent() to use router.get_client(task_type='classify') instead of hardcoding Haiku. The prompt and JSON parsing logic stays identical — only the client and model_id change. Add logging: 'Classifying via {provider}: {model_id}'."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step L5 — Deploy LightLLM on EKS GPU Node (Production)</div>
+    <div class="step-title">Add a GPU node group and deploy vLLM with a real 70B model for staging/prod</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Generate the EKS GPU node group config and Helm chart for LightLLM in production.<br><br>
+    1. eksctl nodegroup config: name 'gpu-nodes', instance type g4dn.2xlarge (1× T4 GPU), min 0 max 2, spot instances for cost saving, labels gpu=true, taints nvidia.com/gpu=true:NoSchedule<br>
+    2. helm/neuron/templates/lightllm.yaml: Deployment with nvidia.com/gpu: 1 resource request, image vllm/vllm-openai:latest, args: --model Qwen/Qwen2.5-72B-Instruct-AWQ --quantization awq --max-model-len 8192, tolerations for GPU taint, nodeSelector gpu=true, Service ClusterIP port 8080<br>
+    3. values.yaml addition: lightllm.enabled: false (dev), lightllm.enabled: true (prod), lightllm.model: 'Qwen/Qwen2.5-72B-Instruct-AWQ'<br>
+    Note: AWQ quantization allows 72B model to fit in 24GB GPU VRAM."</em></div>
+  </div>
+
+  <!-- Verify -->
+  <h2>Verify the Router Works</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Test routing behaviour</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Start with LightLLM running (after make up + model pull)</span>
+
+<span style="color:#6B7280"># Check health endpoint shows LightLLM status</span>
+<span style="color:#86EFAC">curl http://localhost:8000/health</span>
+<span style="color:#6B7280"># {"lightllm":"connected","lightllm_model":"qwen2.5:7b", ...}</span>
+
+<span style="color:#6B7280"># Trigger a session rotation — should use LightLLM for summary</span>
+<span style="color:#6B7280"># Watch logs for: "Summarising via lightllm: qwen2.5:7b"</span>
+<span style="color:#86EFAC">docker-compose logs neuron-mcp-client | grep "Summarising via"</span>
+
+<span style="color:#6B7280"># Test fallback: stop LightLLM, make a request</span>
+<span style="color:#86EFAC">docker-compose stop lightllm</span>
+<span style="color:#6B7280"># Should see: "LightLLM unreachable, falling back to Bedrock"</span>
+
+<span style="color:#6B7280"># Switch entire platform to Bedrock-only (e.g. LightLLM outage)</span>
+<span style="color:#6B7280"># Just set in .env:</span>
+<span style="color:#86EFAC">echo "MODEL_PROVIDER=bedrock" >> .env && make restart</span></pre></div>
+  </div>
+
+  <!-- Checkpoint -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>LightLLM container starts and <code>/api/tags</code> returns the pulled model</li>
+      <li>Session summarisation logs show "Summarising via lightllm" not Bedrock</li>
+      <li>Intent classification logs show LightLLM provider for routing calls</li>
+      <li>User-facing chat responses still go to Bedrock (check logs for "via bedrock")</li>
+      <li>Stopping LightLLM container — all tasks fall back to Bedrock gracefully, no errors</li>
+      <li><code>MODEL_PROVIDER=bedrock</code> forces all tasks to Bedrock regardless of task type</li>
+    </ol>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Start small:</strong> Begin with <code>qwen2.5:7b</code> (CPU, no GPU needed) in development. Once you're confident in the routing logic, switch to <code>Qwen2.5-72B-Instruct-AWQ</code> on a GPU node in production. The code changes nothing — only the model name in config.</div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="19-knowledge-base.html"><span class="dir">← Before this</span>Chapter 19: Knowledge Base</a>
+    <a href="20-playwright.html" class="next"><span class="dir">Next Chapter →</span>Chapter 20: Playwright</a>
+  </div>
+</div>
+</body>
+</html>

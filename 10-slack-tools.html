@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 — Slack Tools | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#7C3AED);height:100%;border-radius:20px;width:38.5%}
+.hero{background:linear-gradient(135deg,#FDF2F8,#FAE8FF);border:1px solid #FBCFE8;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(124,58,237,.1),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#7C3AED}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+h3{font-size:1.05rem;font-weight:700;color:#1E1E2E;margin:32px 0 12px}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#7C3AED;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:24px 0}
+.tool-card{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:18px;transition:all .2s}
+.tool-card:hover{border-color:#7C3AED;box-shadow:0 4px 14px rgba(124,58,237,.1);transform:translateY(-2px)}
+.tool-card.new{border-color:#F3E8FF;background:#FDF4FF}
+.tool-card.existing{background:#F8F9FC}
+.tc-badge{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:8px}
+.badge-new{background:#F3E8FF;color:#6B21A8}
+.badge-existing{background:#F1F5F9;color:#6B7280}
+.tc-name{font-family:'IBM Plex Mono',monospace;font-size:.88rem;font-weight:700;color:#6B21A8;margin-bottom:6px}
+.tc-name.old{color:#6B7280}
+.tc-desc{font-size:.82rem;color:#6B7280;line-height:1.5}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="08-github-tools.html">Ch 8</a>
+    <a href="09-jira-tools.html">Ch 9</a>
+    <a href="10-slack-tools.html" class="active">Ch 10</a>
+    <a href="11-dispatcher-pattern.html">Ch 11</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 1</a><span>›</span>
+    Chapter 10 — Slack Tools
+  </div>
+  <div class="progress-label">Chapter 10 of 26 — Phase 1 (Integrations)</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 1 — Getting Started</span>
+      <span class="chapter-tag">Chapter 10 of 26</span>
+    </div>
+    <h1>Slack <span>Tools</span></h1>
+    <p>Expand from 1 basic Slack message tool to 8 — giving the AI the ability to post rich formatted updates, search messages, manage channels, read channel history, and notify users directly. Neuron becomes your team's automated comms layer.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">💰 $0</span>
+      <span class="meta-tag">💬 Slack API</span>
+      <span class="meta-tag">🔧 8 tools total</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Expand <code>slack_tools.py</code> from 1 to 8 tools. Add rich Block Kit messages, channel search, message history, direct messages, and reaction posting. The AI can generate and send a fully formatted sprint update with one prompt.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> 8 Slack tools registered. A single prompt — "Post a sprint summary to #engineering" — generates a rich Block Kit message with sections, bullets, and emoji, and posts it to the real Slack channel.</div>
+  </div>
+
+  <!-- DIAGRAM 10.1: Tool inventory -->
+  <h2>From 1 to 8 — What We Are Adding</h2>
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 10.1 — Slack Tool Inventory: Existing vs New</div>
+    <svg width="100%" viewBox="0 0 680 296" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Slack tools showing 1 existing tool and 7 new tools being added this chapter</title>
+
+      <rect x="14" y="14" width="308" height="28" rx="8" fill="#F1F5F9" stroke="#E2E8F0"/>
+      <text x="168" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#6B7280">EXISTING (Chapter 3) — 1 tool</text>
+      <rect x="358" y="14" width="308" height="28" rx="8" fill="#F3E8FF" stroke="#E9D5FF"/>
+      <text x="512" y="32" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#6B21A8">NEW (This Chapter) — 7 tools</text>
+
+      <!-- Existing -->
+      <rect x="14" y="50" width="308" height="38" rx="8" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="30" y="68" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B7280">slack_send_message</text>
+      <text x="30" y="82" font-family="'Sora',sans-serif" font-size="9" fill="#9CA3AF">Send plain text to a channel</text>
+
+      <!-- New tools -->
+      <rect x="358" y="50" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="374" y="68" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_send_rich_message</text>
+      <text x="374" y="82" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Post formatted Block Kit messages with sections</text>
+
+      <rect x="358" y="94" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="374" y="112" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_search_messages</text>
+      <text x="374" y="126" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Search messages across all channels by keyword</text>
+
+      <rect x="358" y="138" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="374" y="156" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_get_channel_history</text>
+      <text x="374" y="170" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Read recent messages from a channel</text>
+
+      <rect x="358" y="182" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="374" y="200" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_list_channels</text>
+      <text x="374" y="214" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">List channels the bot is a member of</text>
+
+      <rect x="14" y="98" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="30" y="116" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_send_dm</text>
+      <text x="30" y="130" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Send a direct message to a user by email or ID</text>
+
+      <rect x="14" y="142" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="30" y="160" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_add_reaction</text>
+      <text x="30" y="174" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Add an emoji reaction to a message by timestamp</text>
+
+      <rect x="14" y="186" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="30" y="204" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_get_user_info</text>
+      <text x="30" y="218" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Get user display name, email, status by ID</text>
+
+      <rect x="14" y="232" width="308" height="36" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.2"/>
+      <text x="374" y="248" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="700" fill="#6B21A8">slack_update_message</text>
+      <text x="374" y="262" font-family="'Sora',sans-serif" font-size="9" fill="#7C3AED">Edit an existing message using its timestamp</text>
+
+      <rect x="14" y="270" width="652" height="14" rx="4" fill="#F3E8FF" stroke="#E9D5FF"/>
+      <text x="340" y="281" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#6B21A8">Total after this chapter: 8 Slack tools  ·  MCP server tool count: 30</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 10.2: Block Kit anatomy -->
+  <h2>The Key Tool: Rich Messages with Block Kit</h2>
+  <p>Plain text messages are fine for simple updates. But for sprint reports, incident summaries, and release notes, Slack's <em>Block Kit</em> delivers formatted messages with sections, dividers, bold text, bullet lists, and contextual footers. The AI generates the Block Kit JSON from your plain-English description.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 10.2 — Block Kit Message Anatomy</div>
+    <svg width="100%" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Block Kit message anatomy showing the JSON structure on the left and the rendered Slack message on the right</title>
+      <defs>
+        <marker id="ska" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- JSON side -->
+      <rect x="14" y="14" width="286" height="276" rx="12" fill="#1E1E2E" stroke="#2A2A3C"/>
+      <rect x="14" y="14" width="286" height="28" rx="12" fill="#2A2A3C"/>
+      <rect x="14" y="30" width="286" height="12" fill="#2A2A3C"/>
+      <text x="157" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#C4B5FD">Block Kit JSON (input)</text>
+
+      <text x="24" y="56" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">{"blocks": [</text>
+      <text x="24" y="70" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  # Header</text>
+      <text x="24" y="84" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#F9A8D4">  {"type":"header",</text>
+      <text x="24" y="98" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#F9A8D4">   "text":{"type":"plain_text",</text>
+      <text x="24" y="112" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#F9A8D4">           "text":"🚀 Sprint Update"}},</text>
+      <text x="24" y="130" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  # Divider</text>
+      <text x="24" y="144" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  {"type":"divider"},</text>
+      <text x="24" y="162" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  # Section with markdown</text>
+      <text x="24" y="176" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#93C5FD">  {"type":"section",</text>
+      <text x="24" y="190" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#93C5FD">   "text":{"type":"mrkdwn",</text>
+      <text x="24" y="204" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#93C5FD">           "text":"*Done:* 11 ✅\n*In Progress:* 8\n*Blocked:* 2 ⚠️"}},</text>
+      <text x="24" y="222" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  # Context footer</text>
+      <text x="24" y="236" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">  {"type":"context",</text>
+      <text x="24" y="250" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">   "elements":[{"type":"mrkdwn",</text>
+      <text x="24" y="264" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">              "text":"Posted by Neuron AI"}]}</text>
+      <text x="24" y="280" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">]}</text>
+
+      <!-- Arrow -->
+      <line x1="300" y1="155" x2="332" y2="155" stroke="#7C3AED" stroke-width="2" marker-end="url(#ska)"/>
+      <text x="316" y="147" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#7C3AED">Slack</text>
+      <text x="316" y="165" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#7C3AED">renders</text>
+
+      <!-- Rendered message preview -->
+      <rect x="334" y="14" width="332" height="276" rx="12" fill="#F8F9FC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <rect x="334" y="14" width="332" height="28" rx="12" fill="#E2E8F0"/>
+      <rect x="334" y="30" width="332" height="12" fill="#E2E8F0"/>
+      <text x="500" y="31" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="600" fill="#374151">#engineering — Slack</text>
+
+      <!-- Bot avatar + name -->
+      <circle cx="354" cy="72" r="12" fill="#7C3AED"/>
+      <text x="354" y="77" text-anchor="middle" font-size="12" fill="white">⚡</text>
+      <text x="374" y="68" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E1E2E">Neuron</text>
+      <text x="374" y="81" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">Today at 2:34 PM</text>
+
+      <!-- Rendered header block -->
+      <text x="354" y="108" font-family="'Sora',sans-serif" font-size="13" font-weight="800" fill="#1E1E2E">🚀 Sprint Update</text>
+
+      <!-- Divider line -->
+      <line x1="346" y1="120" x2="654" y2="120" stroke="#E2E8F0" stroke-width="1"/>
+
+      <!-- Rendered section -->
+      <text x="354" y="140" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E1E2E">Done:</text>
+      <text x="400" y="140" font-family="'Sora',sans-serif" font-size="10" fill="#374151">11 ✅</text>
+      <text x="354" y="158" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E1E2E">In Progress:</text>
+      <text x="432" y="158" font-family="'Sora',sans-serif" font-size="10" fill="#374151">8</text>
+      <text x="354" y="176" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#1E1E2E">Blocked:</text>
+      <text x="408" y="176" font-family="'Sora',sans-serif" font-size="10" fill="#E11D48">2 ⚠️</text>
+
+      <!-- Context footer -->
+      <text x="354" y="210" font-family="'Sora',sans-serif" font-size="8.5" fill="#9CA3AF">Posted by Neuron AI</text>
+
+      <!-- Reaction -->
+      <rect x="354" y="224" width="50" height="22" rx="10" fill="#EEF0FF" stroke="#C7D2FE"/>
+      <text x="379" y="239" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#4B44CC">👍 3</text>
+      <rect x="412" y="224" width="50" height="22" rx="10" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="437" y="239" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#065F46">🚀 5</text>
+
+      <rect x="346" y="258" width="306" height="22" rx="5" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="499" y="273" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#92400E">AI generates this JSON automatically from plain English</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 10.3: Slack scopes -->
+  <h2>Required Bot Scopes</h2>
+  <p>Each Slack tool needs specific OAuth scopes. You add these to your Slack App and reinstall it to your workspace. Without the right scopes, tool calls return a permission error.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 10.3 — Slack Bot Token Scopes Required Per Tool</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Slack bot token scopes required for each tool category</title>
+
+      <!-- Send messages -->
+      <rect x="14" y="14" width="200" height="170" rx="12" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.5"/>
+      <rect x="14" y="14" width="200" height="30" rx="12" fill="#7C3AED"/>
+      <rect x="14" y="32" width="200" height="12" fill="#7C3AED"/>
+      <text x="114" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Messaging</text>
+      <text x="22" y="58" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B21A8">chat:write</text>
+      <text x="22" y="72" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B21A8">chat:write.public</text>
+      <line x1="22" y1="80" x2="202" y2="80" stroke="#E9D5FF" stroke-width="0.5"/>
+      <text x="22" y="96" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ send_message</text>
+      <text x="22" y="112" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ send_rich_message</text>
+      <text x="22" y="128" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ send_dm</text>
+      <text x="22" y="144" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ add_reaction</text>
+      <text x="22" y="160" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ update_message</text>
+      <rect x="22" y="166" width="184" height="12" rx="3" fill="#F3E8FF"/>
+      <text x="114" y="176" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#6B21A8">Core scopes — always needed</text>
+
+      <!-- Reading -->
+      <rect x="240" y="14" width="200" height="170" rx="12" fill="#EEEDFE" stroke="#C7D2FE" stroke-width="1.5"/>
+      <rect x="240" y="14" width="200" height="30" rx="12" fill="#4B44CC"/>
+      <rect x="240" y="32" width="200" height="12" fill="#4B44CC"/>
+      <text x="340" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Reading</text>
+      <text x="248" y="58" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#26215C">channels:history</text>
+      <text x="248" y="72" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#26215C">channels:read</text>
+      <text x="248" y="86" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#26215C">groups:history</text>
+      <text x="248" y="100" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#26215C">groups:read</text>
+      <line x1="248" y1="108" x2="428" y2="108" stroke="#C7D2FE" stroke-width="0.5"/>
+      <text x="248" y="124" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ get_channel_history</text>
+      <text x="248" y="140" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ list_channels</text>
+      <rect x="248" y="150" width="184" height="24" rx="3" fill="#EEF0FF"/>
+      <text x="340" y="162" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#4B44CC">groups:* needed for private</text>
+      <text x="340" y="174" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#4B44CC">channels your bot is in</text>
+
+      <!-- Search + users -->
+      <rect x="466" y="14" width="200" height="170" rx="12" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <rect x="466" y="14" width="200" height="30" rx="12" fill="#059669"/>
+      <rect x="466" y="32" width="200" height="12" fill="#059669"/>
+      <text x="566" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="white">Search + Users</text>
+      <text x="474" y="58" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">search:read</text>
+      <text x="474" y="72" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">users:read</text>
+      <text x="474" y="86" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#065F46">users:read.email</text>
+      <line x1="474" y1="94" x2="654" y2="94" stroke="#BBF7D0" stroke-width="0.5"/>
+      <text x="474" y="110" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ search_messages</text>
+      <text x="474" y="126" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ get_user_info</text>
+      <text x="474" y="142" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">✓ send_dm (user lookup)</text>
+      <rect x="474" y="152" width="184" height="24" rx="3" fill="#DCFCE7"/>
+      <text x="566" y="164" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#065F46">users:read.email lets you</text>
+      <text x="566" y="176" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#065F46">look up users by email</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 10.4: Power scenario -->
+  <h2>What Becomes Possible — The Sprint Update Scenario</h2>
+  <p>With 8 Slack tools, the AI can go from raw Jira data to a fully formatted, posted Slack update in one request. This is the integration pattern that saves teams 20 minutes every morning.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 10.4 — Cross-Integration Scenario: Jira + Slack Sprint Update</div>
+    <svg width="100%" viewBox="0 0 680 260" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Sequence showing AI using Jira tools to get sprint data then Slack tools to post formatted update</title>
+      <defs>
+        <marker id="skb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- User prompt -->
+      <rect x="14" y="14" width="652" height="30" rx="8" fill="#EEEDFE" stroke="#AFA9EC"/>
+      <text x="340" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#26215C">You type: <em>"Post today's sprint status to #engineering. Include done/in-progress/blocked counts and tag anyone who's blocked."</em></text>
+
+      <!-- Step 1 -->
+      <rect x="14" y="54" width="28" height="22" rx="4" fill="#F59E0B"/>
+      <text x="28" y="69" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">①</text>
+      <rect x="50" y="54" width="616" height="22" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="60" y="67" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#92400E">jira_get_sprint</text>
+      <text x="170" y="67" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(board_id=42) → sprint name, goal, end date</text>
+
+      <!-- Step 2 -->
+      <rect x="14" y="84" width="28" height="22" rx="4" fill="#F59E0B"/>
+      <text x="28" y="99" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">②</text>
+      <rect x="50" y="84" width="616" height="22" rx="4" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="60" y="97" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#92400E">jira_get_sprint_issues</text>
+      <text x="230" y="97" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(sprint_id) → all issues with status + assignee</text>
+
+      <!-- Step 3 -->
+      <rect x="14" y="114" width="28" height="22" rx="4" fill="#7C3AED"/>
+      <text x="28" y="129" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">③</text>
+      <rect x="50" y="114" width="616" height="22" rx="4" fill="#FDF4FF" stroke="#E9D5FF"/>
+      <text x="60" y="127" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#6B21A8">slack_list_channels</text>
+      <text x="210" y="127" font-family="'Sora',sans-serif" font-size="9" fill="#374151">() → confirms #engineering channel ID</text>
+
+      <!-- Step 4 -->
+      <rect x="14" y="144" width="28" height="22" rx="4" fill="#7C3AED"/>
+      <text x="28" y="159" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">④</text>
+      <rect x="50" y="144" width="616" height="22" rx="4" fill="#FDF4FF" stroke="#E9D5FF"/>
+      <text x="60" y="157" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#6B21A8">slack_get_user_info</text>
+      <text x="210" y="157" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(user_id for each blocked assignee) → gets @mention IDs</text>
+
+      <!-- Step 5 -->
+      <rect x="14" y="174" width="28" height="22" rx="4" fill="#7C3AED"/>
+      <text x="28" y="189" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="white">⑤</text>
+      <rect x="50" y="174" width="616" height="22" rx="4" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.5"/>
+      <text x="60" y="187" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#6B21A8">slack_send_rich_message</text>
+      <text x="250" y="187" font-family="'Sora',sans-serif" font-size="9" fill="#374151">(channel=#engineering, blocks=[header, divider, stats, blocked section])</text>
+
+      <!-- Result -->
+      <rect x="14" y="208" width="652" height="44" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+      <text x="340" y="226" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10" font-weight="700" fill="#065F46">Rich formatted sprint update posted to #engineering</text>
+      <text x="340" y="242" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" fill="#059669">5 tool calls across 2 integrations (Jira + Slack) · ~8 seconds · replaces 20 min of manual work</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEP -->
+  <h2>Build Step</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 10.1 — Update Slack App Scopes</div>
+    <div class="step-title">Add the required Bot Token Scopes before writing new tools</div>
+    <div class="step-body">
+      <ol style="padding-left:20px;line-height:2.2;font-size:.93rem;color:#4B5563">
+        <li>Go to <strong>api.slack.com/apps</strong> → select your Neuron app</li>
+        <li>Click <strong>OAuth &amp; Permissions</strong> in the left sidebar</li>
+        <li>Under <strong>Bot Token Scopes</strong> add: <code>chat:write</code>, <code>chat:write.public</code>, <code>channels:history</code>, <code>channels:read</code>, <code>groups:history</code>, <code>groups:read</code>, <code>search:read</code>, <code>users:read</code>, <code>users:read.email</code>, <code>reactions:write</code></li>
+        <li>Click <strong>Reinstall to Workspace</strong> — this generates a new token with the new scopes</li>
+        <li>Copy the new <code>xoxb-...</code> token and update your <code>.env</code> and <code>docker-compose.yml</code></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 10.2 — Add 7 New Tools to slack_tools.py</div>
+    <div class="step-title">Expand from 1 to 8 tools using the same pattern as Chapters 8 and 9</div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I am expanding neuron-mcp-server's Slack tools. Existing: slack_send_message. Tech stack: Python 3.11, FastMCP, slack-sdk WebClient, utils.py with slim_result() and format_error().<br><br>
+    Add these 7 async tools to slack_tools.py, each with @mcp.tool(), docstring, type hints, try/except with format_error():<br><br>
+    1. slack_send_rich_message(channel:str, text:str, blocks:list) → dict — sends a Block Kit message. blocks is a list of block dicts. Returns {ts, channel, permalink}. text is the fallback for notifications.<br>
+    2. slack_search_messages(query:str, count:int=20) → dict — uses client.search_messages(query=query, count=count). Returns slim_result of [{ts, channel_name, text_preview, user, permalink}].<br>
+    3. slack_get_channel_history(channel:str, limit:int=20) → dict — gets recent messages. Returns [{ts, user, text, reaction_count, reply_count}] slim_result max 20.<br>
+    4. slack_list_channels(exclude_archived:bool=True) → dict — lists channels bot is a member of. Returns [{id, name, is_private, member_count, topic}] slim_result max 50.<br>
+    5. slack_send_dm(user_identifier:str, text:str) → dict — opens DM channel then posts. user_identifier can be Slack user_id (Uxxx) or email. If email, calls users.lookupByEmail first. Returns {ts, channel}.<br>
+    6. slack_add_reaction(channel:str, timestamp:str, emoji:str) → dict — adds emoji reaction to a message. emoji without colons e.g. 'thumbsup'. Returns {ok:true}.<br>
+    7. slack_get_user_info(user_id:str) → dict — returns {id, name, display_name, email, status_text, is_bot, tz}.<br>
+    8. slack_update_message(channel:str, timestamp:str, text:str, blocks:list=[]) → dict — edits existing message by ts. Returns {ts, channel}.<br><br>
+    Update register_slack_tools(mcp) to register all 8 tools. Show the complete slack_tools.py."</em></div>
+  </div>
+
+  <!-- Token scope update -->
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>Invite the bot to channels first.</strong> The bot can only post to channels it is a member of. In Slack, go to each channel → <em>Add apps</em> → search for your Neuron app. Or use <code>slack_list_channels()</code> to see which channels it can already access.</div>
+  </div>
+
+  <!-- Verify -->
+  <h2>Verify and Test</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Restart and verify tool count</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Restart to pick up 7 new tools</span>
+<span style="color:#86EFAC">make restart</span>
+
+<span style="color:#6B7280"># Tool count: 30 (12 GitHub + 10 Jira + 8 Slack)</span>
+<span style="color:#86EFAC">curl http://localhost:8001/health</span>
+<span style="color:#6B7280"># {"status":"ok","tools_registered":30}</span></pre></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Prompt</th><th>Tools called</th><th>Verify in Slack</th></tr></thead>
+    <tbody>
+      <tr><td><em>"List the Slack channels you have access to"</em></td><td><code>slack_list_channels</code></td><td>Returns real channel names + member counts</td></tr>
+      <tr><td><em>"Post a test message to #general saying Neuron is online"</em></td><td><code>slack_send_message</code></td><td>Message appears in #general</td></tr>
+      <tr><td><em>"Send a formatted update to #engineering: Sprint 4 running. Done: 11, In Progress: 8, Blocked: 2"</em></td><td><code>slack_send_rich_message</code></td><td>Formatted Block Kit message with bold text appears</td></tr>
+      <tr><td><em>"Search Slack for any messages about the API outage last week"</em></td><td><code>slack_search_messages</code></td><td>Returns real messages matching the query</td></tr>
+      <tr><td><em>"Post sprint status to #engineering then add a 🚀 reaction to the message"</em></td><td><code>send_rich_message</code> + <code>add_reaction</code></td><td>Message posted + rocket reaction added</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>Health check returns <code>tools_registered: 30</code></li>
+      <li><code>slack_list_channels</code> returns real channels from your workspace</li>
+      <li><code>slack_send_rich_message</code> posts a properly formatted Block Kit message</li>
+      <li><code>slack_search_messages</code> returns real results from your workspace history</li>
+      <li>Chained prompt: post + add reaction — both actions complete successfully</li>
+      <li>All 7 new tools have clear docstrings explaining when to use them</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">Block Kit = rich formatted comms</div><div class="lc-body">Plain text Slack messages are fine. Block Kit messages with sections, headers, and bold text get read. The AI generates the JSON structure from your plain-English description.</div></div>
+    <div class="learn-card"><div class="lc-title">Cross-integration chains matter</div><div class="lc-body">The power isn't in Slack tools alone — it's Jira + Slack together. Get sprint data from Jira, format it, post to Slack. One prompt, two integrations, five tool calls.</div></div>
+    <div class="learn-card"><div class="lc-title">Scopes must match tools exactly</div><div class="lc-body">Each new tool requires specific scopes. Add them all at once and reinstall once — not one at a time. Re-installing the Slack app every time you add a tool is tedious.</div></div>
+    <div class="learn-card"><div class="lc-title">Integrations complete — 30 tools</div><div class="lc-body">GitHub (12) + Jira (10) + Slack (8) = 30 tools. The three integrations trilogy is complete. Chapter 11 refactors all 30 down to 6 dispatcher tools — same power, 87% fewer tokens.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="09-jira-tools.html"><span class="dir">← Previous</span>Chapter 9: Jira Tools</a>
+    <a href="11-dispatcher-pattern.html" class="next"><span class="dir">Next Chapter →</span>Chapter 11: Dispatcher Pattern</a>
+  </div>
+</div>
+</body>
+</html>

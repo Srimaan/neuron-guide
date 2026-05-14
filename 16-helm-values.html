@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 — Helm Values & Multi-Environment | Neuron Platform Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#fff;color:#1E1E2E;line-height:1.75;font-size:16px}
+.topnav{background:#fff;border-bottom:1px solid #E2E8F0;padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;color:#1E1E2E;text-decoration:none}
+.topnav-logo .icon{width:28px;height:28px;background:#6C63FF;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.topnav-links{display:flex;gap:6px;flex-wrap:wrap}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:.85rem;font-weight:600;color:#6B7280;text-decoration:none;border:1px solid transparent;transition:all .15s}
+.topnav-links a:hover{background:#F8F9FC;color:#1E1E2E;border-color:#E2E8F0}
+.topnav-links a.active{background:#EEF0FF;color:#4B44CC;border-color:#C7D2FE}
+.page-wrap{max-width:860px;margin:0 auto;padding:48px 32px 100px}
+.breadcrumb{font-size:.8rem;color:#9CA3AF;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:#6C63FF;text-decoration:none;font-weight:600}
+.breadcrumb span{color:#D1D5DB}
+.progress-label{font-size:.75rem;color:#9CA3AF;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:6px;margin:0 0 32px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#6C63FF,#F97316);height:100%;border-radius:20px;width:61.5%}
+.hero{background:linear-gradient(135deg,#FFF7ED,#FEF9C3);border:1px solid #FED7AA;border-radius:20px;padding:48px;margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(249,115,22,.08),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#9CA3AF;background:#F1F5F9;padding:3px 10px;border-radius:6px}
+.hero h1{font-size:2.6rem;font-weight:800;line-height:1.1;color:#1E1E2E;margin-bottom:16px;letter-spacing:-.02em}
+.hero h1 span{color:#EA580C}
+.hero p{font-size:1rem;color:#4B5563;max-width:600px;line-height:1.75}
+.hero-meta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.meta-tag{background:#fff;border:1px solid #E2E8F0;color:#6B7280;font-size:.78rem;font-weight:600;padding:4px 14px;border-radius:20px}
+.callout{border-radius:12px;padding:18px 22px;margin:28px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-info{background:#EFF6FF;border:1px solid #BFDBFE}
+.callout-tip{background:#F0FDF4;border:1px solid #BBF7D0}
+.callout-warn{background:#FFFBEB;border:1px solid #FDE68A}
+.callout-danger{background:#FEF2F2;border:1px solid #FECACA}
+.callout-purple{background:#EEEDFE;border:1px solid #C7D2FE}
+.callout-icon{font-size:1.15rem;flex-shrink:0;margin-top:2px}
+.callout-body{font-size:.94rem;color:#374151;line-height:1.7}
+.callout-body strong{color:#1E1E2E}
+h2{font-size:1.55rem;font-weight:700;color:#1E1E2E;margin:60px 0 18px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;display:flex;align-items:center;gap:12px}
+h2::before{content:'';width:4px;height:22px;background:#6C63FF;border-radius:2px;display:inline-block;flex-shrink:0}
+p{color:#4B5563;line-height:1.8;margin-bottom:18px;font-size:.97rem}
+strong{color:#1E1E2E}
+em{color:#EA580C;font-style:normal;font-weight:600}
+.diagram-card{background:#F8F9FF;border:1.5px solid #E0E7FF;border-radius:16px;padding:28px 22px 20px;margin:36px 0;overflow-x:auto}
+.diagram-label{font-size:.72rem;font-weight:700;color:#6C63FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diagram-label::before{content:'';width:3px;height:13px;background:#6C63FF;border-radius:2px;display:inline-block}
+.code-block{background:#1E1E2E;border-radius:12px;margin:20px 0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.code-header{background:#2A2A3C;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;color:#8A8A9C;text-transform:uppercase;letter-spacing:.08em}
+.code-desc{font-size:.75rem;color:#6B7280}
+.code-body{padding:20px 18px;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#E2E8F0;line-height:1.75;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;background:#EEF0FF;color:#4B44CC;padding:2px 7px;border-radius:4px;font-size:.85em}
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0}
+thead th{background:#6C63FF;color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:.88rem}
+tbody td{padding:11px 16px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8F9FF}
+.step-box{border:1.5px solid #E2E8F0;border-radius:14px;padding:28px 24px 20px;margin:28px 0;position:relative}
+.step-box:hover{border-color:#C7D2FE;box-shadow:0 2px 12px rgba(108,99,255,.06)}
+.step-num{position:absolute;top:-14px;left:20px;background:#6C63FF;color:#fff;font-size:.78rem;font-weight:700;padding:3px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.step-title{font-weight:700;font-size:1rem;color:#1E1E2E;margin-bottom:12px}
+.step-body{font-size:.93rem;color:#4B5563;line-height:1.75}
+.checkpoint{background:#fff;border:2px solid #6C63FF;border-radius:14px;padding:28px;margin:32px 0}
+.checkpoint h3{color:#4B44CC;margin:0 0 16px;font-size:1rem;font-weight:700;border:none}
+.checkpoint ol{padding-left:20px;color:#374151;font-size:.94rem;line-height:2.2}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.learn-card{background:#F8F9FF;border:1px solid #E0E7FF;border-radius:10px;padding:16px}
+.learn-card .lc-title{font-weight:700;font-size:.9rem;color:#4B44CC;margin-bottom:6px}
+.learn-card .lc-body{font-size:.85rem;color:#6B7280;line-height:1.6}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+.ch-nav{display:flex;justify-content:space-between;margin-top:72px;padding-top:32px;border-top:2px solid #E2E8F0;gap:16px}
+.ch-nav a{display:flex;flex-direction:column;background:#F8F9FC;border:1.5px solid #E2E8F0;color:#1E1E2E;padding:16px 22px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.9rem;transition:all .2s;min-width:180px}
+.ch-nav a:hover{border-color:#6C63FF;background:#EEF0FF;color:#4B44CC}
+.ch-nav a .dir{font-size:.72rem;color:#9CA3AF;font-weight:400;margin-bottom:4px}
+.ch-nav a.next{text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="topnav-logo" href="index.html"><div class="icon">⚡</div>Neuron Guide</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a>
+    <a href="14-deploy-eks.html">Ch 14</a>
+    <a href="15-github-actions.html">Ch 15</a>
+    <a href="16-helm-values.html" class="active">Ch 16</a>
+    <a href="17-autoscaling.html">Ch 17</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="breadcrumb">
+    <a href="index.html">Neuron Guide</a><span>›</span>
+    <a href="index.html">Phase 2 — Cloud &amp; CI/CD</a><span>›</span>
+    Chapter 16 — Helm Values &amp; Multi-Environment
+  </div>
+  <div class="progress-label">Chapter 16 of 26 — Phase 2</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="phase-badge">Phase 2 — Cloud &amp; CI/CD</span>
+      <span class="chapter-tag">Chapter 16 of 26</span>
+    </div>
+    <h1>Helm Values &amp;<br><span>Multi-Env</span></h1>
+    <p>One Helm chart, three environments. Use values file layering to run a lean <em>dev</em> cluster at $0, a full-scale <em>staging</em> cluster for testing, and a hardened <em>production</em> cluster for your users — all from the same chart, promoted through the same pipeline.</p>
+    <div class="hero-meta">
+      <span class="meta-tag">⏱ 2–3 hours</span>
+      <span class="meta-tag">🌍 3 environments</span>
+      <span class="meta-tag">📋 Values layering</span>
+      <span class="meta-tag">🔐 Secrets management</span>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Goal:</strong> Structure Helm values across three environments (dev, staging, prod) so the same chart deploys correctly everywhere. Add Kubernetes Secrets management for sensitive values. Update the CI/CD pipeline to promote through environments.</div>
+  </div>
+  <div class="callout callout-info">
+    <div class="callout-icon">🧱</div>
+    <div class="callout-body"><strong>Deliverable:</strong> <code>values-dev.yaml</code>, <code>values-staging.yaml</code>, <code>values-prod.yaml</code>. Each environment gets its own namespace. A PR merge deploys to staging automatically. Promotion to prod requires a manual approval step.</div>
+  </div>
+
+  <!-- DIAGRAM 16.1: Values layering -->
+  <h2>How Helm Values Layering Works</h2>
+  <p>Helm merges values files from left to right. Later files override earlier ones. This means <code>values.yaml</code> holds the defaults and environment-specific files only override what differs.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 16.1 — Helm Values Layering: Base + Environment Override</div>
+    <svg width="100%" viewBox="0 0 680 240" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Helm values layering showing base values yaml merged with environment specific override file producing final rendered values</title>
+      <defs>
+        <marker id="va" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Base values.yaml -->
+      <rect x="14" y="14" width="192" height="212" rx="12" fill="#1E1E2E" stroke="#2A2A3C"/>
+      <rect x="14" y="14" width="192" height="28" rx="12" fill="#2A2A3C"/>
+      <rect x="14" y="30" width="192" height="12" fill="#2A2A3C"/>
+      <text x="110" y="31" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="#86EFAC">values.yaml (base)</text>
+      <text x="24" y="56"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">replicaCount:</text>
+      <text x="24" y="70"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  mcpServer: 1</text>
+      <text x="24" y="84"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  mcpClient: 1</text>
+      <text x="24" y="98"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  frontend: 1</text>
+      <text x="24" y="116" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">resources:</text>
+      <text x="24" y="130" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  mcpClient:</text>
+      <text x="24" y="144" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">    memory: 512Mi</text>
+      <text x="24" y="158" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">    cpu: 250m</text>
+      <text x="24" y="176" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">bedrock:</text>
+      <text x="24" y="190" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  model: claude-sonnet-4</text>
+      <text x="24" y="208" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  maxTokens: 4096</text>
+
+      <!-- Plus sign -->
+      <text x="218" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="28" font-weight="800" fill="#6C63FF">+</text>
+
+      <!-- values-prod.yaml override -->
+      <rect x="240" y="14" width="192" height="212" rx="12" fill="#1E1E2E" stroke="#EA580C" stroke-width="1.5"/>
+      <rect x="240" y="14" width="192" height="28" rx="12" fill="#C2410C"/>
+      <rect x="240" y="30" width="192" height="12" fill="#C2410C"/>
+      <text x="336" y="31" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="white">values-prod.yaml</text>
+      <text x="250" y="56"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">replicaCount:</text>
+      <text x="250" y="70"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  mcpServer: 3</text>
+      <text x="250" y="84"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  mcpClient: 3</text>
+      <text x="250" y="98"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  frontend: 2</text>
+      <text x="250" y="116" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">resources:</text>
+      <text x="250" y="130" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  mcpClient:</text>
+      <text x="250" y="144" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">    memory: 2Gi</text>
+      <text x="250" y="158" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">    cpu: 1000m</text>
+      <text x="250" y="176" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">bedrock:</text>
+      <text x="250" y="190" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  # inherits base model</text>
+      <text x="250" y="208" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  maxTokens: 8192</text>
+
+      <!-- Equals sign -->
+      <text x="446" y="124" text-anchor="middle" font-family="'Sora',sans-serif" font-size="28" font-weight="800" fill="#10B981">=</text>
+
+      <!-- Final rendered result -->
+      <rect x="468" y="14" width="198" height="212" rx="12" fill="#1E1E2E" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="468" y="14" width="198" height="28" rx="12" fill="#059669"/>
+      <rect x="468" y="30" width="198" height="12" fill="#059669"/>
+      <text x="567" y="31" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="700" fill="white">Final (prod)</text>
+      <text x="478" y="56"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">replicaCount:</text>
+      <text x="478" y="70"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  mcpServer: 3 ← override</text>
+      <text x="478" y="84"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  mcpClient: 3 ← override</text>
+      <text x="478" y="98"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  frontend: 2 ← override</text>
+      <text x="478" y="116" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">resources:</text>
+      <text x="478" y="130" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  mcpClient:</text>
+      <text x="478" y="144" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">    memory: 2Gi ← override</text>
+      <text x="478" y="158" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">    cpu: 1000m ← override</text>
+      <text x="478" y="176" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#FCD34D">bedrock:</text>
+      <text x="478" y="190" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#6B7280">  model: claude-sonnet-4</text>
+      <text x="478" y="208" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#86EFAC">  maxTokens: 8192 ← override</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 16.2: Three environments -->
+  <h2>Three Environments — What Differs</h2>
+  <p>Each environment lives in its own Kubernetes namespace and has different resource allocations. Dev is lean to keep costs low. Staging matches production to catch resource-related bugs before they hit users.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 16.2 — Environment Comparison: Dev vs Staging vs Prod</div>
+    <svg width="100%" viewBox="0 0 680 260" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Three environment comparison table showing dev staging and production differences in replicas resources cost and promotion</title>
+
+      <!-- Dev -->
+      <rect x="14" y="14" width="200" height="236" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <rect x="14" y="14" width="200" height="32" rx="12" fill="#2563EB"/>
+      <rect x="14" y="34" width="200" height="12" fill="#2563EB"/>
+      <text x="114" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">dev</text>
+
+      <text x="26" y="60"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Namespace:</text>
+      <text x="26" y="74"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">neuron-dev</text>
+      <text x="26" y="94"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Replicas:</text>
+      <text x="26" y="108" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">all services: 1</text>
+      <text x="26" y="128" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Resources:</text>
+      <text x="26" y="142" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">client: 256Mi / 250m</text>
+      <text x="26" y="158" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">server: 128Mi / 100m</text>
+      <text x="26" y="178" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Bedrock:</text>
+      <text x="26" y="192" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">Haiku (cheaper)</text>
+      <text x="26" y="212" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">Deploy trigger:</text>
+      <text x="26" y="226" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Any branch push</text>
+      <rect x="24" y="236" width="182" height="10" rx="3" fill="#DBEAFE"/>
+      <text x="115" y="244" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#1D4ED8">Cost: ~$0 (local Docker)</text>
+
+      <!-- Staging -->
+      <rect x="240" y="14" width="200" height="236" rx="12" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <rect x="240" y="14" width="200" height="32" rx="12" fill="#D97706"/>
+      <rect x="240" y="34" width="200" height="12" fill="#D97706"/>
+      <text x="340" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">staging</text>
+
+      <text x="252" y="60"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Namespace:</text>
+      <text x="252" y="74"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">neuron-staging</text>
+      <text x="252" y="94"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Replicas:</text>
+      <text x="252" y="108" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">client: 2, server: 2, fe: 1</text>
+      <text x="252" y="128" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Resources:</text>
+      <text x="252" y="142" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">client: 512Mi / 500m</text>
+      <text x="252" y="158" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">server: 256Mi / 250m</text>
+      <text x="252" y="178" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Bedrock:</text>
+      <text x="252" y="192" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">Sonnet 4 (same as prod)</text>
+      <text x="252" y="212" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">Deploy trigger:</text>
+      <text x="252" y="226" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Auto on main merge</text>
+      <rect x="250" y="236" width="182" height="10" rx="3" fill="#FEF3C7"/>
+      <text x="341" y="244" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#92400E">Cost: ~$40/mo (shared nodes)</text>
+
+      <!-- Prod -->
+      <rect x="466" y="14" width="200" height="236" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="466" y="14" width="200" height="32" rx="12" fill="#059669"/>
+      <rect x="466" y="34" width="200" height="12" fill="#059669"/>
+      <text x="566" y="35" text-anchor="middle" font-family="'Sora',sans-serif" font-size="12" font-weight="700" fill="white">production</text>
+
+      <text x="478" y="60"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Namespace:</text>
+      <text x="478" y="74"  font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">neuron-prod</text>
+      <text x="478" y="94"  font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Replicas:</text>
+      <text x="478" y="108" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">client: 3, server: 3, fe: 2</text>
+      <text x="478" y="128" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Resources:</text>
+      <text x="478" y="142" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">client: 2Gi / 1000m</text>
+      <text x="478" y="158" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">server: 512Mi / 500m</text>
+      <text x="478" y="178" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Bedrock:</text>
+      <text x="478" y="192" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#374151">Sonnet 4</text>
+      <text x="478" y="212" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">Deploy trigger:</text>
+      <text x="478" y="226" font-family="'Sora',sans-serif" font-size="8.5" fill="#374151">Manual approval required</text>
+      <rect x="476" y="236" width="182" height="10" rx="3" fill="#DCFCE7"/>
+      <text x="567" y="244" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" font-weight="700" fill="#065F46">Cost: ~$80/mo (dedicated)</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 16.3: Promotion pipeline -->
+  <h2>Environment Promotion Pipeline</h2>
+  <p>Code moves through environments in one direction only. Automatic for dev and staging. Manual approval gate before production. If staging looks bad, you never promote — production is never affected.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 16.3 — Environment Promotion Flow</div>
+    <svg width="100%" viewBox="0 0 680 160" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Environment promotion showing feature branch deploys to dev then merging to main auto deploys to staging then manual approval gates prod</title>
+      <defs>
+        <marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Feature branch -->
+      <rect x="14" y="44" width="110" height="72" rx="10" fill="#F8F9FC" stroke="#E2E8F0"/>
+      <text x="69" y="68" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10">🌿</text>
+      <text x="69" y="86" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#374151">Feature</text>
+      <text x="69" y="100" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9CA3AF">Branch</text>
+      <text x="69" y="112" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#9CA3AF">git push</text>
+
+      <line x1="124" y1="80" x2="148" y2="80" stroke="#3B82F6" stroke-width="2" marker-end="url(#pa)"/>
+      <text x="136" y="72" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#3B82F6">auto</text>
+
+      <!-- Dev -->
+      <rect x="150" y="44" width="110" height="72" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="205" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10">🔵</text>
+      <text x="205" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#1E40AF">dev</text>
+      <text x="205" y="96" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#3B82F6">neuron-dev</text>
+      <text x="205" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">Docker Compose</text>
+
+      <line x1="260" y1="80" x2="284" y2="80" stroke="#F59E0B" stroke-width="2" marker-end="url(#pa)"/>
+      <text x="272" y="68" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#D97706">merge PR</text>
+      <text x="272" y="94" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#D97706">to main</text>
+
+      <!-- Staging -->
+      <rect x="286" y="44" width="110" height="72" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <text x="341" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10">🟡</text>
+      <text x="341" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#92400E">staging</text>
+      <text x="341" y="96" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#D97706">neuron-staging</text>
+      <text x="341" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">EKS auto-deploy</text>
+
+      <!-- Manual approval gate -->
+      <line x1="396" y1="80" x2="416" y2="80" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <rect x="418" y="62" width="68" height="36" rx="8" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1.5"/>
+      <text x="452" y="77" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9">🔒</text>
+      <text x="452" y="91" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" font-weight="700" fill="#92400E">Approve</text>
+      <line x1="486" y1="80" x2="506" y2="80" stroke="#10B981" stroke-width="2" marker-end="url(#pa)"/>
+
+      <!-- Prod -->
+      <rect x="508" y="44" width="110" height="72" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <text x="563" y="65" text-anchor="middle" font-family="'Sora',sans-serif" font-size="10">🟢</text>
+      <text x="563" y="82" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#065F46">production</text>
+      <text x="563" y="96" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#059669">neuron-prod</text>
+      <text x="563" y="110" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7.5" fill="#9CA3AF">EKS manual-deploy</text>
+
+      <!-- Labels below -->
+      <text x="340" y="138" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#9CA3AF">Code always flows left → right · Never backward · Staging always mirrors production config</text>
+      <text x="340" y="152" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" fill="#9CA3AF">Manual approval = human reviews staging smoke tests before production gets the new version</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAM 16.4: Secrets management -->
+  <h2>Secrets Management — What NOT to Put in values.yaml</h2>
+  <p>Values files are checked into Git. Never put sensitive values there. We use Kubernetes Secrets for credentials, with different approaches for each environment.</p>
+
+  <div class="diagram-card">
+    <div class="diagram-label">Figure 16.4 — What Goes in values.yaml vs Kubernetes Secrets</div>
+    <svg width="100%" viewBox="0 0 680 200" role="img" xmlns="http://www.w3.org/2000/svg">
+      <title>Two columns showing safe values that go in values yaml versus sensitive secrets that go in Kubernetes Secrets</title>
+
+      <!-- Safe for values.yaml -->
+      <rect x="14" y="14" width="310" height="176" rx="12" fill="#F0FDF4" stroke="#10B981" stroke-width="1.5"/>
+      <rect x="14" y="14" width="310" height="30" rx="12" fill="#059669"/>
+      <rect x="14" y="32" width="310" height="12" fill="#059669"/>
+      <text x="169" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">✅ Safe — values.yaml (Git)</text>
+
+      <text x="26" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Replica counts and autoscaling config</text>
+      <text x="26" y="76" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Resource requests and limits</text>
+      <text x="26" y="92" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Image registry URL (public ECR)</text>
+      <text x="26" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Service names and internal URLs</text>
+      <text x="26" y="124" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Bedrock model ID</text>
+      <text x="26" y="140" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• DynamoDB table name</text>
+      <text x="26" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Feature flags</text>
+      <rect x="24" y="166" width="292" height="18" rx="5" fill="#DCFCE7"/>
+      <text x="170" y="179" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#065F46">Non-sensitive config — fine to commit to Git</text>
+
+      <!-- Must use Secrets -->
+      <rect x="356" y="14" width="310" height="176" rx="12" fill="#FEF2F2" stroke="#EF4444" stroke-width="1.5"/>
+      <rect x="356" y="14" width="310" height="30" rx="12" fill="#DC2626"/>
+      <rect x="356" y="32" width="310" height="12" fill="#DC2626"/>
+      <text x="511" y="33" text-anchor="middle" font-family="'Sora',sans-serif" font-size="11" font-weight="700" fill="white">🔐 K8s Secrets (never in Git)</text>
+
+      <text x="368" y="60" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• GitHub PAT token</text>
+      <text x="368" y="76" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Jira API token</text>
+      <text x="368" y="92" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Slack Bot Token</text>
+      <text x="368" y="108" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• MCP auth token</text>
+      <text x="368" y="124" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Any password or private key</text>
+      <text x="368" y="140" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Webhook signing secrets</text>
+      <text x="368" y="156" font-family="'Sora',sans-serif" font-size="9" fill="#374151">• Database connection strings (Phase 4)</text>
+      <rect x="366" y="166" width="292" height="18" rx="5" fill="#FECACA"/>
+      <text x="512" y="179" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8.5" font-weight="700" fill="#991B1B">Created via kubectl or AWS Secrets Manager</text>
+    </svg>
+  </div>
+
+  <!-- BUILD STEPS -->
+  <h2>Build Steps</h2>
+
+  <div class="step-box">
+    <div class="step-num">Step 16.1 — Create the Three Values Files</div>
+    <div class="step-title">Write values-dev.yaml, values-staging.yaml, and values-prod.yaml</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"I have a Helm chart at helm/neuron/ with a base values.yaml. Generate three environment override files:<br><br>
+    values-dev.yaml: replicaCount all 1, resources mcpClient 256Mi/250m mcpServer 128Mi/100m frontend 128Mi/100m, bedrock model claude-haiku-4, ingress disabled (use port-forward for dev)<br><br>
+    values-staging.yaml: replicaCount mcpClient 2 mcpServer 2 frontend 1, resources mcpClient 512Mi/500m mcpServer 256Mi/250m, bedrock claude-sonnet-4, ingress enabled with host neuron-staging.yourdomain.com<br><br>
+    values-prod.yaml: replicaCount mcpClient 3 mcpServer 3 frontend 2, resources mcpClient 2Gi/1000m mcpServer 512Mi/500m, bedrock claude-sonnet-4 maxTokens 8192, ingress enabled with host neuron.yourdomain.com, podDisruptionBudget minAvailable 2 for mcpClient, HPA enabled maxReplicas 6 targetCPU 70<br><br>
+    Each file also sets namespace: neuron-{env}. Show only the values that differ from base, not the full file."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 16.2 — Create Integration Secrets</div>
+    <div class="step-title">Store GitHub, Jira, Slack tokens as Kubernetes Secrets</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Create secrets in each namespace</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># Create namespace first</span>
+<span style="color:#86EFAC">kubectl create namespace neuron-staging</span>
+<span style="color:#86EFAC">kubectl create namespace neuron-prod</span>
+
+<span style="color:#6B7280"># Create integration credentials secret (do this per environment)</span>
+<span style="color:#86EFAC">kubectl create secret generic neuron-integrations \</span>
+  --from-literal=GITHUB_TOKEN=ghp_xxx \
+  --from-literal=JIRA_API_TOKEN=xxx \
+  --from-literal=JIRA_DOMAIN=yourco.atlassian.net \
+  --from-literal=JIRA_USER=you@yourco.com \
+  --from-literal=SLACK_BOT_TOKEN=xoxb-xxx \
+  --from-literal=MCP_AUTH_TOKEN=your-random-token \
+  -n neuron-staging
+
+<span style="color:#6B7280"># Repeat for neuron-prod with production credentials</span>
+<span style="color:#6B7280"># (can use different Jira projects / Slack workspaces per env)</span></pre></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 16.3 — Reference Secrets in Helm Templates</div>
+    <div class="step-title">Update Deployment templates to load credentials from the Secret</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Update the Helm deployment template helm/neuron/templates/mcp-server.yaml to load credentials from a Kubernetes Secret named 'neuron-integrations' in the same namespace. The container env section should use envFrom with secretRef instead of hardcoded values. Show the updated env/envFrom section only. Also show how to reference individual keys with valueFrom/secretKeyRef for cases where you want a subset of keys."</em></div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">Step 16.4 — Update deploy.yml for Multi-Environment</div>
+    <div class="step-title">Auto-deploy to staging on main, manual approval gate for prod</div>
+  </div>
+  <div class="callout callout-purple">
+    <div class="callout-icon">✨</div>
+    <div class="callout-body"><strong>Claude Prompt:</strong><br><br>
+    <em>"Update .github/workflows/deploy.yml to support multi-environment deployment.<br><br>
+    After the existing build+push steps add two deployment jobs:<br><br>
+    deploy-staging (runs after build, no approval): helm upgrade --install neuron ./helm/neuron -n neuron-staging --create-namespace -f helm/neuron/values.yaml -f helm/neuron/values-staging.yaml --set image.tag={IMAGE_TAG} --wait --timeout 5m. Post success/failure to GitHub Step Summary.<br><br>
+    deploy-prod (needs: deploy-staging, requires manual approval via GitHub environment protection): same helm command but -n neuron-prod -f values-prod.yaml. Use environment: name: production in the job to trigger the approval gate. Show how to set up the GitHub environment protection rule requiring a reviewer."</em></div>
+  </div>
+
+  <!-- VERIFY -->
+  <h2>Verify Multi-Environment Works</h2>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">bash</span><span class="code-desc">Check both environments are running</span></div>
+    <div class="code-body"><pre><span style="color:#6B7280"># After a main merge triggers the pipeline:</span>
+
+<span style="color:#6B7280"># Check staging deployed</span>
+<span style="color:#86EFAC">kubectl get pods -n neuron-staging</span>
+<span style="color:#6B7280"># 2x mcp-server, 2x mcp-client, 1x frontend — all Running</span>
+
+<span style="color:#6B7280"># Check staging uses the right model (Sonnet 4)</span>
+<span style="color:#86EFAC">kubectl get deployment neuron-mcp-client -n neuron-staging \</span>
+  -o jsonpath='{.spec.template.spec.containers[0].env}'
+
+<span style="color:#6B7280"># Approve prod deployment in GitHub Actions UI</span>
+<span style="color:#6B7280"># Then verify prod:</span>
+<span style="color:#86EFAC">kubectl get pods -n neuron-prod</span>
+<span style="color:#6B7280"># 3x mcp-server, 3x mcp-client, 2x frontend — all Running</span>
+
+<span style="color:#6B7280"># Dry-run to preview what would change before deploying</span>
+<span style="color:#86EFAC">helm upgrade --install neuron ./helm/neuron \</span>
+  -n neuron-prod \
+  -f helm/neuron/values.yaml \
+  -f helm/neuron/values-prod.yaml \
+  --set image.tag=abc1234 \
+  <span style="color:#FCD34D">--dry-run</span></pre></div>
+  </div>
+
+  <!-- Helm commands reference -->
+  <h2>Essential Helm Commands</h2>
+  <table>
+    <thead><tr><th>Command</th><th>What it does</th><th>When to use</th></tr></thead>
+    <tbody>
+      <tr><td><code>helm diff upgrade</code></td><td>Shows what would change before deploying</td><td>Before every production deploy</td></tr>
+      <tr><td><code>helm history neuron -n neuron-prod</code></td><td>Lists all previous releases with revision numbers</td><td>Auditing, pre-rollback check</td></tr>
+      <tr><td><code>helm rollback neuron 3 -n neuron-prod</code></td><td>Rolls back to revision 3</td><td>Emergency — bad deploy in prod</td></tr>
+      <tr><td><code>helm get values neuron -n neuron-prod</code></td><td>Shows currently deployed values</td><td>Debugging what is actually running</td></tr>
+      <tr><td><code>helm template neuron ./helm/neuron -f values-prod.yaml</code></td><td>Renders final YAML without deploying</td><td>Previewing the rendered manifests</td></tr>
+    </tbody>
+  </table>
+
+  <!-- CHECKPOINT -->
+  <h2>Checkpoint</h2>
+  <div class="checkpoint">
+    <h3>✅ All of these must be true:</h3>
+    <ol>
+      <li>Three values files exist: <code>values-dev.yaml</code>, <code>values-staging.yaml</code>, <code>values-prod.yaml</code></li>
+      <li>Merging to main auto-deploys to <code>neuron-staging</code> namespace</li>
+      <li>Production deploy requires a manual approval in GitHub Actions</li>
+      <li>Integration credentials are in a Kubernetes Secret, not in values files</li>
+      <li><code>kubectl get pods -n neuron-staging</code> shows correct replica counts (2×2×1)</li>
+      <li><code>helm rollback</code> successfully reverts a staging deployment</li>
+    </ol>
+  </div>
+
+  <!-- WHAT YOU LEARNED -->
+  <h2>What You Have Learned</h2>
+  <div class="learn-grid">
+    <div class="learn-card"><div class="lc-title">Values layering keeps DRY</div><div class="lc-body">Base values.yaml holds 90% of config. Environment files only override what differs. One change in the base applies to all environments — no copy-paste drift between envs.</div></div>
+    <div class="learn-card"><div class="lc-title">Staging must mirror prod config</div><div class="lc-body">Staging uses the same Bedrock model, same resource ratios, same K8s config as prod — just fewer replicas. If staging passes, prod will pass. Different configs defeat the purpose.</div></div>
+    <div class="learn-card"><div class="lc-title">Manual approval gate = safety</div><div class="lc-body">Automated staging + manual prod approval is the sweet spot. You get the speed of automation without the risk of automatic production deploys after every commit.</div></div>
+    <div class="learn-card"><div class="lc-title">Secrets never touch Git</div><div class="lc-body">API tokens and passwords live in Kubernetes Secrets, created once via kubectl and never stored anywhere else. Rotation means updating one Secret — no code changes, no redeploys.</div></div>
+  </div>
+
+  <div class="ch-nav">
+    <a href="15-github-actions.html"><span class="dir">← Previous</span>Chapter 15: GitHub Actions</a>
+    <a href="17-autoscaling.html" class="next"><span class="dir">Next Chapter →</span>Chapter 17: Autoscaling</a>
+  </div>
+</div>
+</body>
+</html>
